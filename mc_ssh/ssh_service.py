@@ -9,11 +9,14 @@ import sys
 from . import interactive
 
 
+TIMEOUT = 10
+
+
 def ssh_exec(hostname, username, token, port, command):
     ssh_client = __ssh_connect(hostname, username, token, port)
     if ssh_client is not None:
         for c in command.split(";"):
-            stdin, stdout, stderr = ssh_client.exec_command(c)
+            stdin, stdout, stderr = ssh_client.exec_command(c, timeout=TIMEOUT)
             for output in [stdout, stderr]:
                 for line in output:
                     print(line.strip('\n'))
@@ -51,11 +54,13 @@ def __ssh_connect(hostname, username, token, port):
         ssh_client.load_system_host_keys()
         try:
             ssh_client.connect(hostname, port=port,
-                               username=username, password=token)
+                               username=username, password=token,
+                               timeout=TIMEOUT)
         except paramiko.ssh_exception.SSHException as e:
             if "not found in known_hosts" in e.__str__():
                 __host_key_verification(ssh_client, hostname)
-                ssh_client.connect(hostname, username=username, password=token)
+                ssh_client.connect(hostname, username=username, password=token,
+                                   timeout=TIMEOUT)
             else:
                 raise e
         return ssh_client
