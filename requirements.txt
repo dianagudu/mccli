@@ -1,0 +1,6 @@
+paramiko
+scp
+liboidcagent
+requests
+Click
+click-option-group
