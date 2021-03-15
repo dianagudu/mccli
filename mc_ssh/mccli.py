@@ -24,6 +24,7 @@ def cli():
 
 
 @cli.command(name="ssh", short_help="open a login shell or execute a command via ssh")
+@click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
 @click.option("--mc-endpoint", help="motley_cue API endpoint, default: https://HOSTNAME")
 @optgroup.group("Access Token sources",
                 # help="the sources for retrieving the access token",
@@ -41,7 +42,7 @@ def cli():
 # @optgroup
 @click.argument("hostname")
 @click.argument("command", required=False, default=None)
-def ssh(mc_endpoint, oa_account, token, p, hostname, command):
+def ssh(dry_run, mc_endpoint, oa_account, token, p, hostname, command):
     if mc_endpoint is None:
         mc_endpoint = f"https://{hostname}"
 
@@ -51,10 +52,21 @@ def ssh(mc_endpoint, oa_account, token, p, hostname, command):
         if token is None:
             raise Exception("No access token found.")
         username = local_username(mc_endpoint, token)
-        if command is None:
-            ssh_interactive(hostname, username, token, p)
+
+        if dry_run:
+            if oa_account:
+                password = f"`oidc-token {oa_account}`"
+            else:
+                password = token
+            sshpass_cmd = f"sshpass -P 'Access Token' -p {password} ssh {username}@{hostname}"
+            if command:
+                sshpass_cmd = f"{sshpass_cmd} '{command}'"
+            print(sshpass_cmd)
         else:
-            ssh_exec(hostname, username, token, p, command)
+            if command is None:
+                ssh_interactive(hostname, username, token, p)
+            else:
+                ssh_exec(hostname, username, token, p, command)
     except Exception as e:
         print(e)
 
