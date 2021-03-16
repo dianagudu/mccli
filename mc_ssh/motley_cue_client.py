@@ -33,5 +33,5 @@ def local_username(mc_endpoint, token):
                 return resp.json()["credentials"]["ssh_user"]
         else:
             return output["message"].split()[1]
-    print(resp.json())
+    print(f"[ERROR] {resp.json()['detail']}")
     resp.raise_for_status()

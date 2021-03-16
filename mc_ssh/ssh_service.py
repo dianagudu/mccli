@@ -38,12 +38,27 @@ def scp_put(hostname, username, token, port, src, dest,
     ssh_client = __ssh_connect(hostname, username, token, port)
     scp_client = scp.SCPClient(
         ssh_client.get_transport(), progress4=__progress4)
-    # if os.path.isdir(path):
     if recursive:
         scp_client.put(src, recursive=True, remote_path=dest,
                        preserve_times=preserve_times)
     else:
+        # TODO: error message for scp-ing a directory without -r should be:
+        # "scp: <src>: not a regular file"
         scp_client.put(src, dest, preserve_times=preserve_times)
+
+    scp_client.close()
+
+
+def scp_get(hostname, username, token, port, src, dest,
+            recursive=False, preserve_times=False):
+    ssh_client = __ssh_connect(hostname, username, token, port)
+    scp_client = scp.SCPClient(
+        ssh_client.get_transport(), progress4=__progress4)
+    if recursive:
+        scp_client.get(src, recursive=True, remote_path=dest,
+                       preserve_times=preserve_times)
+    else:
+        scp_client.get(src, dest, preserve_times=preserve_times)
 
     scp_client.close()
 
