@@ -15,7 +15,8 @@ TIMEOUT = 10
 def ssh_exec(hostname, username, token, port, command):
     ssh_client = __ssh_connect(hostname, username, token, port)
     if ssh_client is not None:
-        stdin, stdout, stderr = ssh_client.exec_command(command, timeout=TIMEOUT)
+        stdin, stdout, stderr = ssh_client.exec_command(
+            command, timeout=TIMEOUT)
         for output in [stdout, stderr]:
             for line in output:
                 print(line.strip('\n'))
@@ -34,10 +35,6 @@ def ssh_interactive(hostname, username, token, port):
 
 def scp_put(hostname, username, token, port, src, dest,
             recursive=False, preserve_times=False):
-    if not os.path.exists(src):
-        raise Exception(f"{src}: No such file or directory")
-    if os.path.isdir(src) and not recursive:
-        raise Exception(f"{src}: not a regular file")
     ssh_client = __ssh_connect(hostname, username, token, port)
     scp_client = scp.SCPClient(
         ssh_client.get_transport(), progress4=__progress4)

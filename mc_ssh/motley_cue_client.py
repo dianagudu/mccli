@@ -23,15 +23,19 @@ def info(mc_endpoint, token):
 
 
 def local_username(mc_endpoint, token):
-    resp = get_status(mc_endpoint, token)
-
-    if resp.status_code == requests.codes.ok:
-        output = resp.json()
-        if output["state"] == "not_deployed":
-            resp = deploy(mc_endpoint, token)
-            if resp.status_code == requests.codes.ok:
-                return resp.json()["credentials"]["ssh_user"]
+    try:
+        resp = get_status(mc_endpoint, token)
+        if resp.status_code == requests.codes.ok:
+            output = resp.json()
+            if output["state"] == "not_deployed":
+                resp = deploy(mc_endpoint, token)
+                if resp.status_code == requests.codes.ok:
+                    return resp.json()["credentials"]["ssh_user"]
+            else:
+                return output["message"].split()[1]
         else:
-            return output["message"].split()[1]
-    print(f"[ERROR] {resp.json()['detail']}")
-    resp.raise_for_status()
+            print(f"[motley_cue] {resp.json()['detail']}")
+            resp.raise_for_status()
+    except Exception as e:
+        print(f"[motley_cue] {e}")
+    raise Exception("Failed to get ssh username")

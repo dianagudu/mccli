@@ -76,9 +76,12 @@ def __init_token(oa_account, token):
     otherwise use set token
     """
     if oa_account is not None:
-        token = agent.get_access_token(oa_account)
+        try:
+            token = agent.get_access_token(oa_account)
+        except Exception:
+            raise Exception(f"Failed to get access token for oidc-agent account '{oa_account}'")
     if token is None:
-        raise Exception("No access token found.")
+        raise Exception("No access token or oidc-agent account set")
     return token
 
 
@@ -226,6 +229,12 @@ def scp(dry_run, mc_endpoint, oa_account, token, port,
             else:
                 sshpass_cmd += f" {dest_path}"
             print(sshpass_cmd)
+    except PermissionError as e:
+        print(f"{e.filename.decode('utf-8')}: Permission denied")
+    except IsADirectoryError as e:
+        print((f"{e.filename}: not a regular file"))
+    except FileNotFoundError as e:
+        print(f"{e.filename}: No such file or directory")
     except Exception as e:
         print(e)
 
