@@ -15,11 +15,10 @@ TIMEOUT = 10
 def ssh_exec(hostname, username, token, port, command):
     ssh_client = __ssh_connect(hostname, username, token, port)
     if ssh_client is not None:
-        for c in command.split(";"):
-            stdin, stdout, stderr = ssh_client.exec_command(c, timeout=TIMEOUT)
-            for output in [stdout, stderr]:
-                for line in output:
-                    print(line.strip('\n'))
+        stdin, stdout, stderr = ssh_client.exec_command(command, timeout=TIMEOUT)
+        for output in [stdout, stderr]:
+            for line in output:
+                print(line.strip('\n'))
         ssh_client.close()
 
 
@@ -35,17 +34,15 @@ def ssh_interactive(hostname, username, token, port):
 
 def scp_put(hostname, username, token, port, src, dest,
             recursive=False, preserve_times=False):
+    if not os.path.exists(src):
+        raise Exception(f"{src}: No such file or directory")
+    if os.path.isdir(src) and not recursive:
+        raise Exception(f"{src}: not a regular file")
     ssh_client = __ssh_connect(hostname, username, token, port)
     scp_client = scp.SCPClient(
         ssh_client.get_transport(), progress4=__progress4)
-    if recursive:
-        scp_client.put(src, recursive=True, remote_path=dest,
-                       preserve_times=preserve_times)
-    else:
-        # TODO: error message for scp-ing a directory without -r should be:
-        # "scp: <src>: not a regular file"
-        scp_client.put(src, dest, preserve_times=preserve_times)
-
+    scp_client.put(src, dest,
+                   recursive=recursive, preserve_times=preserve_times)
     scp_client.close()
 
 
@@ -54,12 +51,8 @@ def scp_get(hostname, username, token, port, src, dest,
     ssh_client = __ssh_connect(hostname, username, token, port)
     scp_client = scp.SCPClient(
         ssh_client.get_transport(), progress4=__progress4)
-    if recursive:
-        scp_client.get(src, recursive=True, remote_path=dest,
-                       preserve_times=preserve_times)
-    else:
-        scp_client.get(src, dest, preserve_times=preserve_times)
-
+    scp_client.get(src, dest,
+                   recursive=recursive, preserve_times=preserve_times)
     scp_client.close()
 
 
