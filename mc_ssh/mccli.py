@@ -135,7 +135,7 @@ def ssh(dry_run, mc_endpoint, oa_account, token, p, hostname, command):
             else:
                 password = token
             ssh_opts = ""
-            if p:
+            if p and p != 22:
                 ssh_opts += f" -p {p}"
             sshpass_cmd = f"sshpass -P 'Access Token' -p {password} ssh {ssh_opts} {username}@{hostname}"
             if command:
@@ -183,7 +183,7 @@ def scp(dry_run, mc_endpoint, oa_account, token, port,
             scp_opts += " -r"
         if preserve_times:
             scp_opts += " -p"
-        if port:
+        if port and port != 22:
             scp_opts += f" -P {port}"
         sshpass_cmd = f"sshpass -P 'Access Token' -p {password} scp {scp_opts}"
     try:
@@ -230,7 +230,7 @@ def scp(dry_run, mc_endpoint, oa_account, token, port,
         print(e)
 
 
-@cli.command(name="sftp", short_help="")
+@cli.command(name="sftp", short_help="--- Not implemented ---")
 def sftp():
     print("Not implemented.")
 
