@@ -3,7 +3,7 @@ SSH client wrapper for SSH with access token
 
 ## Installation
 
-<!-- - Install mc_ssh from pypi: `pip install mc_ssh` -->
+- Install mc_ssh from pypi: `pip install mc_ssh`
 - Install mc_ssh from source:
     - Install prerequisites: `pip install -r requirements.txt`
     - Build package: `./setup.py sdist`
@@ -30,7 +30,7 @@ Options:
 
 Commands:
   scp   secure file copy
-  sftp
+  sftp  --- Not implemented ---
   ssh   open a login shell or execute a command via ssh
 
 $ mccli ssh --help
@@ -38,6 +38,7 @@ $ mccli ssh --help
 Usage: mccli ssh [OPTIONS] HOSTNAME [COMMAND]
 
 Options:
+  --dry-run                       print sshpass command and exit
   --mc-endpoint TEXT              motley_cue API endpoint, default:
                                   https://HOSTNAME
 
@@ -52,7 +53,24 @@ Options:
                                   OIDC_ACCESS_TOKEN, WATTS_TOKEN,
                                   WATTSON_TOKEN]
 
-  SSH options:                    supported options to be passed to SSH
+  ssh options:                    supported options to be passed to SSH
     -p <int>                      port to connect to on remote host
   --help                          Show this message and exit.
+```
+
+First, you'll need an OIDC Access Token to authenticate.
+You might want to check out the [oidc-agent](https://github.com/indigo-dc/oidc-agent) for that.
+
+After you get the `oidc-agent` running, configure an account for your OP.
+For example, if you generated an account named `egi` for the [EGI AAI](https://aai.egi.eu/oidc), you can set this in an environment variable:
+```sh
+export OIDC_AGENT_ACCOUNT=egi
+```
+Then, assuming that the ssh server has a [motley_cue](https://github.com/dianagudu/motley_cue) instance running at https://$SSH_SERVER, you can connect to the ssh server simply by:
+```sh
+mccli ssh $SSH_SERVER
+```
+Or get the sshpass command that you can run instead:
+```sh
+mccli ssh $SSH_SERVER --dry-run
 ```
