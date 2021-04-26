@@ -39,8 +39,11 @@ Usage: mccli ssh [OPTIONS] HOSTNAME [COMMAND]
 
 Options:
   --dry-run                       print sshpass command and exit
-  --mc-endpoint TEXT              motley_cue API endpoint, default:
-                                  https://HOSTNAME
+  --mc-endpoint TEXT              motley_cue API endpoint, default URLs:
+                                  https://HOSTNAME, http://HOSTNAME:8080
+
+  --insecure                      ignore verifying the SSL certificate for
+                                  motley_cue endpoint, NOT RECOMMENDED
 
   Access Token sources: [mutually_exclusive]
     --oa-account TEXT             name of configured account in oidc-agent,
