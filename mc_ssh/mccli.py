@@ -4,6 +4,9 @@ import click
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup
 import liboidcagent as agent
 import re
+import requests
+from requests.exceptions import SSLError
+from requests.packages import urllib3
 
 from .motley_cue_client import local_username
 from .ssh_service import ssh_exec, ssh_interactive, scp_put, scp_get
@@ -85,12 +88,51 @@ def __init_token(oa_account, token):
     return token
 
 
-def __init_user(mc_endpoint, token, hostname):
+def __init_endpoint(hostname, verify=True):
+    """Initialise motley_cue endpoint when not specified.
+    Default value: https://HOSTNAME
+    If this is not reachable, issue warning and try: http://HOSTNAME:8080
+    If also not reachable, exit and ask user to specify it using --mc-endpoint
+    """
+    # try https
+    mc_endpoint = f"https://{hostname}"
+    try:
+        response = requests.get(mc_endpoint, verify=verify)
+        if response.status_code == 200:
+            if not verify:
+                print(f"InsecureRequestWarning: Unverified HTTPS request is being made to host '{hostname}'. Adding certificate verification is strongly advised.")
+            return mc_endpoint
+    except SSLError:
+        msg = "Error: SSL certificate verification failed\n" + \
+              "Use --insecure if you wish to ignore SSL certificate verification"
+        raise Exception(msg)
+    except Exception:
+        pass
+    # try http on port 8080
+    mc_endpoint = f"http://{hostname}:8080"
+    try:
+        response = requests.get(mc_endpoint)
+        if response.status_code == 200:
+            # issue warning
+            print(
+                f"Warning: using unencrypted motley_cue endpoint: http://{hostname}:8080")
+            return mc_endpoint
+    except Exception:
+        pass
+    # ask user to specify endpoint
+    msg = f"No motley_cue service found on host '{hostname}' on port 443 or 8080\n" + \
+        "Please specify motley_cue endpoint via --mc-endpoint"
+    raise Exception(msg)
+
+
+def __init_user(mc_endpoint, token, hostname, verify=True):
     """Get remote username, will be deployed if it doesn't exist.
     """
+    if not verify:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     if mc_endpoint is None:
-        mc_endpoint = f"https://{hostname}"
-    username = local_username(mc_endpoint, token)
+        mc_endpoint = __init_endpoint(hostname, verify=verify)
+    username = local_username(mc_endpoint, token, verify=verify)
     return username
 
 
@@ -111,7 +153,9 @@ def cli():
 
 @cli.command(name="ssh", short_help="open a login shell or execute a command via ssh")
 @click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
-@click.option("--mc-endpoint", help="motley_cue API endpoint, default: https://HOSTNAME")
+@click.option("--mc-endpoint", help="motley_cue API endpoint, default URLs: https://HOSTNAME, http://HOSTNAME:8080")
+@click.option("--insecure", is_flag=True, default=False,
+              help="ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED")
 @optgroup.group("Access Token sources",
                 # help="the sources for retrieving the access token",
                 cls=MutuallyExclusiveOptionGroup)
@@ -128,10 +172,11 @@ def cli():
 # @optgroup
 @click.argument("hostname")
 @click.argument("command", required=False, default=None)
-def ssh(dry_run, mc_endpoint, oa_account, token, p, hostname, command):
+def ssh(dry_run, mc_endpoint, insecure, oa_account, token, p, hostname, command):
     try:
         token = __init_token(oa_account, token)
-        username = __init_user(mc_endpoint, token, hostname)
+        username = __init_user(
+            mc_endpoint, token, hostname, verify=not insecure)
         if dry_run:
             if oa_account:
                 password = f"`oidc-token {oa_account}`"
@@ -155,7 +200,9 @@ def ssh(dry_run, mc_endpoint, oa_account, token, p, hostname, command):
 
 @cli.command(name="scp", short_help="secure file copy")
 @click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
-@click.option("--mc-endpoint", help="motley_cue API endpoint, default: https://HOSTNAME")
+@click.option("--mc-endpoint", help="motley_cue API endpoint, default URLs: https://HOSTNAME, http://HOSTNAME:8080")
+@click.option("--insecure", is_flag=True, default=False,
+              help="ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED")
 @optgroup.group("Access Token sources",
                 # help="the sources for retrieving the access token",
                 cls=MutuallyExclusiveOptionGroup)
@@ -174,7 +221,7 @@ def ssh(dry_run, mc_endpoint, oa_account, token, p, hostname, command):
                  help="preserve modification times and access times from the original file")
 @click.argument("source", nargs=-1, callback=validate_scp_source)
 @click.argument("target", callback=validate_scp_target)
-def scp(dry_run, mc_endpoint, oa_account, token, port,
+def scp(dry_run, mc_endpoint, insecure, oa_account, token, port,
         recursive, preserve_times, source, target):
     if dry_run:
         if oa_account:
@@ -195,14 +242,16 @@ def scp(dry_run, mc_endpoint, oa_account, token, port,
         dest_is_remote = dest_host is not None
         if dest_is_remote:
             token = __init_token(oa_account, token)
-            username = __init_user(mc_endpoint, token, dest_host)
+            username = __init_user(
+                mc_endpoint, token, dest_host, verify=not insecure)
         for src in source:
             src_path = src.get("path", ".")
             src_host = src.get("host", None)
             src_is_remote = src_host is not None
             if src_is_remote:
                 token = __init_token(oa_account, token)
-                username = __init_user(mc_endpoint, token, src_host)
+                username = __init_user(
+                    mc_endpoint, token, src_host, verify=not insecure)
 
             if not src_is_remote and not dest_is_remote:
                 raise Exception(
