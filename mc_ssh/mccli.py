@@ -81,8 +81,8 @@ def __init_token(oa_account, token):
     if oa_account is not None:
         try:
             token = agent.get_access_token(oa_account)
-        except Exception:
-            raise Exception(f"Failed to get access token for oidc-agent account '{oa_account}'")
+        except Exception as e:
+            raise Exception(f"Failed to get access token for oidc-agent account '{oa_account}': {e}")
     if token is None:
         raise Exception("No access token or oidc-agent account set")
     return token
