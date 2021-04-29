@@ -86,11 +86,11 @@ def __host_key_verification(ssh_client, hostname):
 
     # Treat missing/bad hosts files as unknown host
     try:
-        host_keys = ssh_client.get_host_keys()
+        known_host_keys = paramiko.hostkeys.HostKeys(filename=known_hosts_file)
     except Exception:
-        host_keys = paramiko.hostkeys.HostKeys()
+        known_host_keys = paramiko.hostkeys.HostKeys()
 
-    if host_keys.check(hostname, remote_key) is False:
+    if known_host_keys.check(hostname, remote_key) is False:
         print("The authenticity of host '"
               + hostname
               + "' can't be established.")
@@ -119,10 +119,11 @@ def __host_key_verification(ssh_client, hostname):
         if answer in ('no', 'n'):
             raise Exception("Host key verification failed.")
 
-        host_keys.add(hostname,
-                      remote_key.get_name(),
-                      remote_key)
-        host_keys.save(known_hosts_file)
+        known_host_keys.add(hostname,
+                            remote_key.get_name(),
+                            remote_key)
+        known_host_keys.save(known_hosts_file)
+        ssh_client.load_host_keys(known_hosts_file)
 
 
 def __progress(filename, size, sent):
