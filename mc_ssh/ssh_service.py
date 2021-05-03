@@ -1,6 +1,8 @@
 import os
 import hashlib
 import base64
+import socket
+import getpass
 import paramiko
 from paramiko.py3compat import input
 import scp
@@ -56,14 +58,10 @@ def scp_get(hostname, username, token, port, src, dest,
 
 def __ssh_connect(hostname, username, token, port):
     try:
-        ssh_client = paramiko.SSHClient()
+        ssh_client = McSSHClient()
         ssh_client.load_system_host_keys()
-        host_key_policy = AskUserHostKeyPolicy(hostname, port)
-        ssh_client.set_missing_host_key_policy(host_key_policy)
-        ssh_client.connect(hostname, port=port,
-                           username=username, password=token,
-                           look_for_keys=False, allow_agent=False,
-                           timeout=TIMEOUT)
+        ssh_client.connect(hostname, username, token,
+                           port=port, timeout=TIMEOUT)
         return ssh_client
     except Exception as e:
         print(e)
@@ -75,11 +73,109 @@ def __ssh_connect(hostname, username, token, port):
     return None
 
 
-class AskUserHostKeyPolicy(paramiko.client.MissingHostKeyPolicy):
-    def __init__(self, hostname, port):
-        self.hostname = hostname
-        self.port = port
+class McSSHClient(paramiko.SSHClient):
+    def __init__(self):
+        super().__init__()
+        self.set_missing_host_key_policy(AskUserHostKeyPolicy())
 
+    def connect(self, hostname, username, token, port=SSH_PORT, timeout=None):
+        """
+        Override connect function of SSHClient to only use keyboard-interactive
+        authentication via OIDC tokens.
+
+        Connect to an SSH server and authenticate to it.  The server's host key
+        is checked against the system host keys (see L{load_system_host_keys})
+        and any local host keys (L{load_host_keys}).  If the server's hostname
+        is not found in either set of host keys, the missing host key policy
+        is used (see L{set_missing_host_key_policy}).  The default policy is
+        to ask the user.
+
+        @param hostname: the server to connect to
+        @type hostname: str
+        @param username: the username to authenticate as
+        @type username: str
+        @param token: an OIDC token to use for authentication
+        @type token: str
+        @param port: the server port to connect to
+        @type port: int
+        @param timeout: an optional timeout (in seconds) for the TCP connect
+        @type timeout: float
+
+        @raise BadHostKeyException: if the server's host key could not be
+            verified
+        @raise AuthenticationException: if authentication failed
+        @raise SSHException: if there was any other error connecting or
+            establishing an SSH session
+        @raise socket.error: if a socket error occurred while connecting
+        """
+        # create sock
+        for (family, socktype, proto, canonname, sockaddr) in socket.getaddrinfo(hostname, port, socket.AF_UNSPEC, socket.SOCK_STREAM):
+            if socktype == socket.SOCK_STREAM:
+                af = family
+                addr = sockaddr
+                break
+        else:
+            # some OS like AIX don't indicate SOCK_STREAM support, so just guess. :(
+            af, _, _, _, addr = socket.getaddrinfo(
+                hostname, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
+        sock = socket.socket(af, socket.SOCK_STREAM)
+        if timeout is not None:
+            try:
+                sock.settimeout(timeout)
+            except Exception:
+                pass
+        paramiko.util.retry_on_signal(lambda: sock.connect(addr))
+
+        t = self._transport = paramiko.transport.Transport(sock)
+        if self._log_channel is not None:
+            t.set_log_channel(self._log_channel)
+        t.start_client()
+
+        # host key negotiation
+        server_key = t.get_remote_server_key()
+        keytype = server_key.get_name()
+
+        if port == SSH_PORT:
+            server_hostkey_name = hostname
+        else:
+            server_hostkey_name = "[%s]:%d" % (hostname, port)
+        our_server_key = self._system_host_keys.get(
+            server_hostkey_name, {}).get(keytype, None)
+        if our_server_key is None:
+            our_server_key = self._host_keys.get(
+                server_hostkey_name, {}).get(keytype, None)
+        if our_server_key is None:
+            # will raise exception if the key is rejected; let that fall out
+            self._policy.missing_host_key(
+                self, server_hostkey_name, server_key)
+            # if the callback returns, assume the key is ok
+            our_server_key = server_key
+
+        if server_key != our_server_key:
+            raise paramiko.ssh_exception.BadHostKeyException(
+                hostname, server_key, our_server_key)
+
+        if username is None:
+            username = getpass.getuser()
+
+        # OIDC token authentication
+        if token is None:
+            raise paramiko.ssh_exception.SSHException(
+                "No token was found, no other authentication methods available.")
+
+        def handler(title, instructions, prompt_list):
+            if len(prompt_list) > 1:
+                raise paramiko.ssh_exception.SSHException(
+                    "Expecting one field only.")
+            if len(prompt_list) > 0:
+                if prompt_list[0][0] == "Access Token:":
+                    return [token]
+            return []
+
+        self._transport.auth_interactive(username, handler)
+
+
+class AskUserHostKeyPolicy(paramiko.client.MissingHostKeyPolicy):
     def missing_host_key(self, ssh_client, hostname, remote_key):
         known_hosts_file = os.path.expanduser('~/.ssh/known_hosts')
 
@@ -90,13 +186,9 @@ class AskUserHostKeyPolicy(paramiko.client.MissingHostKeyPolicy):
         except Exception:
             known_host_keys = paramiko.hostkeys.HostKeys()
 
-        if self.port == 22:
-            lookup_name = self.hostname
-        else:
-            lookup_name = '[%s]:%s' % (self.hostname, self.port)
-        if known_host_keys.check(lookup_name, remote_key) is False:
+        if known_host_keys.check(hostname, remote_key) is False:
             print("The authenticity of host '"
-                  + lookup_name
+                  + hostname
                   + "' can't be established.")
 
             key_name = remote_key.get_name()
@@ -123,7 +215,7 @@ class AskUserHostKeyPolicy(paramiko.client.MissingHostKeyPolicy):
             if answer in ('no', 'n'):
                 raise Exception("Host key verification failed.")
 
-            known_host_keys.add(lookup_name,
+            known_host_keys.add(hostname,
                                 remote_key.get_name(),
                                 remote_key)
             known_host_keys.save(known_hosts_file)
