@@ -57,17 +57,12 @@ def __ssh_connect(hostname, username, token, port):
     try:
         ssh_client = paramiko.SSHClient()
         ssh_client.load_system_host_keys()
-        try:
-            ssh_client.connect(hostname, port=port,
-                               username=username, password=token,
-                               timeout=TIMEOUT)
-        except paramiko.ssh_exception.SSHException as e:
-            if "not found in known_hosts" in e.__str__():
-                __host_key_verification(ssh_client, hostname)
-                ssh_client.connect(hostname, username=username, password=token,
-                                   timeout=TIMEOUT)
-            else:
-                raise e
+        host_key_policy = AskUserHostKeyPolicy(hostname, port)
+        ssh_client.set_missing_host_key_policy(host_key_policy)
+        ssh_client.connect(hostname, port=port,
+                           username=username, password=token,
+                           look_for_keys=False, allow_agent=False,
+                           timeout=TIMEOUT)
         return ssh_client
     except Exception as e:
         print(e)
@@ -79,51 +74,60 @@ def __ssh_connect(hostname, username, token, port):
     return None
 
 
-def __host_key_verification(ssh_client, hostname):
-    t = ssh_client.get_transport()
-    known_hosts_file = os.path.expanduser('~/.ssh/known_hosts')
-    remote_key = t.get_remote_server_key()
+class AskUserHostKeyPolicy(paramiko.client.MissingHostKeyPolicy):
+    def __init__(self, hostname, port):
+        self.hostname = hostname
+        self.port = port
 
-    # Treat missing/bad hosts files as unknown host
-    try:
-        known_host_keys = paramiko.hostkeys.HostKeys(filename=known_hosts_file)
-    except Exception:
-        known_host_keys = paramiko.hostkeys.HostKeys()
+    def missing_host_key(self, ssh_client, hostname, remote_key):
+        known_hosts_file = os.path.expanduser('~/.ssh/known_hosts')
 
-    if known_host_keys.check(hostname, remote_key) is False:
-        print("The authenticity of host '"
-              + hostname
-              + "' can't be established.")
+        # Treat missing/bad hosts files as unknown host
+        try:
+            known_host_keys = paramiko.hostkeys.HostKeys(
+                filename=known_hosts_file)
+        except Exception:
+            known_host_keys = paramiko.hostkeys.HostKeys()
 
-        key_name = remote_key.get_name()
-        if key_name == "ssh-ed25519":
-            key_name = "ED25519"
-        elif key_name == "ssh-ecdsa":
-            key_name = "ECDSA"
-        elif key_name == "ssh-dsa":
-            key_name = "DSA"
-        elif key_name == "ssh-rsa":
-            key_name = "RSA"
+        if self.port == 22:
+            lookup_name = self.hostname
+        else:
+            lookup_name = '[%s]:%s' % (self.hostname, self.port)
+        if known_host_keys.check(lookup_name, remote_key) is False:
+            print("The authenticity of host '"
+                  + lookup_name
+                  + "' can't be established.")
 
-        m = hashlib.sha256()
-        m.update(remote_key.get_fingerprint())
-        fingerprint = base64.b64encode(m.digest()).decode("utf-8")
+            key_name = remote_key.get_name()
+            if key_name == "ssh-ed25519":
+                key_name = "ED25519"
+            elif key_name == "ssh-ecdsa":
+                key_name = "ECDSA"
+            elif key_name == "ssh-dsa":
+                key_name = "DSA"
+            elif key_name == "ssh-rsa":
+                key_name = "RSA"
 
-        print(key_name + " key fingerprint is SHA256:" + fingerprint)
+            m = hashlib.sha256()
+            m.update(remote_key.get_fingerprint())
+            fingerprint = base64.b64encode(m.digest()).decode("utf-8")
 
-        answer = None
-        while answer not in ("yes", "y", "no", "n"):
-            answer = input(
-                "Are you sure you want to continue connecting (yes/no)? ")
+            print(key_name + " key fingerprint is SHA256:" + fingerprint)
 
-        if answer in ('no', 'n'):
-            raise Exception("Host key verification failed.")
+            answer = None
+            while answer not in ("yes", "y", "no", "n"):
+                answer = input(
+                    "Are you sure you want to continue connecting (yes/no)? ")
 
-        known_host_keys.add(hostname,
-                            remote_key.get_name(),
-                            remote_key)
-        known_host_keys.save(known_hosts_file)
-        ssh_client.load_host_keys(known_hosts_file)
+            if answer in ('no', 'n'):
+                raise Exception("Host key verification failed.")
+
+            known_host_keys.add(lookup_name,
+                                remote_key.get_name(),
+                                remote_key)
+            known_host_keys.save(known_hosts_file)
+            ssh_client.load_host_keys(known_hosts_file)
+        return
 
 
 def __progress(filename, size, sent):
