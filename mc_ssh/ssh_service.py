@@ -10,6 +10,7 @@ from . import interactive
 
 
 TIMEOUT = 10
+SSH_PORT = 22
 
 
 def ssh_exec(hostname, username, token, port, command):

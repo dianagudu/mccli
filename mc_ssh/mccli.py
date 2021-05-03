@@ -9,7 +9,7 @@ from requests.exceptions import SSLError
 from requests.packages import urllib3
 
 from .motley_cue_client import local_username
-from .ssh_service import ssh_exec, ssh_interactive, scp_put, scp_get
+from .ssh_service import ssh_exec, ssh_interactive, scp_put, scp_get, SSH_PORT
 
 
 def __valid_remote_path(value):
@@ -167,7 +167,7 @@ def cli():
                          "OIDC_ACCESS_TOKEN", "WATTS_TOKEN", "WATTSON_TOKEN"],
                  help="pass token directly, env variables are checked in given order")
 @optgroup("ssh options", help="supported options to be passed to SSH")
-@optgroup.option("-p", metavar="<int>", type=int, default=22,
+@optgroup.option("-p", metavar="<int>", type=int, default=SSH_PORT,
                  help="port to connect to on remote host")
 # @optgroup
 @click.argument("hostname")
@@ -183,7 +183,7 @@ def ssh(dry_run, mc_endpoint, insecure, oa_account, token, p, hostname, command)
             else:
                 password = token
             ssh_opts = ""
-            if p and p != 22:
+            if p and p != SSH_PORT:
                 ssh_opts += f" -p {p}"
             sshpass_cmd = f"sshpass -P 'Access Token' -p {password} ssh {ssh_opts} {username}@{hostname}"
             if command:
@@ -214,7 +214,7 @@ def ssh(dry_run, mc_endpoint, insecure, oa_account, token, p, hostname, command)
                          "OIDC_ACCESS_TOKEN", "WATTS_TOKEN", "WATTSON_TOKEN"],
                  help="pass token directly, env variables are checked in given order")
 @optgroup("scp options", help="supported options to be passed to SCP")
-@optgroup.option("-P", "port", metavar="<int>", type=int, default=22,
+@optgroup.option("-P", "port", metavar="<int>", type=int, default=SSH_PORT,
                  help="port to connect to on remote host")
 @optgroup.option("-r", "recursive", is_flag=True, help="recursively copy entire directories")
 @optgroup.option("-p", "preserve_times", is_flag=True,
@@ -233,7 +233,7 @@ def scp(dry_run, mc_endpoint, insecure, oa_account, token, port,
             scp_opts += " -r"
         if preserve_times:
             scp_opts += " -p"
-        if port and port != 22:
+        if port and port != SSH_PORT:
             scp_opts += f" -P {port}"
         sshpass_cmd = f"sshpass -P 'Access Token' -p {password} scp {scp_opts}"
     try:
