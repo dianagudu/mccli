@@ -4,4 +4,3 @@ liboidcagent
 requests
 Click
 click-option-group
-future
