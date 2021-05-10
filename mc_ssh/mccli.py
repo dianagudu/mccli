@@ -73,22 +73,48 @@ def validate_scp_source(ctx, param, value):
         ctx.exit()
 
 
-def __init_token(oa_account, token):
-    """Retrieve an oidc token from the oidc-agent,
-    if an oidc-agent account is set,
-    otherwise use set token
+def init_token(token, oa_account, iss):
+    """Retrieve an oidc token:
+    * use token if set,
+    * retrieve from the oidc-agent via given account if oidc-agent account is set
+    * retrieve from the oidc-agent via given iss if iss is set
+    * ... (use iss from service, if only one iss is supported)
+    * fail
     """
+    if token is not None:
+        return token
     if oa_account is not None:
         try:
-            token = agent.get_access_token(oa_account)
-        except Exception as e:
-            raise Exception(f"Failed to get access token for oidc-agent account '{oa_account}': {e}")
-    if token is None:
-        raise Exception("No access token or oidc-agent account set")
-    return token
+            print(f"Using oidc-agent account: {oa_account}")
+            return agent.get_access_token(oa_account)
+        except Exception:
+            print(f"Failed to get access token for oidc-agent account '{oa_account}'")
+    if iss is not None:
+        try:
+            print(f"Using issuer: {iss}")
+            return agent.get_access_token_by_issuer_url(iss)
+        except Exception:
+            print(f"Failed to get access token for issuer url '{iss}'")
+    raise Exception("No access token found")
 
 
-def __init_endpoint(hostname, verify=True):
+def str_init_token(token, oa_account, iss):
+    """String representation of command used to get access token:
+    * full token if token is set
+    * `oidc-token oa_account` if oidc-agent account is set
+    * `oidc-token iss` if issuer is set
+    *  ... (`oidc-token iss` is iss can be retrieved from service)
+    """
+    if token:
+        return f"'{token}'"
+    if oa_account:
+        return f"`oidc-token {oa_account}`"
+    elif iss:
+        return f"`oidc-token {iss}`"
+    raise Exception("No access token found")
+
+
+def init_endpoint(hostname, verify=True):
     """Initialise motley_cue endpoint when not specified.
     Default value: https://HOSTNAME
     If this is not reachable, issue warning and try: http://HOSTNAME:8080
@@ -125,13 +151,13 @@ def __init_endpoint(hostname, verify=True):
     raise Exception(msg)
 
 
-def __init_user(mc_endpoint, token, hostname, verify=True):
+def init_user(mc_endpoint, token, hostname, verify=True):
     """Get remote username, will be deployed if it doesn't exist.
     """
     if not verify:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     if mc_endpoint is None:
-        mc_endpoint = __init_endpoint(hostname, verify=verify)
+        mc_endpoint = init_endpoint(hostname, verify=verify)
     username = local_username(mc_endpoint, token, verify=verify)
     return username
 
@@ -157,31 +183,31 @@ def cli():
 @click.option("--insecure", is_flag=True, default=False,
               help="ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED")
 @optgroup.group("Access Token sources",
-                # help="the sources for retrieving the access token",
+                help="the sources for retrieving the access token, odered by priority",
                 cls=MutuallyExclusiveOptionGroup)
-@optgroup.option("--oa-account", show_envvar=True,
-                 envvar=["OIDC_AGENT_ACCOUNT"],
-                 help="name of configured account in oidc-agent, has priority over --token")
 @optgroup.option("--token", show_envvar=True,
                  envvar=["ACCESS_TOKEN", "OIDC", "OS_ACCESS_TOKEN",
                          "OIDC_ACCESS_TOKEN", "WATTS_TOKEN", "WATTSON_TOKEN"],
                  help="pass token directly, env variables are checked in given order")
+@optgroup.option("--oa-account", show_envvar=True,
+                 envvar=["OIDC_AGENT_ACCOUNT"],
+                 help="name of configured account in oidc-agent")
+@optgroup.option("--iss", "--issuer", show_envvar=True,
+                 envvar=["OIDC_ISS", "OIDC_ISSUER"],
+                 help="url of issuer, oidc-agent defaults for this issuer will be used")
 @optgroup("ssh options", help="supported options to be passed to SSH")
 @optgroup.option("-p", metavar="<int>", type=int, default=SSH_PORT,
                  help="port to connect to on remote host")
 # @optgroup
 @click.argument("hostname")
 @click.argument("command", required=False, default=None)
-def ssh(dry_run, mc_endpoint, insecure, oa_account, token, p, hostname, command):
+def ssh(dry_run, mc_endpoint, insecure, token, oa_account, iss, p, hostname, command):
     try:
-        token = __init_token(oa_account, token)
-        username = __init_user(
-            mc_endpoint, token, hostname, verify=not insecure)
+        at = init_token(token, oa_account, iss)
+        username = init_user(
+            mc_endpoint, at, hostname, verify=not insecure)
         if dry_run:
-            if oa_account:
-                password = f"`oidc-token {oa_account}`"
-            else:
-                password = token
+            password = str_init_token(token, oa_account, iss)
             ssh_opts = ""
             if p and p != SSH_PORT:
                 ssh_opts += f" -p {p}"
@@ -191,9 +217,9 @@ def ssh(dry_run, mc_endpoint, insecure, oa_account, token, p, hostname, command)
             print(sshpass_cmd)
         else:
             if command is None:
-                ssh_interactive(hostname, username, token, p)
+                ssh_interactive(hostname, username, at, p)
             else:
-                ssh_exec(hostname, username, token, p, command)
+                ssh_exec(hostname, username, at, p, command)
     except Exception as e:
         print(e)
 
@@ -204,15 +230,18 @@ def ssh(dry_run, mc_endpoint, insecure, oa_account, token, p, hostname, command)
 @click.option("--insecure", is_flag=True, default=False,
               help="ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED")
 @optgroup.group("Access Token sources",
-                # help="the sources for retrieving the access token",
+                help="the sources for retrieving the access token, odered by priority",
                 cls=MutuallyExclusiveOptionGroup)
-@optgroup.option("--oa-account", show_envvar=True,
-                 envvar=["OIDC_AGENT_ACCOUNT"],
-                 help="name of configured account in oidc-agent, has priority over --token")
 @optgroup.option("--token", show_envvar=True,
                  envvar=["ACCESS_TOKEN", "OIDC", "OS_ACCESS_TOKEN",
                          "OIDC_ACCESS_TOKEN", "WATTS_TOKEN", "WATTSON_TOKEN"],
                  help="pass token directly, env variables are checked in given order")
+@optgroup.option("--oa-account", show_envvar=True,
+                 envvar=["OIDC_AGENT_ACCOUNT"],
+                 help="name of configured account in oidc-agent")
+@optgroup.option("--iss", "--issuer", show_envvar=True,
+                 envvar=["OIDC_ISS", "OIDC_ISSUER"],
+                 help="url of issuer, oidc-agent defaults for this issuer will be used")
 @optgroup("scp options", help="supported options to be passed to SCP")
 @optgroup.option("-P", "port", metavar="<int>", type=int, default=SSH_PORT,
                  help="port to connect to on remote host")
@@ -221,13 +250,10 @@ def ssh(dry_run, mc_endpoint, insecure, oa_account, token, p, hostname, command)
                  help="preserve modification times and access times from the original file")
 @click.argument("source", nargs=-1, required=True, callback=validate_scp_source)
 @click.argument("target", callback=validate_scp_target)
-def scp(dry_run, mc_endpoint, insecure, oa_account, token, port,
+def scp(dry_run, mc_endpoint, insecure, token, oa_account, iss, port,
         recursive, preserve_times, source, target):
     if dry_run:
-        if oa_account:
-            password = f"`oidc-token {oa_account}`"
-        else:
-            password = token
+        password = str_init_token(token, oa_account, iss)
         scp_opts = ""
         if recursive:
             scp_opts += " -r"
@@ -241,17 +267,17 @@ def scp(dry_run, mc_endpoint, insecure, oa_account, token, port,
         dest_host = target.get("host", None)
         dest_is_remote = dest_host is not None
         if dest_is_remote:
-            token = __init_token(oa_account, token)
-            username = __init_user(
-                mc_endpoint, token, dest_host, verify=not insecure)
+            at = init_token(token, oa_account, iss)
+            username = init_user(
+                mc_endpoint, at, dest_host, verify=not insecure)
         for src in source:
             src_path = src.get("path", ".")
             src_host = src.get("host", None)
             src_is_remote = src_host is not None
             if src_is_remote:
-                token = __init_token(oa_account, token)
-                username = __init_user(
-                    mc_endpoint, token, src_host, verify=not insecure)
+                at = init_token(token, oa_account, iss)
+                username = init_user(
+                    mc_endpoint, at, src_host, verify=not insecure)
 
             if not src_is_remote and not dest_is_remote:
                 raise Exception(
@@ -262,14 +288,14 @@ def scp(dry_run, mc_endpoint, insecure, oa_account, token, port,
                 if dry_run:
                     sshpass_cmd += f" {username}@{src_host}:{src_path}"
                 else:
-                    scp_get(src_host, username, token, port,
+                    scp_get(src_host, username, at, port,
                             src_path, dest_path,
                             recursive=recursive, preserve_times=preserve_times)
             else:
                 if dry_run:
                     sshpass_cmd += f" {src_path}"
                 else:
-                    scp_put(dest_host, username, token, port,
+                    scp_put(dest_host, username, at, port,
                             src_path, dest_path,
                             recursive=recursive, preserve_times=preserve_times)
         if dry_run:
