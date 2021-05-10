@@ -30,7 +30,7 @@ def ssh_interactive(hostname, username, token, port):
     ssh_client = __ssh_connect(hostname, username, token, port)
     if ssh_client is not None:
         channel = ssh_client.invoke_shell()
-        print("*** Here we go!\n")
+        # print("*** Here we go!\n")
         interactive.interactive_shell(channel)
         channel.close()
         ssh_client.close()
