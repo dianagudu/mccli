@@ -10,22 +10,26 @@ from .utils import init_endpoint, init_token, init_user, str_init_token
 
 
 def common_options(func):
-    @click.option("--mc-endpoint", help="motley_cue API endpoint, default URLs: https://HOSTNAME, http://HOSTNAME:8080")
-    @click.option("--insecure", "verify", is_flag=True, default=False, callback=validate_insecure_flip2verify,
-                    help="ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED")
+    @click.option("--mc-endpoint",
+                  help="motley_cue API endpoint, default URLs: https://HOSTNAME, http://HOSTNAME:8080")
+    @click.option("--insecure", "verify", is_flag=True, default=False,
+                  callback=validate_insecure_flip2verify,
+                  help="ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED")
     @optgroup.group("Access Token sources",
                     help="the sources for retrieving the access token, odered by priority",
                     cls=MutuallyExclusiveOptionGroup)
-    @optgroup.option("--token", show_envvar=True,
-                    envvar=["ACCESS_TOKEN", "OIDC", "OS_ACCESS_TOKEN",
-                            "OIDC_ACCESS_TOKEN", "WATTS_TOKEN", "WATTSON_TOKEN"],
-                    help="pass token directly, env variables are checked in given order")
-    @optgroup.option("--oa-account", show_envvar=True,
-                    envvar=["OIDC_AGENT_ACCOUNT"],
-                    help="name of configured account in oidc-agent")
-    @optgroup.option("--iss", "--issuer", show_envvar=True,
-                    envvar=["OIDC_ISS", "OIDC_ISSUER"],
-                    help="url of issuer, oidc-agent defaults for this issuer will be used")
+    @optgroup.option("--token",
+                     envvar=["ACCESS_TOKEN", "OIDC",
+                             "OS_ACCESS_TOKEN", "OIDC_ACCESS_TOKEN",
+                             "WATTS_TOKEN", "WATTSON_TOKEN"],
+                     show_envvar=True,
+                     help="pass token directly, env variables are checked in given order")
+    @optgroup.option("--oa-account",
+                     envvar=["OIDC_AGENT_ACCOUNT"], show_envvar=True,
+                     help="name of configured account in oidc-agent")
+    @optgroup.option("--iss", "--issuer",
+                     envvar=["OIDC_ISS", "OIDC_ISSUER"], show_envvar=True,
+                     help="url of issuer, configured account in oidc-agent for this issuer will be used")
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
@@ -49,7 +53,8 @@ def cli(**kwargs):
                  help="port to connect to on remote host")
 @click.argument("hostname")
 @click.argument("command", required=False, default=None)
-def ssh(dry_run, mc_endpoint, verify, token, oa_account, iss, p, hostname, command):
+def ssh(mc_endpoint, verify, token, oa_account, iss,
+        dry_run, p, hostname, command):
     try:
         at = init_token(token, oa_account, iss)
         mc_url = init_endpoint(mc_endpoint, hostname, verify)
@@ -78,13 +83,15 @@ def ssh(dry_run, mc_endpoint, verify, token, oa_account, iss, p, hostname, comma
 @optgroup("scp options", help="supported options to be passed to SCP")
 @optgroup.option("-P", "port", metavar="<int>", type=int, default=SSH_PORT,
                  help="port to connect to on remote host")
-@optgroup.option("-r", "recursive", is_flag=True, help="recursively copy entire directories")
+@optgroup.option("-r", "recursive", is_flag=True,
+                 help="recursively copy entire directories")
 @optgroup.option("-p", "preserve_times", is_flag=True,
                  help="preserve modification times and access times from the original file")
 @click.argument("source", nargs=-1, required=True, callback=validate_scp_source)
 @click.argument("target", callback=validate_scp_target)
-def scp(dry_run, mc_endpoint, verify, token, oa_account, iss, port,
-        recursive, preserve_times, source, target):
+def scp(mc_endpoint, verify, token, oa_account, iss,
+        dry_run, port, recursive, preserve_times,
+        source, target):
     if dry_run:
         password = str_init_token(token, oa_account, iss)
         scp_opts = ""

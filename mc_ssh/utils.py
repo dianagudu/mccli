@@ -92,7 +92,8 @@ def init_token(token, oa_account, iss):
             print(f"Using oidc-agent account: {oa_account}")
             return agent.get_access_token(oa_account)
         except Exception:
-            print(f"Failed to get access token for oidc-agent account '{oa_account}'")
+            print(
+                f"Failed to get access token for oidc-agent account '{oa_account}'")
     if iss is not None:
         try:
             print(f"Using issuer: {iss}")
@@ -118,6 +119,23 @@ def str_init_token(token, oa_account, iss):
     raise Exception("No access token found")
 
 
+def _try_get(mc_endpoint, verify=True):
+    try:
+        response = requests.get(mc_endpoint, verify=verify)
+        if response.status_code == 200:
+            if not verify:
+                print(f"InsecureRequestWarning: Unverified HTTPS request is being made to '{mc_endpoint}'."
+                      "Adding certificate verification is strongly advised.")
+            return True
+    except SSLError:
+        msg = "Error: SSL certificate verification failed\n" + \
+            "Use --insecure if you wish to ignore SSL certificate verification"
+        raise Exception(msg)
+    except Exception:
+        pass
+    return False
+
+
 def init_endpoint(mc_endpoint, ssh_host, verify=True):
     """Initialise motley_cue endpoint.
 
@@ -129,48 +147,28 @@ def init_endpoint(mc_endpoint, ssh_host, verify=True):
     If also not reachable, exit and ask user to specify it using --mc-endpoint
     """
     if mc_endpoint:
-        try:
-            response = requests.get(mc_endpoint, verify=verify)
-            if response.status_code == 200:
-                if not verify:
-                    print(f"InsecureRequestWarning: Unverified HTTPS request is being made to host '{ssh_host}'. Adding certificate verification is strongly advised.")
-                return mc_endpoint
-        except SSLError:
-            msg = "Error: SSL certificate verification failed\n" + \
-                "Use --insecure if you wish to ignore SSL certificate verification"
-            raise Exception(msg)
-        except Exception:
+        if _try_get(mc_endpoint, verify):
+            return mc_endpoint
+        else:
             msg = f"No motley_cue service found at '{mc_endpoint}'\n" + \
-                    "Please specify a valid motley_cue endpoint"
+                "Please specify a valid motley_cue endpoint"
             raise Exception(msg)
+
     # try https
-    mc_endpoint = f"https://{ssh_host}"
-    try:
-        response = requests.get(mc_endpoint, verify=verify)
-        if response.status_code == 200:
-            if not verify:
-                print(f"InsecureRequestWarning: Unverified HTTPS request is being made to host '{ssh_host}'. Adding certificate verification is strongly advised.")
-            return mc_endpoint
-    except SSLError:
-        msg = "Error: SSL certificate verification failed\n" + \
-              "Use --insecure if you wish to ignore SSL certificate verification"
-        raise Exception(msg)
-    except Exception:
-        pass
-    # try http on port 8080
-    mc_endpoint = f"http://{ssh_host}:8080"
-    try:
-        response = requests.get(mc_endpoint)
-        if response.status_code == 200:
-            # issue warning
-            print(
-                f"Warning: using unencrypted motley_cue endpoint: http://{ssh_host}:8080")
-            return mc_endpoint
-    except Exception:
-        pass
-    # ask user to specify endpoint
-    msg = f"No motley_cue service found on host '{ssh_host}' on port 443 or 8080\n" + \
-        "Please specify motley_cue endpoint via --mc-endpoint"
+    endpoint = f"https://{ssh_host}"
+    if _try_get(endpoint, verify):
+        return endpoint
+
+    # try http on 8080 but issue warning
+    endpoint = f"http://{ssh_host}:8080"
+    print(f"Warning: using unencrypted motley_cue endpoint: {endpoint}")
+    if _try_get(endpoint):
+        return endpoint
+
+    # raise error and ask user to specify endpoint
+    msg = f"No motley_cue service found on host '{ssh_host}'"\
+        "on port 443 or 8080.\n"\
+        "Please specify motley_cue endpoint via --mc-endpoint."
     raise Exception(msg)
 
 
