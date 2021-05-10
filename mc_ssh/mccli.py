@@ -219,7 +219,7 @@ def ssh(dry_run, mc_endpoint, insecure, oa_account, token, p, hostname, command)
 @optgroup.option("-r", "recursive", is_flag=True, help="recursively copy entire directories")
 @optgroup.option("-p", "preserve_times", is_flag=True,
                  help="preserve modification times and access times from the original file")
-@click.argument("source", nargs=-1, callback=validate_scp_source)
+@click.argument("source", nargs=-1, required=True, callback=validate_scp_source)
 @click.argument("target", callback=validate_scp_target)
 def scp(dry_run, mc_endpoint, insecure, oa_account, token, port,
         recursive, preserve_times, source, target):
