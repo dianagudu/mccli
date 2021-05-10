@@ -150,8 +150,8 @@ def init_endpoint(mc_endpoint, ssh_host, verify=True):
         if _try_get(mc_endpoint, verify):
             return mc_endpoint
         else:
-            msg = f"No motley_cue service found at '{mc_endpoint}'\n" + \
-                "Please specify a valid motley_cue endpoint"
+            msg = f"No motley_cue service found at '{mc_endpoint}'. " + \
+                "Please specify a valid motley_cue endpoint."
             raise Exception(msg)
 
     # try https
@@ -161,13 +161,13 @@ def init_endpoint(mc_endpoint, ssh_host, verify=True):
 
     # try http on 8080 but issue warning
     endpoint = f"http://{ssh_host}:8080"
-    print(f"Warning: using unencrypted motley_cue endpoint: {endpoint}")
     if _try_get(endpoint):
+        print(f"Warning: using unencrypted motley_cue endpoint: {endpoint}")
         return endpoint
 
     # raise error and ask user to specify endpoint
     msg = f"No motley_cue service found on host '{ssh_host}'"\
-        "on port 443 or 8080.\n"\
+        "on port 443 or 8080. "\
         "Please specify motley_cue endpoint via --mc-endpoint."
     raise Exception(msg)
 
