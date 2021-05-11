@@ -9,6 +9,7 @@ import scp
 import sys
 
 from . import interactive
+from .logging import logger
 
 
 TIMEOUT = 10
@@ -64,8 +65,8 @@ def __ssh_connect(hostname, username, token, port):
                            port=port, timeout=TIMEOUT)
         return ssh_client
     except Exception as e:
-        print(e)
-        print("SSH login failed.")
+        logger.error(e)
+        logger.error("SSH login failed.")
         try:
             ssh_client.close()
         except Exception:

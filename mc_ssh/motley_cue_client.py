@@ -1,5 +1,6 @@
 import requests
-import click
+
+from .logging import logger
 
 
 def deploy(mc_endpoint, token, verify=True):
@@ -46,8 +47,8 @@ def get_info(mc_endpoint, verify=True):
         else:
             resp.raise_for_status()
     except Exception as e:
-        click.echo(f"[motley_cue] {e}", err=True)
-        click.echo("INFO: Failed to get service info", err=True)
+        logger.debug(f"[motley_cue] {e}")
+        logger.info("Failed to get service info")
     return None
 
 
@@ -66,8 +67,8 @@ def get_authorisation_info(mc_endpoint, token, verify=True):
         else:
             resp.raise_for_status()
     except Exception as e:
-        click.echo(f"[motley_cue] {e}", err=True)
-        click.echo("INFO: Failed to get authorisation info from service", err=True)
+        logger.debug(f"[motley_cue] {e}")
+        logger.info("Failed to get authorisation info from service")
     return None
 
 
@@ -85,5 +86,5 @@ def local_username(mc_endpoint, token, verify=True):
         else:
             resp.raise_for_status()
     except Exception as e:
-        click.echo(f"[motley_cue] {e}", err=True)
-    raise Exception("ERROR: Failed to get ssh username")
+        logger.error(f"[motley_cue] {e}")
+    raise Exception("Failed to get ssh username")

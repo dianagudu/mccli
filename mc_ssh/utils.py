@@ -1,4 +1,3 @@
-import click
 import liboidcagent as agent
 import re
 import requests
@@ -6,6 +5,7 @@ from requests.exceptions import SSLError
 from requests.packages import urllib3
 
 from .motley_cue_client import local_username, get_supported_ops
+from .logging import logger
 
 
 def __valid_remote_path(value):
@@ -27,11 +27,11 @@ def __valid_remote_path(value):
                 parts[0]).groupdict()
         except Exception:
             raise Exception(
-                f"ERROR: Invalid remote hostname: {value}")
+                f"Invalid remote hostname: {value}")
         value_dict["path"] = "." if parts[1] == "" else parts[1]
     else:
         raise Exception(
-            f"ERROR: Invalid scp argument {value}: must be of form [host:]path"
+            f"Invalid scp argument {value}: must be of form [host:]path"
         )
     return value_dict
 
@@ -45,7 +45,7 @@ def validate_scp_target(ctx, param, value):
     try:
         return __valid_remote_path(value)
     except Exception as e:
-        click.echo(e, err=True)
+        logger.error(e)
         ctx.exit()
 
 
@@ -66,7 +66,7 @@ def validate_scp_source(ctx, param, value):
         else:
             return [__valid_remote_path(value)]
     except Exception as e:
-        click.echo(e, err=True)
+        logger.error(e)
         ctx.exit()
 
 
@@ -87,54 +87,41 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
     * retrieve from the oidc-agent via given issuer if iss is set
     * use iss from service, if only one iss is supported
     * fail
+
+    return token and string representation of command to retrieve token
     """
     if token is not None:
-        return token
+        logger.debug(f"Using token: {token}")
+        return token, _str_init_token(token=token)
     if oa_account is not None:
         try:
-            click.echo(f"INFO: Using oidc-agent account: {oa_account}", err=True)
-            return agent.get_access_token(oa_account)
+            logger.info(f"Using oidc-agent account: {oa_account}")
+            return agent.get_access_token(oa_account), _str_init_token(oa_account=oa_account)
         except Exception:
-            click.echo(
-                f"WARNING: Failed to get access token for oidc-agent account '{oa_account}'",
-                err=True
-            )
+            logger.warning(f"Failed to get access token for oidc-agent account '{oa_account}'")
     if iss is not None:
         try:
-            click.echo(f"INFO: Using issuer: {iss}", err=True)
-            return agent.get_access_token_by_issuer_url(iss)
+            logger.info(f"Using issuer: {iss}")
+            return agent.get_access_token_by_issuer_url(iss), _str_init_token(iss=iss)
         except Exception:
-            click.echo(
-                f"WARNING: Failed to get access token for issuer url '{iss}'", err=True)
+            logger.warning(
+                f"Failed to get access token for issuer url '{iss}'")
     if mc_endpoint is not None:
-        click.echo(
-            f"INFO: Trying to get list of supported AT issuers from {mc_endpoint}...",
-            err=True
-        )
+        logger.debug(f"Trying to get list of supported AT issuers from {mc_endpoint}...")
         supported_ops = get_supported_ops(mc_endpoint, verify)
         if len(supported_ops) == 1:
             iss = supported_ops[0]
             try:
-                click.echo(
-                    f"INFO: Using the only issuer supported on service: {iss}",
-                    err=True
-                )
-                return agent.get_access_token_by_issuer_url(iss)
+                logger.debug(f"Using the only issuer supported on service: {iss}")
+                return agent.get_access_token_by_issuer_url(iss), _str_init_token(iss=iss)
             except Exception:
-                click.echo(
-                    f"WARNING: Failed to get access token for issuer url '{iss}'",
-                    err=True
-                )
+                logger.warning(f"Failed to get access token for issuer url '{iss}'")
         elif len(supported_ops) > 1:
-            click.echo(
-                "INFO: Multiple issuers supported on service. "
-                "I don't know which one to use.",
-                err=True
-            )
-    raise Exception("ERROR: No access token found")
+            logger.debug("Multiple issuers supported on service. I don't know which one to use.")
+    raise Exception("No access token found")
 
 
-def str_init_token(token, oa_account, iss):
+def _str_init_token(token=None, oa_account=None, iss=None):
     """String representation of command used to get access token:
     * full token if token is set
     * `oidc-token oa_account` if oidc-agent account is set
@@ -147,7 +134,7 @@ def str_init_token(token, oa_account, iss):
         return f"`oidc-token {oa_account}`"
     elif iss:
         return f"`oidc-token {iss}`"
-    raise Exception("ERROR: No access token found")
+    raise Exception("No access token found")
 
 
 def _try_get(mc_endpoint, verify=True):
@@ -155,16 +142,16 @@ def _try_get(mc_endpoint, verify=True):
         response = requests.get(mc_endpoint, verify=verify)
         if response.status_code == 200:
             if not verify:
-                click.echo(
-                    "WARNING: InsecureRequestWarning: Unverified HTTPS"
+                logger.warning(
+                    "InsecureRequestWarning: Unverified HTTPS"
                     f"request is being made to '{mc_endpoint}'. "
-                    "Adding certificate verification is strongly advised.",
-                    err=True
+                    "Adding certificate verification is strongly advised."
                 )
             return True
     except SSLError:
-        msg = "ERROR: SSL certificate verification failed. "\
+        msg = "SSL certificate verification failed. "\
             "Use --insecure if you wish to ignore SSL certificate verification"
+        logger.info(msg)
         raise Exception(msg)
     except Exception:
         pass
@@ -185,7 +172,7 @@ def init_endpoint(mc_endpoint, ssh_host, verify=True):
         if _try_get(mc_endpoint, verify):
             return mc_endpoint
         else:
-            msg = f"ERROR: No motley_cue service found at '{mc_endpoint}'. "\
+            msg = f"No motley_cue service found at '{mc_endpoint}'. "\
                 "Please specify a valid motley_cue endpoint."
             raise Exception(msg)
 
@@ -197,14 +184,11 @@ def init_endpoint(mc_endpoint, ssh_host, verify=True):
     # try http on 8080 but issue warning
     endpoint = f"http://{ssh_host}:8080"
     if _try_get(endpoint):
-        click.echo(
-            f"WARNING: using unencrypted motley_cue endpoint: {endpoint}",
-            err=True
-        )
+        logger.warning(f"using unencrypted motley_cue endpoint: {endpoint}")
         return endpoint
 
     # raise error and ask user to specify endpoint
-    msg = f"ERROR: No motley_cue service found on host '{ssh_host}'"\
+    msg = f"No motley_cue service found on host '{ssh_host}'"\
         "on port 443 or 8080. "\
         "Please specify motley_cue endpoint via --mc-endpoint."
     raise Exception(msg)

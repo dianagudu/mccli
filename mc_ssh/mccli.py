@@ -3,12 +3,14 @@
 from functools import wraps
 import click
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup
+import click_logging
 import json
 
 from .ssh_service import ssh_exec, ssh_interactive, scp_put, scp_get, SSH_PORT
 from .utils import validate_insecure_flip2verify, validate_scp_source, validate_scp_target
-from .utils import init_endpoint, init_token, init_user, str_init_token
+from .utils import init_endpoint, init_token, init_user
 from .motley_cue_client import str_info_all
+from .logging import logger
 
 
 def common_options(func):
@@ -32,6 +34,7 @@ def common_options(func):
     @optgroup.option("--iss", "--issuer", metavar="URL",
                      envvar=["OIDC_ISS", "OIDC_ISSUER"], show_envvar=True,
                      help="url of token issuer; configured account in oidc-agent for this issuer will be used")
+    @click_logging.simple_verbosity_option(logger, default="ERROR", metavar="LEVEL")
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
@@ -59,7 +62,7 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
     """
     mc_url = init_endpoint(mc_endpoint, hostname, verify)
     try:
-        at = init_token(token, oa_account, iss, mc_url, verify)
+        at, _ = init_token(token, oa_account, iss, mc_url, verify)
     except Exception:
         at = None
     str_info = str_info_all(mc_url, at, verify)
@@ -88,14 +91,13 @@ def ssh(mc_endpoint, verify, token, oa_account, iss,
     """
     try:
         mc_url = init_endpoint(mc_endpoint, hostname, verify)
-        at = init_token(token, oa_account, iss, mc_url, verify)
+        at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)
         username = init_user(mc_url, at, verify)
         if dry_run:
-            password = str_init_token(token, oa_account, iss)
             ssh_opts = ""
             if p and p != SSH_PORT:
                 ssh_opts += f" -p {p}"
-            sshpass_cmd = f"sshpass -P 'Access Token' -p {password} ssh {ssh_opts} {username}@{hostname}"
+            sshpass_cmd = f"sshpass -P 'Access Token' -p {str_get_at} ssh{ssh_opts} {username}@{hostname}"
             if command:
                 sshpass_cmd = f"{sshpass_cmd} '{command}'"
             click.echo(sshpass_cmd)
@@ -105,7 +107,7 @@ def ssh(mc_endpoint, verify, token, oa_account, iss,
             else:
                 ssh_exec(hostname, username, at, p, command)
     except Exception as e:
-        click.echo(e, err=True)
+        logger.error(e)
 
 
 @cli.command(name="scp", short_help="secure file copy")
@@ -134,66 +136,75 @@ def scp(mc_endpoint, verify, token, oa_account, iss,
     supported issuers; if only one issuer is supported, this is used to
     retrieve the token from the oidc-agent.
     """
-    if dry_run:
-        password = str_init_token(token, oa_account, iss)
-        scp_opts = ""
-        if recursive:
-            scp_opts += " -r"
-        if preserve_times:
-            scp_opts += " -p"
-        if port and port != SSH_PORT:
-            scp_opts += f" -P {port}"
-        sshpass_cmd = f"sshpass -P 'Access Token' -p {password} scp {scp_opts}"
     try:
+        # start with target destination bc there can be multiple sources
         dest_path = target.get("path", ".")
         dest_host = target.get("host", None)
         dest_is_remote = dest_host is not None
         if dest_is_remote:
             dest_endpoint = init_endpoint(mc_endpoint, dest_host, verify)
-            at = init_token(token, oa_account, iss, dest_endpoint, verify)
+            at, str_get_at = init_token(
+                token, oa_account, iss, dest_endpoint, verify)
             username = init_user(dest_endpoint, at, verify)
+        # stringify destination part of scp command
+        if dry_run:
+            dest_cmd = f" {username}@{dest_host}:{dest_path}" \
+                if dest_is_remote else f" {dest_path}"
+            src_cmd = ""
+        # go through all sources
         for src in source:
             src_path = src.get("path", ".")
             src_host = src.get("host", None)
             src_is_remote = src_host is not None
-            if src_is_remote:
-                src_endpoint = init_endpoint(mc_endpoint, src_host, verify)
-                at = init_token(token, oa_account, iss, src_endpoint, verify)
-                username = init_user(src_endpoint, at, verify)
 
+            # deal with unsupported use cases
             if not src_is_remote and not dest_is_remote:
                 raise Exception(
-                    "ERROR: No remote host specified. Use regular cp instead.")
+                    "No remote host specified. Use regular cp instead.")
             elif src_is_remote and dest_is_remote:
-                raise Exception("ERROR: scp between remote hosts not yet supported.")
-            elif src_is_remote:
-                if dry_run:
-                    sshpass_cmd += f" {username}@{src_host}:{src_path}"
-                else:
+                raise Exception("scp between remote hosts not yet supported.")
+
+            if src_is_remote:
+                src_endpoint = init_endpoint(mc_endpoint, src_host, verify)
+                at, str_get_at = init_token(
+                    token, oa_account, iss, src_endpoint, verify)
+                username = init_user(src_endpoint, at, verify)
+
+            # stringify source part of scp command if dry_run, otherwise do scp
+            if dry_run:
+                src_cmd += f" {username}@{src_host}:{src_path}" \
+                    if src_is_remote else f" {src_path}"
+            else:
+                if src_is_remote:
                     scp_get(src_host, username, at, port,
                             src_path, dest_path,
                             recursive=recursive, preserve_times=preserve_times)
-            else:
-                if dry_run:
-                    sshpass_cmd += f" {src_path}"
                 else:
                     scp_put(dest_host, username, at, port,
                             src_path, dest_path,
                             recursive=recursive, preserve_times=preserve_times)
+
+        # assemble sshpass command from collected stringified components
         if dry_run:
-            if dest_is_remote:
-                sshpass_cmd += f" {username}@{dest_host}:{dest_path}"
-            else:
-                sshpass_cmd += f" {dest_path}"
+            # stringify scp options
+            scp_opts = ""
+            if recursive:
+                scp_opts += " -r"
+            if preserve_times:
+                scp_opts += " -p"
+            if port and port != SSH_PORT:
+                scp_opts += f" -P {port}"
+            sshpass_cmd = f"sshpass -P 'Access Token' -p {str_get_at} "\
+                f"scp{scp_opts}{src_cmd}{dest_cmd}"
             click.echo(sshpass_cmd)
     except PermissionError as e:
-        click.echo(f"ERROR: {e.filename.decode('utf-8')}: Permission denied", err=True)
+        logger.error(f"{e.filename.decode('utf-8')}: Permission denied")
     except IsADirectoryError as e:
-        click.echo((f"ERROR: {e.filename}: not a regular file"), err=True)
+        logger.error((f"{e.filename}: not a regular file"))
     except FileNotFoundError as e:
-        click.echo(f"ERROR: {e.filename}: No such file or directory", err=True)
+        logger.error(f"{e.filename}: No such file or directory")
     except Exception as e:
-        click.echo(e, err=True)
+        logger.error(e)
 
 
 @cli.command(name="sftp", short_help="secure file transfer")
@@ -201,7 +212,7 @@ def sftp():
     """
     --- Not implemented ---
     """
-    click.echo("Not implemented.", err=True)
+    logger.error("Not implemented.")
 
 
 if __name__ == '__main__':
