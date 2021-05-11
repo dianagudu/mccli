@@ -69,7 +69,7 @@ For example, if you generated an account named `egi` for the [EGI AAI](https://a
 ```sh
 export OIDC_AGENT_ACCOUNT=egi
 ```
-Then, assuming that the ssh server has a [motley_cue](https://github.com/dianagudu/motley_cue) instance running at https://$SSH_SERVER, you can connect to the ssh server simply by:
+Then, assuming that the ssh server has a [motley_cue](https://github.com/dianagudu/motley_cue) instance running on the same host at https://$SSH_SERVER or http://$SSH_SERVER:8080, you can connect to the ssh server simply by:
 ```sh
 mccli ssh $SSH_SERVER
 ```
