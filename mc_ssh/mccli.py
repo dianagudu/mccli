@@ -30,7 +30,7 @@ def common_options(func):
                      help="name of configured account in oidc-agent")
     @optgroup.option("--iss", "--issuer",
                      envvar=["OIDC_ISS", "OIDC_ISSUER"], show_envvar=True,
-                     help="url of issuer, configured account in oidc-agent for this issuer will be used")
+                     help="url of token issuer; configured account in oidc-agent for this issuer will be used")
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
@@ -41,7 +41,7 @@ def common_options(func):
 @common_options
 def cli(**kwargs):
     """
-    ssh client wrapper for oidc-based authentication
+    ssh client wrapper with OIDC-based authentication
     """
     pass
 
@@ -65,16 +65,26 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
     print(str_info)
 
 
-@cli.command(name="ssh", short_help="open a login shell or execute a command via ssh")
+@cli.command(name="ssh", short_help="remote login client")
 @common_options
-@click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
-@optgroup("ssh options", help="supported options to be passed to SSH")
+@optgroup("SSH options", help="supported options to be passed to SSH")
 @optgroup.option("-p", metavar="<int>", type=int, default=SSH_PORT,
                  help="port to connect to on remote host")
+@click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
 @click.argument("hostname")
 @click.argument("command", required=False, default=None)
 def ssh(mc_endpoint, verify, token, oa_account, iss,
         dry_run, p, hostname, command):
+    """Connects and logs into HOSTNAME via SSH by using the provided OIDC
+    Access Token to authenticate.
+
+    If a COMMAND is specified, it is executed on the remote host
+    instead of a login shell.
+
+    When no Access Token source is specified, the service on the remote host
+    is queried for supported issuers; if only one issuer is supported,
+    this is used to retrieve the token from the oidc-agent.
+    """
     try:
         mc_url = init_endpoint(mc_endpoint, hostname, verify)
         at = init_token(token, oa_account, iss, mc_url, verify)
@@ -99,19 +109,30 @@ def ssh(mc_endpoint, verify, token, oa_account, iss,
 
 @cli.command(name="scp", short_help="secure file copy")
 @common_options
-@click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
-@optgroup("scp options", help="supported options to be passed to SCP")
+@optgroup("SCP options", help="supported options to be passed to SCP")
 @optgroup.option("-P", "port", metavar="<int>", type=int, default=SSH_PORT,
                  help="port to connect to on remote host")
 @optgroup.option("-r", "recursive", is_flag=True,
                  help="recursively copy entire directories")
 @optgroup.option("-p", "preserve_times", is_flag=True,
                  help="preserve modification times and access times from the original file")
+@click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
 @click.argument("source", nargs=-1, required=True, callback=validate_scp_source)
 @click.argument("target", callback=validate_scp_target)
 def scp(mc_endpoint, verify, token, oa_account, iss,
         dry_run, port, recursive, preserve_times,
         source, target):
+    """
+    Copies files between hosts on a network over SSH using the provided OIDC
+    Access Token to authenticate.
+
+    The SOURCE and TARGET may be specified as a local pathname or a remote
+    host in optional path in the form host[:path].
+
+    When no Access Token source is specified, the remote host is queried for
+    supported issuers; if only one issuer is supported, this is used to
+    retrieve the token from the oidc-agent.
+    """
     if dry_run:
         password = str_init_token(token, oa_account, iss)
         scp_opts = ""
@@ -174,8 +195,11 @@ def scp(mc_endpoint, verify, token, oa_account, iss,
         print(e)
 
 
-@cli.command(name="sftp", short_help="--- Not implemented ---")
+@cli.command(name="sftp", short_help="secure file transfer")
 def sftp():
+    """
+    --- Not implemented ---
+    """
     print("Not implemented.")
 
 
