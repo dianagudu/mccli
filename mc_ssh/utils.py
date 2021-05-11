@@ -4,7 +4,7 @@ import requests
 from requests.exceptions import SSLError
 from requests.packages import urllib3
 
-from .motley_cue_client import local_username
+from .motley_cue_client import local_username, get_supported_ops
 
 
 def __valid_remote_path(value):
@@ -77,12 +77,12 @@ def validate_insecure_flip2verify(ctx, param, value):
     return not value
 
 
-def init_token(token, oa_account, iss):
+def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
     """Retrieve an oidc token:
     * use token if set,
     * retrieve from the oidc-agent via given account if oidc-agent account is set
     * retrieve from the oidc-agent via given iss if iss is set
-    * ... (use iss from service, if only one iss is supported)
+    * use iss from service, if only one iss is supported
     * fail
     """
     if token is not None:
@@ -100,6 +100,18 @@ def init_token(token, oa_account, iss):
             return agent.get_access_token_by_issuer_url(iss)
         except Exception:
             print(f"Failed to get access token for issuer url '{iss}'")
+    if mc_endpoint is not None:
+        print(f"Trying to get list of supported AT issuers from {mc_endpoint}...")
+        supported_ops = get_supported_ops(mc_endpoint, verify)
+        if len(supported_ops) == 1:
+            iss = supported_ops[0]
+            try:
+                print(f"Using the only issuer supported on service: {iss}")
+                return agent.get_access_token_by_issuer_url(iss)
+            except Exception:
+                print(f"Failed to get access token for issuer url '{iss}'")
+        elif len(supported_ops) > 1:
+            print("Multiple issuers supported on service. I don't know which one to use.")
     raise Exception("No access token found")
 
 

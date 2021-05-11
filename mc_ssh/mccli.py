@@ -56,8 +56,8 @@ def cli(**kwargs):
 def ssh(mc_endpoint, verify, token, oa_account, iss,
         dry_run, p, hostname, command):
     try:
-        at = init_token(token, oa_account, iss)
         mc_url = init_endpoint(mc_endpoint, hostname, verify)
+        at = init_token(token, oa_account, iss, mc_url, verify)
         username = init_user(mc_url, at, verify)
         if dry_run:
             password = str_init_token(token, oa_account, iss)
@@ -107,16 +107,16 @@ def scp(mc_endpoint, verify, token, oa_account, iss,
         dest_host = target.get("host", None)
         dest_is_remote = dest_host is not None
         if dest_is_remote:
-            at = init_token(token, oa_account, iss)
             dest_endpoint = init_endpoint(mc_endpoint, dest_host, verify)
+            at = init_token(token, oa_account, iss, dest_endpoint, verify)
             username = init_user(dest_endpoint, at, verify)
         for src in source:
             src_path = src.get("path", ".")
             src_host = src.get("host", None)
             src_is_remote = src_host is not None
             if src_is_remote:
-                at = init_token(token, oa_account, iss)
                 src_endpoint = init_endpoint(mc_endpoint, src_host, verify)
+                at = init_token(token, oa_account, iss, src_endpoint, verify)
                 username = init_user(src_endpoint, at, verify)
 
             if not src_is_remote and not dest_is_remote:
