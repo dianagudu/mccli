@@ -62,7 +62,7 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
     except Exception:
         at = None
     str_info = str_info_all(mc_url, at, verify)
-    print(str_info)
+    click.echo(str_info)
 
 
 @cli.command(name="ssh", short_help="remote login client")
@@ -97,14 +97,14 @@ def ssh(mc_endpoint, verify, token, oa_account, iss,
             sshpass_cmd = f"sshpass -P 'Access Token' -p {password} ssh {ssh_opts} {username}@{hostname}"
             if command:
                 sshpass_cmd = f"{sshpass_cmd} '{command}'"
-            print(sshpass_cmd)
+            click.echo(sshpass_cmd)
         else:
             if command is None:
                 ssh_interactive(hostname, username, at, p)
             else:
                 ssh_exec(hostname, username, at, p, command)
     except Exception as e:
-        print(e)
+        click.echo(e, err=True)
 
 
 @cli.command(name="scp", short_help="secure file copy")
@@ -162,9 +162,9 @@ def scp(mc_endpoint, verify, token, oa_account, iss,
 
             if not src_is_remote and not dest_is_remote:
                 raise Exception(
-                    "No remote host specified. Use regular cp instead.")
+                    "ERROR: No remote host specified. Use regular cp instead.")
             elif src_is_remote and dest_is_remote:
-                raise Exception("scp between remote hosts not yet supported.")
+                raise Exception("ERROR: scp between remote hosts not yet supported.")
             elif src_is_remote:
                 if dry_run:
                     sshpass_cmd += f" {username}@{src_host}:{src_path}"
@@ -184,15 +184,15 @@ def scp(mc_endpoint, verify, token, oa_account, iss,
                 sshpass_cmd += f" {username}@{dest_host}:{dest_path}"
             else:
                 sshpass_cmd += f" {dest_path}"
-            print(sshpass_cmd)
+            click.echo(sshpass_cmd)
     except PermissionError as e:
-        print(f"{e.filename.decode('utf-8')}: Permission denied")
+        click.echo(f"ERROR: {e.filename.decode('utf-8')}: Permission denied", err=True)
     except IsADirectoryError as e:
-        print((f"{e.filename}: not a regular file"))
+        click.echo((f"ERROR: {e.filename}: not a regular file"), err=True)
     except FileNotFoundError as e:
-        print(f"{e.filename}: No such file or directory")
+        click.echo(f"ERROR: {e.filename}: No such file or directory", err=True)
     except Exception as e:
-        print(e)
+        click.echo(e, err=True)
 
 
 @cli.command(name="sftp", short_help="secure file transfer")
@@ -200,7 +200,7 @@ def sftp():
     """
     --- Not implemented ---
     """
-    print("Not implemented.")
+    click.echo("Not implemented.", err=True)
 
 
 if __name__ == '__main__':
