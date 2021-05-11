@@ -12,7 +12,7 @@ from .motley_cue_client import str_info_all
 
 
 def common_options(func):
-    @click.option("--mc-endpoint",
+    @click.option("--mc-endpoint", metavar="URL",
                   help="motley_cue API endpoint, default URLs: https://HOSTNAME, http://HOSTNAME:8080")
     @click.option("--insecure", "verify", is_flag=True, default=False,
                   callback=validate_insecure_flip2verify,
@@ -20,16 +20,16 @@ def common_options(func):
     @optgroup.group("Access Token sources",
                     help="the sources for retrieving the access token, odered by priority",
                     cls=MutuallyExclusiveOptionGroup)
-    @optgroup.option("--token",
+    @optgroup.option("--token", metavar="TOKEN",
                      envvar=["ACCESS_TOKEN", "OIDC",
                              "OS_ACCESS_TOKEN", "OIDC_ACCESS_TOKEN",
                              "WATTS_TOKEN", "WATTSON_TOKEN"],
                      show_envvar=True,
                      help="pass token directly, env variables are checked in given order")
-    @optgroup.option("--oa-account",
+    @optgroup.option("--oa-account", metavar="SHORTNAME",
                      envvar=["OIDC_AGENT_ACCOUNT"], show_envvar=True,
                      help="name of configured account in oidc-agent")
-    @optgroup.option("--iss", "--issuer",
+    @optgroup.option("--iss", "--issuer", metavar="URL",
                      envvar=["OIDC_ISS", "OIDC_ISSUER"], show_envvar=True,
                      help="url of token issuer; configured account in oidc-agent for this issuer will be used")
     @wraps(func)
