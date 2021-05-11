@@ -3,6 +3,7 @@
 from functools import wraps
 import click
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup
+import json
 
 from .ssh_service import ssh_exec, ssh_interactive, scp_put, scp_get, SSH_PORT
 from .utils import validate_insecure_flip2verify, validate_scp_source, validate_scp_target
@@ -62,7 +63,7 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
     except Exception:
         at = None
     str_info = str_info_all(mc_url, at, verify)
-    click.echo(str_info)
+    click.echo(json.dumps(str_info, indent=2))
 
 
 @cli.command(name="ssh", short_help="remote login client")
