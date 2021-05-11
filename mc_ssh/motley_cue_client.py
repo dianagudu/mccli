@@ -28,16 +28,45 @@ def info_authorisation(mc_endpoint, token, verify=True):
     return requests.get(endpoint, headers=headers, verify=verify)
 
 
-def get_supported_ops(mc_endpoint, verify=True):
+def str_info_all(mc_endpoint, token=None, verify=True):
+    service_info = get_info(mc_endpoint, verify)
+    if token is not None:
+        authz_info = get_authorisation_info(mc_endpoint, token, verify)
+        if authz_info is not None:
+            service_info["authorisation"] = authz_info
+    return service_info
+
+
+def get_info(mc_endpoint, verify=True):
     try:
         resp = info(mc_endpoint, verify=verify)
         if resp.status_code == requests.codes.ok:
-            return resp.json()["supported OPs"]
+            return resp.json()
         else:
             resp.raise_for_status()
     except Exception as e:
         print(f"[motley_cue] {e}")
-        print("Failed to get list of supported OPs")
+        print("Failed to get service info")
+    return None
+
+
+def get_supported_ops(mc_endpoint, verify=True):
+    service_info = get_info(mc_endpoint, verify)
+    if service_info is not None:
+        return service_info["supported OPs"]
+    return None
+
+
+def get_authorisation_info(mc_endpoint, token, verify=True):
+    try:
+        resp = info_authorisation(mc_endpoint, token, verify=verify)
+        if resp.status_code == requests.codes.ok:
+            return resp.json()
+        else:
+            resp.raise_for_status()
+    except Exception as e:
+        print(f"[motley_cue] {e}")
+        print("Failed to get authorisation info from service")
     return None
 
 
@@ -53,7 +82,6 @@ def local_username(mc_endpoint, token, verify=True):
             else:
                 return output["message"].split()[1]
         else:
-            print(f"[motley_cue] {resp.json()['detail']}")
             resp.raise_for_status()
     except Exception as e:
         print(f"[motley_cue] {e}")

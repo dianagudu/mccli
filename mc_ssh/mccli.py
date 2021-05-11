@@ -7,6 +7,7 @@ from click_option_group import optgroup, MutuallyExclusiveOptionGroup
 from .ssh_service import ssh_exec, ssh_interactive, scp_put, scp_get, SSH_PORT
 from .utils import validate_insecure_flip2verify, validate_scp_source, validate_scp_target
 from .utils import init_endpoint, init_token, init_user, str_init_token
+from .motley_cue_client import str_info_all
 
 
 def common_options(func):
@@ -43,6 +44,25 @@ def cli(**kwargs):
     ssh client wrapper for oidc-based authentication
     """
     pass
+
+
+@cli.command(name="info", short_help="get info about service")
+@common_options
+@click.argument("hostname")
+def info(mc_endpoint, verify, token, oa_account, iss, hostname):
+    """Get information about SSH service running on HOSTNAME:
+    supported OIDC providers, service description and help.
+
+    If a token is provided, also show authorisation information
+    if issuer of token is supported on the service.
+    """
+    mc_url = init_endpoint(mc_endpoint, hostname, verify)
+    try:
+        at = init_token(token, oa_account, iss, mc_url, verify)
+    except Exception:
+        at = None
+    str_info = str_info_all(mc_url, at, verify)
+    print(str_info)
 
 
 @cli.command(name="ssh", short_help="open a login shell or execute a command via ssh")
