@@ -23,42 +23,47 @@ $ mccli --help
 
 Usage: mccli [OPTIONS] COMMAND [ARGS]...
 
-  ssh client wrapper for oidc-based authentication
+  ssh client wrapper with OIDC-based authentication
 
 Options:
-  --help  Show this message and exit.
-
-Commands:
-  scp   secure file copy
-  sftp  --- Not implemented ---
-  ssh   open a login shell or execute a command via ssh
-
-$ mccli ssh --help
-
-Usage: mccli ssh [OPTIONS] HOSTNAME [COMMAND]
-
-Options:
-  --dry-run                       print sshpass command and exit
-  --mc-endpoint TEXT              motley_cue API endpoint, default URLs:
+  --mc-endpoint URL               motley_cue API endpoint, default URLs:
                                   https://HOSTNAME, http://HOSTNAME:8080
 
   --insecure                      ignore verifying the SSL certificate for
                                   motley_cue endpoint, NOT RECOMMENDED
 
   Access Token sources: [mutually_exclusive]
-    --oa-account TEXT             name of configured account in oidc-agent,
-                                  has priority over --token  [env var:
-                                  OIDC_AGENT_ACCOUNT]
+                                  the sources for retrieving the access token,
+                                  odered by priority
 
-    --token TEXT                  pass token directly, env variables are
+    --token TOKEN                 pass token directly, env variables are
                                   checked in given order  [env var:
                                   ACCESS_TOKEN, OIDC, OS_ACCESS_TOKEN,
                                   OIDC_ACCESS_TOKEN, WATTS_TOKEN,
                                   WATTSON_TOKEN]
 
-  ssh options:                    supported options to be passed to SSH
-    -p <int>                      port to connect to on remote host
+    --oa-account SHORTNAME        name of configured account in oidc-agent
+                                  [env var: OIDC_AGENT_ACCOUNT]
+
+    --iss, --issuer URL           url of token issuer; configured account in
+                                  oidc-agent for this issuer will be used
+                                  [env var: OIDC_ISS, OIDC_ISSUER]
+
+  -v, --verbosity LEVEL           Either CRITICAL, ERROR, WARNING, INFO or
+                                  DEBUG.
+
   --help                          Show this message and exit.
+
+Commands:
+  info  get info about service
+  scp   secure file copy
+  sftp  secure file transfer
+  ssh   remote login client
+```
+
+You can also use the help option on each subcommand, eg:
+```sh
+mccli ssh --help
 ```
 
 First, you'll need an OIDC Access Token to authenticate.
