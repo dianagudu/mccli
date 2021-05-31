@@ -96,13 +96,17 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
     if oa_account is not None:
         try:
             logger.info(f"Using oidc-agent account: {oa_account}")
-            return agent.get_access_token(oa_account), _str_init_token(oa_account=oa_account)
+            return agent.get_access_token(
+                    oa_account, application_hint="mccli"
+                ), _str_init_token(oa_account=oa_account)
         except Exception:
             logger.warning(f"Failed to get access token for oidc-agent account '{oa_account}'")
     if iss is not None:
         try:
             logger.info(f"Using issuer: {iss}")
-            return agent.get_access_token_by_issuer_url(iss), _str_init_token(iss=iss)
+            return agent.get_access_token_by_issuer_url(
+                    iss, application_hint="mccli"
+                ), _str_init_token(iss=iss)
         except Exception:
             logger.warning(
                 f"Failed to get access token for issuer url '{iss}'")
@@ -113,7 +117,9 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
             iss = supported_ops[0]
             try:
                 logger.debug(f"Using the only issuer supported on service: {iss}")
-                return agent.get_access_token_by_issuer_url(iss), _str_init_token(iss=iss)
+                return agent.get_access_token_by_issuer_url(
+                        iss, application_hint="mccli"
+                    ), _str_init_token(iss=iss)
             except Exception:
                 logger.warning(f"Failed to get access token for issuer url '{iss}'")
         elif len(supported_ops) > 1:
