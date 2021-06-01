@@ -1,5 +1,4 @@
-paramiko
-scp
+pexpect
 liboidcagent
 requests
 Click
