@@ -54,7 +54,7 @@ def scp_put(hostname, username, token, port, src, dest,
         scp_opts = __scp_opts_str(port, recursive, preserve_times)
         command = f"scp {scp_opts} {src} {username}@{hostname}:{dest}"
         __scp(command, password=token)
-    except pxssh.ExceptionPxssh as e:
+    except pexpect.ExceptionPexpect as e:
         logger.error(e)
 
 
@@ -64,7 +64,7 @@ def scp_get(hostname, username, token, port, src, dest,
         scp_opts = __scp_opts_str(port, recursive, preserve_times)
         command = f"scp {scp_opts} {username}@{hostname}:{src} {dest}"
         __scp(command, password=token)
-    except pxssh.ExceptionPxssh as e:
+    except pexpect.ExceptionPexpect as e:
         logger.error(e)
 
 
