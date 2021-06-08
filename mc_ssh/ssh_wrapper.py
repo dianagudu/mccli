@@ -14,13 +14,15 @@ TIMEOUT = 10
 SSH_PORT = 22
 ORIGINAL_PROMPT = '[#$] '
 NEW_PROMPT = "$PS1"
-PASSWORD_REGEX = r'(?:[^\n]*)(?:Access Token:)$'
-PASSPHRASE_REGEX = r'(?:passphrase for key)'
 TERMINAL_TYPE = 'xterm-256color'
-TERMINAL_PROMPT = r'(?i)terminal type\?'
-SSH_NEWKEY = '(?i)are you sure you want to continue connecting'
-PERMISSION_DENIED = "(?i)permission denied"
-CONNECTION_CLOSED = "(?i)connection closed by remote host"
+PASSWORD_REGEX = r"(?:[^\n]*)(?:Access Token:)$"
+PASSPHRASE_REGEX = r"(?:passphrase for key)"
+TERMINAL_TYPE_PROMPT = r"(?i)terminal type\?"
+PERMISSION_DENIED = r"(?i)permission denied"
+CONNECTION_CLOSED = r"(?i)connection closed by remote host"
+HOSTKEY_NEW_CONFIRM = r"(?i)are you sure you want to continue connecting"
+HOSTKEY_VERIFY_FAILED = r"(?i)host key verification failed"
+HOSTKEY_VERIFY_PROMPT = r"(?i)please type 'yes', 'no' or the fingerprint"
 
 
 def ssh_exec(hostname, username, token, port, command):
@@ -54,7 +56,7 @@ def scp_put(hostname, username, token, port, src, dest,
         scp_opts = __scp_opts_str(port, recursive, preserve_times)
         command = f"scp {scp_opts} {src} {username}@{hostname}:{dest}"
         __scp(command, password=token)
-    except pexpect.ExceptionPexpect as e:
+    except Exception as e:
         logger.error(e)
 
 
@@ -64,7 +66,7 @@ def scp_get(hostname, username, token, port, src, dest,
         scp_opts = __scp_opts_str(port, recursive, preserve_times)
         command = f"scp {scp_opts} {username}@{hostname}:{src} {dest}"
         __scp(command, password=token)
-    except pexpect.ExceptionPexpect as e:
+    except Exception as e:
         logger.error(e)
 
 
@@ -116,7 +118,8 @@ def __ssh_connect(hostname, username, token, port,
 def __scp(command, password):
     try:
         regex_array = [
-            SSH_NEWKEY, PASSWORD_REGEX, TERMINAL_PROMPT,
+            HOSTKEY_NEW_CONFIRM, HOSTKEY_VERIFY_PROMPT, HOSTKEY_VERIFY_FAILED,
+            PASSWORD_REGEX, TERMINAL_TYPE_PROMPT,
             PERMISSION_DENIED, CONNECTION_CLOSED, pexpect.EOF
         ]
 
@@ -129,16 +132,27 @@ def __scp(command, password):
 
         # First phase
         if i == 0:
-            # New certificate -- always accept it.
             # This is what you get if SSH does not have the remote host's
             # public key stored in the 'known_hosts' cache.
-            scp_process.sendline("yes")
-            i = scp_process.expect(regex_array)
-        if i == 1:  # password or passphrase
+            # Ask the user what to do.
+            print(scp_process.before.decode('utf-8', 'replace'), end='')
+            answer = input("Are you sure you want to continue connecting (yes/no/[fingerprint])? ")
+            scp_process.sendline(answer)
+            while True:
+                i = scp_process.expect(regex_array)
+                if i == 1:
+                    answer = input("Please type 'yes', 'no' or the fingerprint: ")
+                    scp_process.sendline(answer)
+                elif i == 2:
+                    scp_process.close()
+                    raise pexpect.ExceptionPexpect("Host key verification failed.")
+                else:
+                    break
+        if i == 3:  # password or passphrase
             scp_process.sendline(password)
             scp_process.readline()
             i = scp_process.expect(regex_array)
-        if i == 2:
+        if i == 4:
             scp_process.sendline(TERMINAL_TYPE)
             i = scp_process.expect(regex_array)
 
@@ -148,25 +162,35 @@ def __scp(command, password):
             scp_process.close()
             raise pexpect.ExceptionPexpect(
                 'Weird error. Got "are you sure" prompt twice.')
-        elif i == 1:  # password prompt again
+        elif i == 1:
+            # This is weird. This should not happen twice in a row.
+            scp_process.close()
+            raise pexpect.ExceptionPexpect(
+                'Weird error. Got "please type" prompt twice.')
+        elif i == 2:
+            # This is weird. This should not happen twice in a row.
+            scp_process.close()
+            raise pexpect.ExceptionPexpect(
+                'Weird error. Hostkey verification failed again.')
+        elif i == 3:  # password prompt again
             scp_process.close()
             raise pexpect.ExceptionPexpect('password refused')
-        elif i == 2:  # terminal type again? WTF?
+        elif i == 4:  # terminal type again? WTF?
             scp_process.close()
             raise pexpect.ExceptionPexpect(
                 'Weird error. Got "terminal type" prompt twice.')
-        elif i == 3:  # permission denied -- password was bad.
+        elif i == 5:  # permission denied -- password was bad.
             scp_process.close()
             raise pexpect.ExceptionPexpect('permission denied')
-        elif i == 4:  # Connection closed by remote host
+        elif i == 6:  # Connection closed by remote host
             scp_process.close()
             raise pexpect.ExceptionPexpect('connection closed')
-        elif i == 5:  # EOF
+        elif i == 7:  # EOF
             # this is good
             scp_process.write_to_stdout(scp_process.before)
         else:  # Unexpected
             scp_process.close()
             raise pexpect.ExceptionPexpect('unexpected login response')
     except pexpect.ExceptionPexpect as e:
-        logger.error(e)
         logger.error("scp failed on pexpect")
+        logger.error(e)
