@@ -6,7 +6,7 @@ from click_option_group import optgroup, MutuallyExclusiveOptionGroup
 import click_logging
 import json
 
-from .ssh_service import ssh_exec, ssh_interactive, scp_put, scp_get, SSH_PORT
+from .ssh_wrapper import ssh_exec, ssh_interactive, scp_put, scp_get, SSH_PORT
 from .utils import validate_insecure_flip2verify, validate_scp_source, validate_scp_target
 from .utils import init_endpoint, init_token, init_user
 from .motley_cue_client import str_info_all

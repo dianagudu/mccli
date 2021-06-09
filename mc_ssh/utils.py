@@ -194,7 +194,7 @@ def init_endpoint(mc_endpoint, ssh_host, verify=True):
         return endpoint
 
     # raise error and ask user to specify endpoint
-    msg = f"No motley_cue service found on host '{ssh_host}'"\
+    msg = f"No motley_cue service found on host '{ssh_host}' "\
         "on port 443 or 8080. "\
         "Please specify motley_cue endpoint via --mc-endpoint."
     raise Exception(msg)
