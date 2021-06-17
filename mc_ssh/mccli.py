@@ -61,13 +61,16 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
     If a token is provided, also show authorisation information
     if issuer of token is supported on the service.
     """
-    mc_url = init_endpoint(mc_endpoint, hostname, verify)
     try:
-        at, _ = init_token(token, oa_account, iss, mc_url, verify)
-    except Exception:
-        at = None
-    str_info = str_info_all(mc_url, at, verify)
-    click.echo(json.dumps(str_info, indent=2))
+        mc_url = init_endpoint(mc_endpoint, hostname, verify)
+        try:
+            at, _ = init_token(token, oa_account, iss, mc_url, verify)
+        except Exception:
+            at = None
+        str_info = str_info_all(mc_url, at, verify)
+        click.echo(json.dumps(str_info, indent=2))
+    except Exception as e:
+        logger.error(e)
 
 
 @cli.command(name="ssh", short_help="remote login client")
