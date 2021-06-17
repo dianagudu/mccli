@@ -35,6 +35,7 @@ def common_options(func):
                      envvar=["OIDC_ISS", "OIDC_ISSUER"], show_envvar=True,
                      help="url of token issuer; configured account in oidc-agent for this issuer will be used")
     @click_logging.simple_verbosity_option(logger, "--log-level", default="ERROR", metavar="LEVEL")
+    @click.version_option()
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
