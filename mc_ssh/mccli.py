@@ -2,7 +2,7 @@
 
 import click
 
-from .ssh_wrapper import ssh_wrap, scp_wrap, scp_nowrap, scp_wrap_nouser_multipass
+from .ssh_wrapper import ssh_wrap, scp_wrap
 from .init_utils import valid_mc_url, init_endpoint, init_token, init_user, augmented_scp_command
 from .scp_utils import parse_scp_args
 from .click_utils import SshUsageCommand, ScpUsageCommand, common_options
@@ -109,28 +109,30 @@ def scp(mc_endpoint, verify, token, oa_account, iss, dry_run, scp_command):
             mc_url = valid_mc_url(mc_endpoint, verify)
             at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)
             username = init_user(mc_url, at, verify)
-            scp_wrap(scp_command, username, at,
-                     str_get_token=str_get_at, dry_run=dry_run)
+            scp_wrap(scp_command, username=username, tokens=at,
+                     str_get_tokens=str_get_at, dry_run=dry_run)
         else:
             scp_args = parse_scp_args(scp_command)
             if scp_args.no_mc():
                 logger.warning("No motley_cue handling will be done. "
                                "Either all specified paths are local, "
                                "or users are specified for remotes.")
-                scp_nowrap(scp_command, dry_run)
+                scp_wrap(scp_command, dry_run=dry_run)
             elif scp_args.single_mc():
                 logger.info("Only one host with motley_cue detected. Easy.")
                 mc_url = init_endpoint([scp_args.mc_host], verify)
                 at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)
                 username = init_user(mc_url, at, verify)
-                scp_wrap(scp_command, username, at, num_prompts=scp_args.num_prompts,
-                         str_get_token=str_get_at, dry_run=dry_run)
+                scp_wrap(scp_command, username=username, tokens=at,
+                         str_get_tokens=str_get_at,
+                         num_prompts=scp_args.num_prompts, dry_run=dry_run)
             elif scp_args.multiple_mc():
                 logger.info("Multiple hosts with motley_cue detected, "
                             "your commandline will be augmented with usernames. ")
                 new_scp_command, tokens, str_get_tokens = \
                     augmented_scp_command(scp_args, token, oa_account, iss, verify)
-                scp_wrap_nouser_multipass(new_scp_command, tokens, str_get_tokens, dry_run)
+                scp_wrap(new_scp_command, tokens=tokens,
+                         str_get_tokens=str_get_tokens, dry_run=dry_run)
             else:
                 raise Exception("Something went wrong when trying to find out "
                                 "which paths are remote and which are local.")
