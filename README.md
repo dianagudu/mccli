@@ -49,9 +49,10 @@ Options:
                                   oidc-agent for this issuer will be used
                                   [env var: OIDC_ISS, OIDC_ISSUER]
 
-  -v, --verbosity LEVEL           Either CRITICAL, ERROR, WARNING, INFO or
+  --log-level LEVEL               Either CRITICAL, ERROR, WARNING, INFO or
                                   DEBUG.
 
+  --version                       Show the version and exit.
   --help                          Show this message and exit.
 
 Commands:
