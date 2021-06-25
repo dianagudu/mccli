@@ -5,8 +5,10 @@ import signal
 import sys
 import re
 import pexpect
+import os
 from functools import partial
 from click import echo
+from random import randint
 
 from .logging import logger
 
@@ -26,6 +28,11 @@ def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
     representation of the command to get the token is not defined (str_get_token),
     the actual token is printed.
     """
+    # add oidc-agent forwarding
+    random_no = randint(10000, 99999)
+    oidc_sock = os.getenv("OIDC_SOCK")
+    if oidc_sock:
+        ssh_args = ["-R", f"/tmp/oidc-forward-{random_no}:{oidc_sock}"] + ssh_args
     ssh_command_str = " ".join(ssh_args)
     ssh_command_str = f"ssh -l {username} {ssh_command_str}"
     if dry_run:
