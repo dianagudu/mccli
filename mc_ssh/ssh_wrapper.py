@@ -29,9 +29,9 @@ def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
     ssh_command_str = " ".join(ssh_args)
     ssh_command_str = f"ssh -l {username} {ssh_command_str}"
     if dry_run:
-        __dry_run(ssh_command_str, token, str_get_token)
+        __dry_run(ssh_command_str, tokens=token, str_get_tokens=str_get_token)
     else:
-        __process_wrap(ssh_command_str, [token])
+        __process_wrap(ssh_command_str, passwords=[token])
 
 
 def scp_wrap(scp_args, username=None, tokens=None, str_get_tokens=None,
@@ -169,15 +169,15 @@ def __dry_run(command, tokens=None, str_get_tokens=None, num_prompts=1):
         str_get_tokens = tokens
     if not tokens:
         echo(command)
-    elif isinstance(token, list):
+    elif isinstance(tokens, list):
         echo("# you'll need to input the tokens below when prompted, in this order:")
-        for str_at in str_get_token:
+        for str_at in str_get_tokens:
             echo(f"echo {str_at}")
         echo(f"{command}")
     else:
         if num_prompts == 1:
-            echo(f"SSHPASS={str_get_token} sshpass -P 'Access Token' -e {command}")
+            echo(f"SSHPASS={str_get_tokens} sshpass -P 'Access Token' -e {command}")
         else:
-            echo("# you'll need to input the token below every time you're prompted:")
-            echo(f"echo {str_get_token}")
+            echo(f"# you'll need to input the token below {num_prompts} times:")
+            echo(f"echo {str_get_tokens}")
             echo(f"{command}")
