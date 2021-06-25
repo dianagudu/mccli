@@ -60,3 +60,18 @@ def common_options(func):
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
     return wrapper
+
+
+def tuple_to_list(ctx, param, value):
+    try:
+        if not value:
+            logger.error("Empty command args list. Shouldn't have happened...")
+            ctx.abort()
+        elif not isinstance(value, tuple):
+            logger.error("Weird, command args is not a tuple...")
+        else:
+            return list(value)
+    except Exception as e:
+        logger.debug(e)
+        logger.error("Failed to convert command args tuple to list")
+        ctx.abort()

@@ -5,7 +5,7 @@ import click
 from .ssh_wrapper import ssh_wrap, scp_wrap
 from .init_utils import valid_mc_url, init_endpoint, init_token, init_user, augmented_scp_command
 from .scp_utils import parse_scp_args
-from .click_utils import SshUsageCommand, ScpUsageCommand, common_options
+from .click_utils import SshUsageCommand, ScpUsageCommand, common_options, tuple_to_list
 from .motley_cue_client import str_info_all
 from .logging import logger
 
@@ -50,7 +50,7 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
              })
 @common_options
 @click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
-@click.argument("ssh_command", nargs=-1, required=True, type=click.UNPROCESSED)
+@click.argument("ssh_command", nargs=-1, required=True, type=click.UNPROCESSED, callback=tuple_to_list)
 def ssh(mc_endpoint, verify, token, oa_account, iss, dry_run, ssh_command):
     """Connects and logs into HOSTNAME via SSH by using the provided OIDC
     Access Token to authenticate.
@@ -85,7 +85,7 @@ def ssh(mc_endpoint, verify, token, oa_account, iss, dry_run, ssh_command):
              })
 @common_options
 @click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
-@click.argument("scp_command", nargs=-1, required=True, type=click.UNPROCESSED)
+@click.argument("scp_command", nargs=-1, required=True, type=click.UNPROCESSED, callback=tuple_to_list)
 def scp(mc_endpoint, verify, token, oa_account, iss, dry_run, scp_command):
     """Copies files between hosts on a network over SSH using the provided
     OIDC Access Token to authenticate.

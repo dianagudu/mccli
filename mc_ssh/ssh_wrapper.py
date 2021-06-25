@@ -59,7 +59,7 @@ def scp_wrap(scp_args, username=None, tokens=None, str_get_tokens=None,
     if not username and not tokens:
         passwords = tokens
     elif username and isinstance(tokens, str):
-        scp_args = ('-o', f"User={username}") + scp_args   # scp_args is a tuple
+        scp_args = ['-o', f"User={username}"] + scp_args   # scp_args is a tuple
         passwords = [tokens] * num_prompts
     elif not username and isinstance(tokens, list):
         passwords = tokens
@@ -81,7 +81,7 @@ def get_hostname(ssh_args):
     """
     # add strange option to make ssh fail without even sstarting pre-auth
     add_opts = ['ssh', '-v', '-b', BIND_ADDRESS]
-    new_args = list(ssh_args)
+    new_args = ssh_args.copy()
     # remove possible duplicate -b options
     for i in range(new_args.count('-b')):
         index = new_args.index('-b')
