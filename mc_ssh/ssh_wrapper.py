@@ -30,7 +30,7 @@ def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
     if dry_run:
         __dry_run(ssh_command_str, token, str_get_token)
     else:
-        __process_wrap(ssh_command_str, token)
+        __process_wrap(ssh_command_str, [token])
 
 
 def scp_wrap(scp_args, username, token, num_prompts=1, str_get_token=None, dry_run=False):
@@ -47,7 +47,7 @@ def scp_wrap(scp_args, username, token, num_prompts=1, str_get_token=None, dry_r
     if dry_run:
         __dry_run(scp_command_str, token, str_get_token, num_prompts=num_prompts)
     else:
-        __process_wrap(scp_command_str, token, num_prompts=num_prompts)
+        __process_wrap(scp_command_str, [token]*num_prompts)
 
 
 def scp_nowrap(scp_args, dry_run=False):
@@ -76,7 +76,7 @@ def scp_wrap_nouser_multipass(scp_args, tokens, str_get_tokens=None, dry_run=Fal
     if dry_run:
         __dry_run(scp_command_str, tokens, str_get_tokens)
     else:
-        __process_wrap_multipass(scp_command_str, tokens)
+        __process_wrap(scp_command_str, tokens)
 
 
 def get_hostname(ssh_args):
@@ -118,18 +118,6 @@ def __sigwinch_passthrough(sig=None, data=None, child_process=None):
 
 def __output_filter(data, info=None):
     """Checks output from child process for Access Token prompt
-    and sends the token to the process.
-    """
-    if info and info["num_prompts"] and re.match(PASSWORD_REGEX, data.decode("utf-8")):
-        info["child_process"].sendline(info["password"])
-        info["child_process"].readline()  # to hide the token
-        info["num_prompts"] -= 1
-        return b""
-    return data
-
-
-def __output_filter_multipass(data, info=None):
-    """Checks output from child process for Access Token prompt
     and sends the first password in list to the process.
     Removes the password from the list until the list is empty.
     """
@@ -141,33 +129,7 @@ def __output_filter_multipass(data, info=None):
     return data
 
 
-def __process_wrap(command, password, num_prompts=1):
-    """Spawns a new process to run given command,
-    and lets the user interact with it, except when prompted for
-    an Access Token, when it inputs the given password on
-    behalf of the user.
-    """
-    try:
-        child_process = pexpect.spawn(command)
-        signal.signal(signal.SIGWINCH, partial(
-            __sigwinch_passthrough, child_process=child_process))
-        __sigwinch_passthrough(child_process=child_process)
-
-        info = {
-            "child_process": child_process,
-            "password": password,
-            "num_prompts": num_prompts
-        }
-        child_process.interact(
-            output_filter=partial(__output_filter, info=info))
-    except pexpect.ExceptionPexpect as e:
-        child_process.logout()
-        logger.error(e)
-    except Exception as e:
-        logger.error(e)
-
-
-def __process_wrap_multipass(command, passwords):
+def __process_wrap(command, passwords):
     """Spawns a new process to run given command,
     and lets the user interact with it, except when prompted for
     Access Tokens, when it inputs the given passwords on
@@ -184,7 +146,7 @@ def __process_wrap_multipass(command, passwords):
             "passwords": passwords
         }
         child_process.interact(
-            output_filter=partial(__output_filter_multipass, info=info))
+            output_filter=partial(__output_filter, info=info))
     except pexpect.ExceptionPexpect as e:
         child_process.logout()
         logger.error(e)
