@@ -68,7 +68,6 @@ class ScpOperand():
                 return f"{user}@{self.host}:{self.path}"
         else:
             # format scp://[user@]host[:port][/path]
-            print(urlparse(self.original_str).unsplit())
             return urlparse(self.original_str).copy_with(userinfo=user).unsplit()
 
     def __repr__(self):

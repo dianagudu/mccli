@@ -130,7 +130,6 @@ def scp(mc_endpoint, verify, token, oa_account, iss, dry_run, scp_command):
                             "your commandline will be augmented with usernames. ")
                 new_scp_command, tokens, str_get_tokens = \
                     augmented_scp_command(scp_args, token, oa_account, iss, verify)
-                print(new_scp_command, tokens, str_get_tokens)
                 scp_wrap_nouser_multipass(new_scp_command, tokens, str_get_tokens, dry_run)
             else:
                 raise Exception("Something went wrong when trying to find out "
