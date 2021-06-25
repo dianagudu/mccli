@@ -1,5 +1,4 @@
 import liboidcagent as agent
-from requests.packages import urllib3
 
 from .motley_cue_client import local_username, get_supported_ops, is_valid_mc_url
 from .ssh_wrapper import get_hostname
