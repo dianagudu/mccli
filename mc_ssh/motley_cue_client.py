@@ -1,4 +1,5 @@
 import requests
+import json
 
 from .logging import logger
 
@@ -36,7 +37,7 @@ def str_info_all(mc_endpoint, token=None, verify=True):
         authz_info = get_authorisation_info(mc_endpoint, token, verify)
         if authz_info is not None:
             service_info["authorisation"] = authz_info
-    return service_info
+    return json.dumps(service_info, indent=2)
 
 
 def get_info(mc_endpoint, verify=True):
@@ -88,3 +89,26 @@ def local_username(mc_endpoint, token, verify=True):
     except Exception as e:
         logger.error(f"[motley_cue] {e}")
     raise Exception("Failed to get ssh username")
+
+
+def is_valid_mc_url(mc_endpoint, verify=True):
+    try:
+        response = requests.get(mc_endpoint, verify=verify)
+        if response.status_code == 200:
+            if not verify:
+                logger.warning(
+                    "InsecureRequestWarning: Unverified HTTPS"
+                    f"request is being made to '{mc_endpoint}'. "
+                    "Adding certificate verification is strongly advised."
+                )
+            # check for motley_cue
+            if response.json().get("description", None) == "This is the user API for mapping remote identities to local identities.":
+                return True
+    except requests.exceptions.SSLError:
+        msg = "SSL certificate verification failed. "\
+            "Use --insecure if you wish to ignore SSL certificate verification"
+        logger.info(msg)
+        raise Exception(msg)
+    except Exception:
+        pass
+    return False
