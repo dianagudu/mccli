@@ -11,7 +11,7 @@ from .logging import logger
 
 
 @click.group()
-# @common_options
+@common_options
 def cli(**kwargs):
     """
     ssh client wrapper with OIDC-based authentication

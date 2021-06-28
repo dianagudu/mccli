@@ -4,6 +4,7 @@ from click_option_group import optgroup, MutuallyExclusiveOptionGroup
 from functools import wraps
 
 from .logging import logger
+from .version import __version__
 
 
 class CustomUsageCommand(click.Command):
@@ -55,7 +56,7 @@ def common_options(func):
                      envvar=["OIDC_ISS", "OIDC_ISSUER"], show_envvar=True,
                      help="url of token issuer; configured account in oidc-agent for this issuer will be used")
     @click_logging.simple_verbosity_option(logger, "--log-level", default="ERROR", metavar="LEVEL")
-    @click.version_option()
+    @click.version_option(__version__)
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
