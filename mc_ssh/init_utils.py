@@ -17,7 +17,7 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
     return token and string representation of command to retrieve token
     """
     if token is not None:
-        logger.debug(f"Using token: {token}")
+        logger.info(f"Using token: {token}")
         return token, _str_init_token(token=token)
     if oa_account is not None:
         try:
@@ -36,19 +36,19 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
         except Exception:
             logger.warning(f"Failed to get access token for issuer url '{iss}'")
     if mc_endpoint is not None:
-        logger.debug(f"Trying to get list of supported AT issuers from {mc_endpoint}...")
+        logger.info(f"Trying to get list of supported AT issuers from {mc_endpoint}...")
         supported_ops = get_supported_ops(mc_endpoint, verify)
         if len(supported_ops) == 1:
             iss = supported_ops[0]
             try:
-                logger.debug(f"Using the only issuer supported on service: {iss}")
+                logger.info(f"Using the only issuer supported on service: {iss}")
                 return agent.get_access_token_by_issuer_url(
                     iss, application_hint="mccli"
                 ), _str_init_token(iss=iss)
             except Exception:
                 logger.warning(f"Failed to get access token for issuer url '{iss}'")
         elif len(supported_ops) > 1:
-            logger.debug("Multiple issuers supported on service. I don't know which one to use.")
+            logger.info("Multiple issuers supported on service. I don't know which one to use.")
     raise Exception("No access token found")
 
 
@@ -97,7 +97,7 @@ def init_endpoint(ssh_args, verify=True):
         msg = f"Could not infer motley_cue endpoint from command. "\
             "Please specify motley_cue endpoint via --mc-endpoint."
         raise Exception(msg)
-    logger.info(f"Got host {ssh_host}, looking for motley_cue service on host.")
+    logger.info(f"Got host '{ssh_host}', looking for motley_cue service on host.")
 
     # try https
     endpoint = f"https://{ssh_host}"

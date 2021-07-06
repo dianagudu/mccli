@@ -82,9 +82,14 @@ def local_username(mc_endpoint, token, verify=True):
                 resp = deploy(mc_endpoint, token, verify=verify)
                 if resp.status_code == requests.codes.ok:
                     return resp.json()["credentials"]["ssh_user"]
+                else:
+                    resp_dict = json.loads(resp.text)
+                    logger.error(f'[motley_cue] {resp_dict["state"]}: {resp_dict["message"]}')
+                    resp.raise_for_status()
             else:
                 return output["message"].split()[1]
         else:
+            logger.error(f"[motley_cue] {json.loads(resp.text)}")
             resp.raise_for_status()
     except Exception as e:
         logger.error(f"[motley_cue] {e}")
@@ -93,6 +98,7 @@ def local_username(mc_endpoint, token, verify=True):
 
 def is_valid_mc_url(mc_endpoint, verify=True):
     try:
+        logger.info(f"Looking for motley_cue service at '{mc_endpoint}'...")
         response = requests.get(mc_endpoint, verify=verify)
         if response.status_code == 200:
             if not verify:
@@ -103,6 +109,7 @@ def is_valid_mc_url(mc_endpoint, verify=True):
                 )
             # check for motley_cue
             if response.json().get("description", None) == "This is the user API for mapping remote identities to local identities.":
+                logger.info("...FOUND IT!")
                 return True
     except requests.exceptions.SSLError:
         msg = "SSL certificate verification failed. "\
@@ -111,4 +118,5 @@ def is_valid_mc_url(mc_endpoint, verify=True):
         raise Exception(msg)
     except Exception:
         pass
+    logger.info("...NOTHING HERE")
     return False

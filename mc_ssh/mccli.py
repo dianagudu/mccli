@@ -38,6 +38,7 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
             at, _ = init_token(token, oa_account, iss, mc_url, verify)
         except Exception:
             at = None
+            logger.warning("No access token found, will not show authorisation information")
         click.echo(str_info_all(mc_url, at, verify))
     except Exception as e:
         logger.error(e)
