@@ -14,10 +14,12 @@ from .logging import logger
 
 
 PASSWORD_REGEX = r"(?:[^\n]*)(?:Access Token:)$"
-SSH_HOSTNAME_REGEX = r"debug1:\s+Connecting\s+to\s+(?P<host>\S+)\s+\[\S+\]\s+port\s+\d+."
+SSH_HOSTNAME_REGEX = r"debug1: Connecting to (?P<host>\S+) \[\S+\] port \d+."
 SSH_HOSTNAME_PATTERN = re.compile(SSH_HOSTNAME_REGEX)
 BIND_ADDRESS = "SOMETHING_OBVIOUSLY_WRONG_1234567890"
-SSH_ERROR_BIND_ADDRESS = rf"getaddrinfo: {BIND_ADDRESS}: Name or service not known"
+ERROR_MSG_1 = "Name or service not known"
+ERROR_MSG_2 = "No address associated with hostname"
+SSH_ERROR_BIND_ADDRESS = rf"getaddrinfo: {BIND_ADDRESS}: ({ERROR_MSG_1}|{ERROR_MSG_2})"
 
 
 def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
