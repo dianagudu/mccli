@@ -49,7 +49,7 @@ def common_options(func):
                              "WATTS_TOKEN", "WATTSON_TOKEN"],
                      show_envvar=True,
                      help="pass token directly, env variables are checked in given order")
-    @optgroup.option("--oidc", "--oa-account", metavar="SHORTNAME",
+    @optgroup.option("--oa-account", "--oidc", metavar="SHORTNAME",
                      envvar=["OIDC_AGENT_ACCOUNT"], show_envvar=True,
                      help="name of configured account in oidc-agent")
     @optgroup.option("--iss", "--issuer", metavar="URL",
