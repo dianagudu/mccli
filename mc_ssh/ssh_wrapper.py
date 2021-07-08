@@ -19,7 +19,7 @@ SSH_HOSTNAME_PATTERN = re.compile(SSH_HOSTNAME_REGEX)
 BIND_ADDRESS = "SOMETHING_OBVIOUSLY_WRONG_1234567890"
 ERROR_MSG_1 = "Name or service not known"
 ERROR_MSG_2 = "No address associated with hostname"
-SSH_ERROR_BIND_ADDRESS = rf"getaddrinfo: {BIND_ADDRESS}: ({ERROR_MSG_1}|{ERROR_MSG_2})"
+SSH_ERROR_BIND_ADDRESS = rf"(?P<errorprefix>getaddrinfo: {BIND_ADDRESS}:) (?P<errormsg>[^\r\n]+)"
 
 
 def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
@@ -98,12 +98,18 @@ def get_hostname(ssh_args):
     new_args = add_opts + new_args
     command = " ".join(new_args)
     try:
+        logger.debug(f"Running this command is expected to fail: {command}")
         child_process = pexpect.spawn(command)
         child_process.expect(SSH_ERROR_BIND_ADDRESS)
+        errorprefix = child_process.match.group('errorprefix').decode('utf-8')
+        errormsg = child_process.match.group('errormsg').decode('utf-8')
+        logger.debug(f"Command failed with error message: '{errorprefix} {errormsg}'")
         result = SSH_HOSTNAME_PATTERN.search(
             child_process.before.decode("utf-8"))
         if result:
-            return result.group("host")
+            hostname = result.group("host")
+            logger.debug(f"Found hostname by parsing command error logs: {hostname}")
+            return hostname
     except pexpect.ExceptionPexpect as e:
         logger.debug(e)
         logger.info("Error trying to get real hostname from ssh command")
