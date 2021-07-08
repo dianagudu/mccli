@@ -104,6 +104,11 @@ def init_endpoint(ssh_args, verify=True):
     if is_valid_mc_url(endpoint, verify):
         return endpoint
 
+    # try https on 8443
+    endpoint = f"https://{ssh_host}:8443"
+    if is_valid_mc_url(endpoint, verify):
+        return endpoint
+
     # try http on 8080 but issue warning
     endpoint = f"http://{ssh_host}:8080"
     if is_valid_mc_url(endpoint):
