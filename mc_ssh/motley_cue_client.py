@@ -49,7 +49,7 @@ def get_info(mc_endpoint, verify=True):
             resp.raise_for_status()
     except Exception as e:
         logger.debug(f"[motley_cue] {e}")
-        logger.info("Failed to get service info")
+        logger.error("Failed to get service info")
     return None
 
 
@@ -69,7 +69,7 @@ def get_authorisation_info(mc_endpoint, token, verify=True):
             resp.raise_for_status()
     except Exception as e:
         logger.debug(f"[motley_cue] {e}")
-        logger.info("Failed to get authorisation info from service")
+        logger.warning("Failed to get authorisation info from service")
     return None
 
 
