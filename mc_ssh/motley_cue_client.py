@@ -1,5 +1,7 @@
 import requests
 import json
+from rfc3986 import urlparse
+import socket
 
 from .logging import logger
 
@@ -121,8 +123,17 @@ def local_username(mc_endpoint, token, verify=True):
 
 
 def is_valid_mc_url(mc_endpoint, verify=True):
+    """make sure you always set the url schema when calling this method.
+    This should be http or https
+    """
     try:
         logger.info(f"Looking for motley_cue service at '{mc_endpoint}'...")
+        parse_result = urlparse(mc_endpoint)
+        fqdn_host = socket.getfqdn(parse_result.host)
+        if fqdn_host and fqdn_host != parse_result.host:
+            mc_endpoint = parse_result.copy_with(host=fqdn_host).unsplit()
+            logger.info(f"Using FQDN for host: {mc_endpoint}")
+
         response = requests.get(mc_endpoint, verify=verify)
         if response.status_code == 200:
             if not verify:
@@ -134,13 +145,14 @@ def is_valid_mc_url(mc_endpoint, verify=True):
             # check for motley_cue
             if response.json().get("description", None) == "This is the user API for mapping remote identities to local identities.":
                 logger.info("...FOUND IT!")
-                return True
+                return mc_endpoint
     except requests.exceptions.SSLError:
         msg = "SSL certificate verification failed. "\
             "Use --insecure if you wish to ignore SSL certificate verification"
         logger.info(msg)
         raise Exception(msg)
-    except Exception:
+    except Exception as e:
         pass
+        # logger.debug(f"Something went wrong: {e}")
     logger.info("...NOTHING HERE")
-    return False
+    return None

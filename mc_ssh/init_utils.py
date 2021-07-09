@@ -88,8 +88,18 @@ def valid_mc_url(mc_endpoint, verify=True):
     running at provided url and returns the url
     Raises an exception otherwise.
     """
-    if is_valid_mc_url(mc_endpoint):
-        return mc_endpoint
+    if mc_endpoint.startswith("http"):
+        valid_endpoint = is_valid_mc_url(mc_endpoint, verify)
+        if valid_endpoint:
+            return valid_endpoint
+    else:
+        for schema in ["http", "https"]:
+            # they should be in this order, since https can raise SSL related exception
+            logger.warning(f"No URL schema specified for mc-endpoint, trying {schema}")
+            endpoint = f"{schema}://{mc_endpoint}"
+            valid_endpoint = is_valid_mc_url(endpoint, verify)
+            if valid_endpoint:
+                return valid_endpoint
     msg = f"No motley_cue service found at '{mc_endpoint}'. "\
         "Please specify a valid motley_cue endpoint."
     raise Exception(msg)
@@ -116,19 +126,22 @@ def init_endpoint(ssh_args, verify=True):
 
     # try https
     endpoint = f"https://{ssh_host}"
-    if is_valid_mc_url(endpoint, verify):
-        return endpoint
+    valid_endpoint = is_valid_mc_url(endpoint, verify)
+    if valid_endpoint:
+        return valid_endpoint
 
     # try https on 8443
     endpoint = f"https://{ssh_host}:8443"
-    if is_valid_mc_url(endpoint, verify):
-        return endpoint
+    valid_endpoint = is_valid_mc_url(endpoint, verify)
+    if valid_endpoint:
+        return valid_endpoint
 
     # try http on 8080 but issue warning
     endpoint = f"http://{ssh_host}:8080"
-    if is_valid_mc_url(endpoint):
+    valid_endpoint = is_valid_mc_url(endpoint)
+    if valid_endpoint:
         logger.warning(f"using unencrypted motley_cue endpoint: {endpoint}")
-        return endpoint
+        return valid_endpoint
 
     # raise error and ask user to specify endpoint
     msg = f"No motley_cue service found on host '{ssh_host}' "\
