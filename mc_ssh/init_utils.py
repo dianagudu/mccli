@@ -5,6 +5,21 @@ from .ssh_wrapper import get_hostname
 from .logging import logger
 
 
+def validate_token_length(func):
+    """Decorator for init_token that checks if token length is < 1024
+
+    The function takes token returned by init_token and raises an
+    Exception if token too long and cannot be used for SSH authentication.
+    """
+    def wrapper(*args, **kwargs):
+        at, str_get_at = func(*args, **kwargs)
+        if len(at) > 1024:
+            raise Exception(f"Sorry, your token is too long ({len(at)} > 1024) and cannot be used for SSH authentication. Please ask your OP admin if they can release shorter tokens.")
+        return at, str_get_at
+    return wrapper
+
+
+@validate_token_length
 def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
     """Retrieve an oidc token:
 
