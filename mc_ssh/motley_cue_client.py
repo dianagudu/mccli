@@ -3,6 +3,8 @@ import json
 
 from .logging import logger
 
+infostring = "Please contact an administrator for more information."
+
 
 def deploy(mc_endpoint, token, verify=True):
     endpoint = mc_endpoint + "/user/deploy"
@@ -78,21 +80,43 @@ def local_username(mc_endpoint, token, verify=True):
         resp = get_status(mc_endpoint, token, verify=verify)
         if resp.status_code == requests.codes.ok:
             output = resp.json()
-            if output["state"] == "not_deployed":
+            state = output["state"]
+            logger.info(f"State of your local account: {state}")
+            if state == "suspended":
+                logger.warning(f"Your account on host is suspended, you might not be able to login. {infostring}")
+                return output["message"].split()[1]
+            elif state == "limited":
+                logger.warning(f"Your account on host has limited capabilities, but you might still be able to login. {infostring}")
+                return output["message"].split()[1]
+            elif state == "pending":
+                raise Exception(f"Your account creation on host is still pending approval. {infostring}")
+            elif state == "unknown" or state == "not_deployed" or state == "deployed":
+                if state == "unknown":
+                    logger.warning("Your account on host is in an undefined state. Will try redeploying...")
+                elif state == "not_deployed":
+                    logger.info("Creating local account...")
+                elif state == "deployed":
+                    logger.info("Updating local account...")
                 resp = deploy(mc_endpoint, token, verify=verify)
                 if resp.status_code == requests.codes.ok:
+                    logger.debug(json.dumps(resp.json(), indent=2))
                     return resp.json()["credentials"]["ssh_user"]
                 else:
                     resp_dict = json.loads(resp.text)
-                    logger.error(f'[motley_cue] {resp_dict["state"]}: {resp_dict["message"]}')
-                    resp.raise_for_status()
+                    try:
+                        logger.error(f'Failed on deploy: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}')
+                    except Exception:
+                        logger.error(f"Failed on deploy: [HTTP {resp.status_code}] {resp.text}")
             else:
-                return output["message"].split()[1]
+                raise Exception(f"Weird, this should never have happened... Your account is in state: {state}. {infostring}")
         else:
-            logger.error(f"[motley_cue] {json.loads(resp.text)}")
-            resp.raise_for_status()
+            resp_dict = json.loads(resp.text)
+            try:
+                logger.error(f'Failed on get_status: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}')
+            except Exception:
+                logger.error(f"Failed on get_status: [HTTP {resp.status_code}] {resp.text}")
     except Exception as e:
-        logger.error(f"[motley_cue] {e}")
+        logger.error(f"Something went wrong: {e}")
     raise Exception("Failed to get ssh username")
 
 
