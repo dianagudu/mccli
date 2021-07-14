@@ -111,26 +111,26 @@ def my_logging_simple_verbosity_option(logger=None, *names, **kwargs):
 
 def common_options(func):
     @click.option("--mc-endpoint", metavar="URL", callback=validate_pass_from_parent,
-                  help="motley_cue API endpoint, default URLs: https://HOSTNAME, http://HOSTNAME:8080")
+                  help="motley_cue API endpoint. Default URLs are checked in given order: https://HOSTNAME, https://HOSTNAME:8443, http://HOSTNAME:8080")
     @click.option("--insecure", "verify", is_flag=True, default=True, callback=validate_verify,
-                  help="ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED")
+                  help="Ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED.")
     @optgroup.group("Access Token sources",
-                    help="the sources for retrieving the access token, odered by priority",
+                    help="The sources for retrieving an Access Token, in the order they are checked. If no source is specified, it will try to retrieve the supported token issuer from the service.",
                     cls=MutuallyExclusiveOptionGroup)
     @optgroup.option("--token", metavar="TOKEN",
                      envvar=["ACCESS_TOKEN", "OIDC",
                              "OS_ACCESS_TOKEN", "OIDC_ACCESS_TOKEN",
                              "WATTS_TOKEN", "WATTSON_TOKEN"],
                      show_envvar=True, callback=validate_pass_from_parent,
-                     help="pass token directly, env variables are checked in given order")
+                     help="Pass token directly. Environment variables are checked in given order.")
     @optgroup.option("--oa-account", "--oidc", metavar="SHORTNAME",
                      envvar=["OIDC_AGENT_ACCOUNT"], show_envvar=True,
                      callback=validate_pass_from_parent,
-                     help="name of configured account in oidc-agent")
+                     help="Name of configured account in oidc-agent.")
     @optgroup.option("--iss", "--issuer", metavar="URL",
                      envvar=["OIDC_ISS", "OIDC_ISSUER"], show_envvar=True,
                      callback=validate_pass_from_parent,
-                     help="url of token issuer; configured account in oidc-agent for this issuer will be used")
+                     help="URL of token issuer. Configured account in oidc-agent for this issuer will be used. Environment variables are checked in given order.")
     @my_logging_simple_verbosity_option(logger, "--log-level", default="ERROR", metavar="LEVEL", envvar="LOG", show_envvar=True)
     @click.version_option(__version__)
     @wraps(func)

@@ -14,7 +14,7 @@ from .logging import logger
 @common_options
 def cli(**kwargs):
     """
-    ssh client wrapper with OIDC-based authentication
+    SSH client wrapper with OIDC-based authentication
     """
     pass
 
@@ -51,7 +51,7 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
                  "allow_extra_args": True
              })
 @common_options
-@click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
+@click.option("--dry-run", is_flag=True, help="Print sshpass command and exit.")
 @click.argument("ssh_command", nargs=-1, required=True, type=click.UNPROCESSED, callback=tuple_to_list)
 def ssh(mc_endpoint, verify, token, oa_account, iss, dry_run, ssh_command):
     """Connects and logs into HOSTNAME via SSH by using the provided OIDC
@@ -86,7 +86,7 @@ def ssh(mc_endpoint, verify, token, oa_account, iss, dry_run, ssh_command):
                  "allow_extra_args": True
              })
 @common_options
-@click.option("--dry-run", is_flag=True, help="print sshpass command and exit")
+@click.option("--dry-run", is_flag=True, help="Print sshpass command and exit.")
 @click.argument("scp_command", nargs=-1, required=True, type=click.UNPROCESSED, callback=tuple_to_list)
 def scp(mc_endpoint, verify, token, oa_account, iss, dry_run, scp_command):
     """Copies files between hosts on a network over SSH using the provided

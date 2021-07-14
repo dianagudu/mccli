@@ -34,41 +34,54 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
     if token is not None:
         logger.info(f"Using token: {token}")
         return token, _str_init_token(token=token)
+    else:
+        logger.info("No access token provided.")
     if oa_account is not None:
         try:
             logger.info(f"Using oidc-agent account: {oa_account}")
             return agent.get_access_token(
                 oa_account, application_hint="mccli"
             ), _str_init_token(oa_account=oa_account)
-        except Exception:
-            logger.warning(f"Failed to get access token for oidc-agent account '{oa_account}'")
+        except Exception as e:
+            logger.warning(f"Failed to get Access Token for oidc-agent account '{oa_account}': {e}.")
+            logger.warning(f"Are you sure this account is loaded? Load it with:\n    oidc-add {oa_account}")
+            logger.warning(f"Are you sure this account is configured? Create it with:\n    oidc-gen {oa_account}")
+    else:
+        logger.info("No oidc-agent account provided.")
     if iss is not None:
         try:
             logger.info(f"Using issuer: {iss}")
             return agent.get_access_token_by_issuer_url(
                 iss, application_hint="mccli"
             ), _str_init_token(iss=iss)
-        except Exception:
-            logger.warning(f"Failed to get access token for issuer url '{iss}'")
+        except Exception as e:
+            logger.warning(f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}.")
+            logger.warning(f"Are you sure you have an account configured with oidc-agent for this issuer? Create it with:\n    oidc-gen --iss {iss}")
+    else:
+        logger.info("No issuer URL provided.")
     if mc_endpoint is not None:
         logger.info(f"Trying to get list of supported AT issuers from {mc_endpoint}...")
         supported_ops = get_supported_ops(mc_endpoint, verify)
         if len(supported_ops) == 1:
             iss = supported_ops[0]
             try:
-                logger.info(f"Using the only issuer supported on service: {iss}")
+                logger.info(f"Using the only issuer supported on service to retrieve token from oidc-agent: {iss}")
                 return agent.get_access_token_by_issuer_url(
                     iss, application_hint="mccli"
                 ), _str_init_token(iss=iss)
-            except Exception:
-                logger.warning(f"Failed to get access token for issuer url '{iss}'")
+            except Exception as e:
+                logger.warning(f"Failed to get Access Token from oidc-agent for the only issuer supported on service '{iss}': {e}")
+                logger.warning(f"If you don't have an oidc-agent account configured for this issuer, create it with: `oidc-gen --iss {iss}`")
         elif len(supported_ops) > 1:
-            logger.info("Multiple issuers supported on service. I don't know which one to use.")
-    raise Exception("No access token found")
+            logger.warning("Multiple issuers supported on service, I don't know which one to use:")
+            logger.warning("[" + '\n    '.join(['']+supported_ops) + "\n]")
+    msg = "No Access Token found.\n" + \
+          "Try 'mccli --help' for help on specifying the Access Token source."
+    raise Exception(msg)
 
 
 def _str_init_token(token=None, oa_account=None, iss=None):
-    """String representation of command used to get access token:
+    """String representation of command used to get Access Token:
     * full token if token is set
     * `oidc-token oa_account` if oidc-agent account is set
     * `oidc-token iss` if issuer is set
