@@ -81,7 +81,7 @@ def my_logging_simple_verbosity_option(logger=None, *names, **kwargs):
     kwargs.setdefault('default', 'INFO')
     kwargs.setdefault('metavar', 'LVL')
     kwargs.setdefault('expose_value', False)
-    kwargs.setdefault('help', 'Either CRITICAL, ERROR, WARNING, INFO or DEBUG.')
+    kwargs.setdefault('help', f'Either CRITICAL, ERROR, WARNING, INFO or DEBUG. Default value: {kwargs["default"]}.')
     kwargs.setdefault('is_eager', True)
 
     logger = click_logging.core._normalize_logger(logger)
@@ -131,7 +131,7 @@ def common_options(func):
                      envvar=["OIDC_ISS", "OIDC_ISSUER"], show_envvar=True,
                      callback=validate_pass_from_parent,
                      help="url of token issuer; configured account in oidc-agent for this issuer will be used")
-    @my_logging_simple_verbosity_option(logger, "--log-level", default="ERROR", metavar="LEVEL")
+    @my_logging_simple_verbosity_option(logger, "--log-level", default="ERROR", metavar="LEVEL", envvar="LOG", show_envvar=True)
     @click.version_option(__version__)
     @wraps(func)
     def wrapper(*args, **kwargs):
