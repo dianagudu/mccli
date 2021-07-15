@@ -5,6 +5,35 @@ from .motley_cue_client import local_username, get_supported_ops, is_valid_mc_ur
 from .ssh_wrapper import get_hostname
 from .logging import logger
 
+# some predefined oidc-gen commands for different issuers
+oidc_gen_command_strings = {
+    "aai.egi.eu/oidc": 'oidc-gen --pub --iss https://aai.egi.eu/oidc --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" egi',
+    "wlcg.cloud.cnaf.infn.it": 'oidc-gen --pub --issuer https://wlcg.cloud.cnaf.infn.it --scope "openid profile offline_access eduperson_entitlement eduperson_scoped_affiliation wlcg.groups wlcg" wlcg',
+    "login.helmholtz.de/oauth2": 'oidc-gen --pub --iss https://login.helmholtz.de/oauth2 --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" helmholtz',
+    "accounts.google.com": 'oidc-gen --pub --iss https://accounts.google.com/ --flow device --scope max google'
+}
+
+def canonical_url(url):
+    """Strip URL of protocol info and ending slashes
+    """
+    url = url.lower()
+    if url.startswith("http://"):
+        url = url[7:]
+    if url.startswith("https://"):
+        url = url[8:]
+    if url.startswith("www."):
+        url = url[4:]
+    if url.endswith("/"):
+        url = url[:-1]
+    return url
+
+
+def oidc_gen_command(iss):
+    """Return a string containing the appropriate oidc-gen command
+    for given issuer, including suggested scopes.
+    """
+    return oidc_gen_command_strings.get(canonical_url(iss), f"oidc-gen --iss {iss}")
+
 
 def validate_token_length(func):
     """Decorator for init_token that checks if token length is < 1024
@@ -66,12 +95,15 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
     if iss is not None:
         try:
             logger.info(f"Using issuer: {iss}")
+            if not iss.startswith("http"):
+                iss = f"https://{iss}"
+                logger.warning(f"The issuer URL you provided does not contain protocol information, assuming HTTPS: {iss}")
             return agent.get_access_token_by_issuer_url(
                 iss, application_hint="mccli"
             ), _str_init_token(iss=iss)
         except Exception as e:
             logger.warning(f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}.")
-            logger.warning(f"Are you sure you have an account configured with oidc-agent for this issuer? Create it with:\n    oidc-gen --iss {iss}")
+            logger.warning(f"Are you sure the issuer URL is correct or that you have an account configured with oidc-agent for this issuer? Create it with:\n    {oidc_gen_command(iss)}")
     else:
         logger.info("No issuer URL provided.")
     if mc_endpoint is not None:
@@ -86,7 +118,7 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
                 ), _str_init_token(iss=iss)
             except Exception as e:
                 logger.warning(f"Failed to get Access Token from oidc-agent for the only issuer supported on service '{iss}': {e}")
-                logger.warning(f"If you don't have an oidc-agent account configured for this issuer, create it with: `oidc-gen --iss {iss}`")
+                logger.warning(f"If you don't have an oidc-agent account configured for this issuer, create it with:\n    {oidc_gen_command(iss)}")
         elif len(supported_ops) > 1:
             logger.warning("Multiple issuers supported on service, I don't know which one to use:")
             logger.warning("[" + '\n    '.join(['']+supported_ops) + "\n]")
