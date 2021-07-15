@@ -1,4 +1,5 @@
 import liboidcagent as agent
+from flaat import tokentools
 
 from .motley_cue_client import local_username, get_supported_ops, is_valid_mc_url
 from .ssh_wrapper import get_hostname
@@ -31,9 +32,23 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
 
     return token and string representation of command to retrieve token
     """
+    expired = False
     if token is not None:
-        logger.info(f"Using token: {token}")
-        return token, _str_init_token(token=token)
+        # check if token is expired
+        info_in_token = tokentools.get_accesstoken_info(token)
+        timeleft = tokentools.get_timeleft(info_in_token)
+        if not timeleft:
+            logger.warning("Could not get expiration date from provided token, it might not be a JWT. Using it anyway...")
+            logger.debug(f"Access Token: {token}")
+            return token, _str_init_token(token=token)
+        elif timeleft > 0:
+            logger.info(f"Token valid for {timeleft} more seconds, using provided token.")
+            logger.debug(f"Access Token: {token}")
+            return token, _str_init_token(token=token)
+        else:
+            expired = True
+            logger.warning(f"Token is expired for {-timeleft} seconds. Looking for another source for Access Token...")
+            logger.debug(f"Access Token: {token}")
     else:
         logger.info("No access token provided.")
     if oa_account is not None:
@@ -75,8 +90,13 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
         elif len(supported_ops) > 1:
             logger.warning("Multiple issuers supported on service, I don't know which one to use:")
             logger.warning("[" + '\n    '.join(['']+supported_ops) + "\n]")
-    msg = "No Access Token found.\n" + \
-          "Try 'mccli --help' for help on specifying the Access Token source."
+    if expired:
+        msg = "The provided Access Token is expired. Have you considered using 'oidc-agent' to always have valid tokens?\n" + \
+              "    https://github.com/indigo-dc/oidc-agent\n" + \
+              "Try 'mccli --help' for help on specifying the Access Token source."
+    else:
+        msg = "No Access Token found.\n" + \
+              "Try 'mccli --help' for help on specifying the Access Token source."
     raise Exception(msg)
 
 

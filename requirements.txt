@@ -5,3 +5,4 @@ Click
 click-option-group
 click-logging
 rfc3986
+flaat
