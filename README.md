@@ -23,35 +23,33 @@ $ mccli --help
 
 Usage: mccli [OPTIONS] COMMAND [ARGS]...
 
-  ssh client wrapper with OIDC-based authentication
+  SSH client wrapper with OIDC-based authentication
 
 Options:
-  --mc-endpoint URL               motley_cue API endpoint, default URLs:
-                                  https://HOSTNAME, http://HOSTNAME:8080
-
-  --insecure                      ignore verifying the SSL certificate for
-                                  motley_cue endpoint, NOT RECOMMENDED
-
+  --mc-endpoint URL               motley_cue API endpoint. Default URLs are
+                                  checked in given order: https://HOSTNAME,
+                                  https://HOSTNAME:8443, http://HOSTNAME:8080
+  --insecure                      Ignore verifying the SSL certificate for
+                                  motley_cue endpoint, NOT RECOMMENDED.
   Access Token sources: [mutually_exclusive]
-                                  the sources for retrieving the access token,
-                                  odered by priority
-
-    --token TOKEN                 pass token directly, env variables are
-                                  checked in given order  [env var:
+                                  The sources for retrieving an Access Token,
+                                  in the order they are checked. If no source
+                                  is specified, it will try to retrieve the
+                                  supported token issuer from the service.
+    --token TOKEN                 Pass token directly. Environment variables
+                                  are checked in given order.  [env var:
                                   ACCESS_TOKEN, OIDC, OS_ACCESS_TOKEN,
                                   OIDC_ACCESS_TOKEN, WATTS_TOKEN,
                                   WATTSON_TOKEN]
-
-    --oa-account SHORTNAME        name of configured account in oidc-agent
+    --oa-account, --oidc SHORTNAME
+                                  Name of configured account in oidc-agent.
                                   [env var: OIDC_AGENT_ACCOUNT]
-
-    --iss, --issuer URL           url of token issuer; configured account in
-                                  oidc-agent for this issuer will be used
-                                  [env var: OIDC_ISS, OIDC_ISSUER]
-
+    --iss, --issuer URL           URL of token issuer. Configured account in
+                                  oidc-agent for this issuer will be used.
+                                  Environment variables are checked in given
+                                  order.  [env var: OIDC_ISS, OIDC_ISSUER]
   --log-level LEVEL               Either CRITICAL, ERROR, WARNING, INFO or
-                                  DEBUG.
-
+                                  DEBUG. Default value: ERROR.  [env var: LOG]
   --version                       Show the version and exit.
   --help                          Show this message and exit.
 
