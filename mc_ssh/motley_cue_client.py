@@ -35,15 +35,6 @@ def info_authorisation(mc_endpoint, token, verify=True):
     return requests.get(endpoint, headers=headers, verify=verify)
 
 
-def str_info_all(mc_endpoint, token=None, verify=True):
-    service_info = get_info(mc_endpoint, verify)
-    if token is not None:
-        authz_info = get_authorisation_info(mc_endpoint, token, verify)
-        if authz_info is not None:
-            service_info["authorisation"] = authz_info
-    return json.dumps(service_info, indent=2)
-
-
 def get_info(mc_endpoint, verify=True):
     try:
         resp = info(mc_endpoint, verify=verify)
@@ -52,7 +43,7 @@ def get_info(mc_endpoint, verify=True):
         else:
             resp.raise_for_status()
     except Exception as e:
-        logger.debug(f"[motley_cue] {e}")
+        logger.debug(f"Something went wrong: {e}")
         logger.error("Failed to get service info")
     return None
 
@@ -67,13 +58,45 @@ def get_supported_ops(mc_endpoint, verify=True):
 def get_authorisation_info(mc_endpoint, token, verify=True):
     try:
         resp = info_authorisation(mc_endpoint, token, verify=verify)
-        if resp.status_code == requests.codes.ok:
-            return resp.json()
-        else:
-            resp.raise_for_status()
+        return resp.json()
     except Exception as e:
-        logger.debug(f"[motley_cue] {e}")
-        logger.warning("Failed to get authorisation info from service")
+        logger.debug(f"Something went wrong: {e}")
+        logger.error("Failed to get authorisation info from service")
+    return None
+
+
+def get_local_status(mc_endpoint, token, verify=True):
+    try:
+        resp = get_status(mc_endpoint, token, verify=verify)
+        if resp.status_code == requests.codes.ok:
+            output = resp.json()
+            state = output["state"]
+            status_string = None
+            if state == "suspended":
+                status_string = f"Your account on service is suspended, you might not be able to login. {infostring}"
+                status_string += f'\nLocal username: {output["message"].split()[1]}'
+            elif state == "limited":
+                status_string = f"Your account on service has limited capabilities, but you might still be able to login. {infostring}"
+                status_string += f'\nLocal username: {output["message"].split()[1]}'
+            elif state == "pending":
+                status_string = f"Your account creation on service is still pending approval. {infostring}"
+            elif state == "unknown":
+                status_string = f"Your account on service is in an undefined state. {infostring}"
+            elif state == "not_deployed":
+                status_string = f"Your account on service is not deployed, but it will be created on the first login if authorised."
+            elif state == "deployed":
+                status_string = f"Your account on service is deployed."
+                status_string += f'\nLocal username: {output["message"].split()[1]}'
+            if status_string:
+                return status_string
+            else:
+                # should not happen
+                return "Failed to get more information about your local account."
+        else:
+            return resp.text
+    except Exception as e:
+        logger.debug(f"Something went wrong: {e}")
+        logger.error("Failed to get local account info from service")
     return None
 
 
@@ -85,16 +108,16 @@ def local_username(mc_endpoint, token, verify=True):
             state = output["state"]
             logger.info(f"State of your local account: {state}")
             if state == "suspended":
-                logger.warning(f"Your account on host is suspended, you might not be able to login. {infostring}")
+                logger.warning(f"Your account on service is suspended, you might not be able to login. {infostring}")
                 return output["message"].split()[1]
             elif state == "limited":
-                logger.warning(f"Your account on host has limited capabilities, but you might still be able to login. {infostring}")
+                logger.warning(f"Your account on service has limited capabilities, but you might still be able to login. {infostring}")
                 return output["message"].split()[1]
             elif state == "pending":
-                raise Exception(f"Your account creation on host is still pending approval. {infostring}")
+                raise Exception(f"Your account creation on service is still pending approval. {infostring}")
             elif state == "unknown" or state == "not_deployed" or state == "deployed":
                 if state == "unknown":
-                    logger.warning("Your account on host is in an undefined state. Will try redeploying...")
+                    logger.warning("Your account on service is in an undefined state. Will try redeploying...")
                 elif state == "not_deployed":
                     logger.info("Creating local account...")
                 elif state == "deployed":

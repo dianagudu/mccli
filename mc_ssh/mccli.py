@@ -6,7 +6,7 @@ from .ssh_wrapper import ssh_wrap, scp_wrap
 from .init_utils import valid_mc_url, init_endpoint, init_token, init_user, augmented_scp_command
 from .scp_utils import parse_scp_args
 from .click_utils import SshUsageCommand, ScpUsageCommand, common_options, tuple_to_list
-from .motley_cue_client import str_info_all
+from .info_utils import get_all_info
 from .logging import logger
 
 
@@ -21,28 +21,43 @@ def cli(**kwargs):
 
 @cli.command(name="info", short_help="get info about service")
 @common_options
-@click.argument("hostname")
+@click.argument("hostname", required=False)
 def info(mc_endpoint, verify, token, oa_account, iss, hostname):
-    """Get information about SSH service running on HOSTNAME:
-    supported OIDC providers, service description and help.
+    """Shows various information about the user and the service:
 
-    If a token is provided, also show authorisation information
-    if issuer of token is supported on the service.
+    If an Access Token is provided, show information in the token,
+    as well as info about the user retrieved from the token issuer.
+
+    If HOSTNAME is provided, show information about SSH service
+    running on HOSTNAME: supported OIDC providers, service
+    description and login info.
+
+    If both token and HOSTNAME are provided, also show authorisation
+    information if issuer of token is supported on the service, as well
+    as the status of the local account on service.
     """
     try:
         if mc_endpoint:
             mc_url = valid_mc_url(mc_endpoint, verify)
         else:
             mc_url = init_endpoint([hostname], verify)
-        try:
-            at, _ = init_token(token, oa_account, iss, mc_url, verify)
-        except Exception as e:
-            at = None
-            logger.info(e)
-            logger.warning("No access token found, will not show authorisation information")
-        click.echo(str_info_all(mc_url, at, verify))
     except Exception as e:
-        logger.error(e)
+        mc_url = None
+        logger.warning(e)
+        logger.warning("Cannot show service-related information.")
+    try:
+        at, _ = init_token(token, oa_account, iss, mc_url, verify, validate_length=False)
+    except Exception as e:
+        at = None
+        logger.warning(e)
+        logger.warning("Cannot show token information")
+
+    info_string = get_all_info(mc_url, at, verify)
+    if info_string:
+        click.echo(info_string)
+    else:
+        logger.error("No information available: please provide a hostname and/or an Access Token.\n" + \
+                     "Try 'mccli info --help' for usage information.")
 
 
 @cli.command(name="ssh", short_help="remote login client",

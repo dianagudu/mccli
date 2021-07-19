@@ -43,14 +43,14 @@ def validate_token_length(func):
     """
     def wrapper(*args, **kwargs):
         at, str_get_at = func(*args, **kwargs)
-        if len(at) > 1024:
+        if kwargs.get("validate_length", True) and len(at) > 1024:
             raise Exception(f"Sorry, your token is too long ({len(at)} > 1024) and cannot be used for SSH authentication. Please ask your OP admin if they can release shorter tokens.")
         return at, str_get_at
     return wrapper
 
 
 @validate_token_length
-def init_token(token, oa_account, iss, mc_endpoint=None, verify=True):
+def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_length=True):
     """Retrieve an oidc token:
 
     * use token if set,
