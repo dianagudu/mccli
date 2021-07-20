@@ -1,6 +1,7 @@
 pexpect
 liboidcagent
 requests
+requests-cache
 Click
 click-option-group
 click-logging

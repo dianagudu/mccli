@@ -3,7 +3,7 @@
 import click
 
 from .ssh_wrapper import ssh_wrap, scp_wrap
-from .init_utils import valid_mc_url, init_endpoint, init_token, init_user, augmented_scp_command
+from .init_utils import valid_mc_url, init_endpoint, init_token, init_user, init_cache, augmented_scp_command
 from .scp_utils import parse_scp_args
 from .click_utils import SshUsageCommand, ScpUsageCommand, common_options, tuple_to_list
 from .info_utils import get_all_info
@@ -36,6 +36,7 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
     information if issuer of token is supported on the service, as well
     as the status of the local account on service.
     """
+    init_cache()
     try:
         if hostname is None:
             raise Exception("No HOSTNAME provided.")
@@ -84,6 +85,7 @@ def ssh(mc_endpoint, verify, token, oa_account, iss, dry_run, ssh_command):
     is queried for supported issuers; if only one issuer is supported,
     this is used to retrieve the token from the oidc-agent.
     """
+    init_cache()
     try:
         if mc_endpoint:
             mc_url = valid_mc_url(mc_endpoint, verify)
@@ -123,6 +125,7 @@ def scp(mc_endpoint, verify, token, oa_account, iss, dry_run, scp_command):
     supported issuers; if only one issuer is supported, this is used to
     retrieve the token from the oidc-agent.
     """
+    init_cache()
     try:
         if mc_endpoint:
             mc_url = valid_mc_url(mc_endpoint, verify)

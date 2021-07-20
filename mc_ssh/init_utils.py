@@ -1,3 +1,6 @@
+import requests
+import requests_cache
+import os.path
 import liboidcagent as agent
 from flaat import tokentools
 
@@ -247,3 +250,30 @@ def augmented_scp_command(scp_command, token, oa_account, iss, verify=False):
             scp_args += [operand.original_str]
 
     return scp_args, tokens, str_get_tokens
+
+
+def init_cache():
+    """Function to install caching for HTTP requests.
+
+    Make sure to call this function after setting log level
+    for full output.
+    """
+    cache_name = os.path.expanduser("~/.cache/mccli_cache")
+    expire_after = 300  # 5 min
+    include_get_headers = True
+    allowable_methods = ('GET')
+
+    try:
+        requests_cache.install_cache(
+            cache_name=cache_name,
+            expire_after=expire_after,
+            allowable_methods=allowable_methods,
+            include_get_headers=include_get_headers
+        )
+
+        if requests_cache.is_installed():
+            logger.debug(f"HTTP requests cache installed at {cache_name}.sqlite")
+    except Exception as e:
+        logger.debug(f"Could not install requests cache: {e}. Uninstalling cache...")
+        requests_cache.uninstall_cache()
+        logger.warning(f"Something went wrong when initialising cache, will not cache HTTP requests. Executing command might be slower.")
