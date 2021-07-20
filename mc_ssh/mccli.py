@@ -37,6 +37,8 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
     as the status of the local account on service.
     """
     try:
+        if hostname is None:
+            raise Exception("No HOSTNAME provided.")
         if mc_endpoint:
             mc_url = valid_mc_url(mc_endpoint, verify)
         else:
