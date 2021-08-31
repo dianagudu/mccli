@@ -1,20 +1,13 @@
-# mc_ssh
+# mccli
 SSH client wrapper for SSH with access token
 
 ## Installation
 
-- Install mc_ssh from pypi: `pip install mc_ssh`
-- Install mc_ssh from source:
+- Install mccli from pypi: `pip install mccli`
+- Install mccli from source:
     - Install prerequisites: `pip install -r requirements.txt`
     - Build package: `./setup.py sdist`
-    - Install package: `pip install dist/mc_ssh-$version.tar.gz`
-<!-- - Debian package:
-    ```
-    apt-get install python3 python3-venv
-    dpkg -i motley-cue-client_$version.deb
-    ``` -->
-
-<!-- ## Configuration -->
+    - Install package: `pip install dist/mccli-$version.tar.gz`
 
 ## Usage
 
