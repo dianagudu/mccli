@@ -10,7 +10,7 @@ from .info_utils import get_all_info
 from .logging import logger
 
 
-@click.group()
+@click.group(invoke_without_command=False)
 @common_options
 def cli(**kwargs):
     """
