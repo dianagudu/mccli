@@ -6,6 +6,10 @@ import socket
 from .logging import logger
 
 infostring = "Please contact an administrator for more information."
+# From the docs:
+# > It’s a good practice to set connect timeouts to slightly larger than a multiple of 3,
+# > which is the default TCP packet retransmission window.
+TIMEOUT = 3.05
 
 
 def deploy(mc_endpoint, token, verify=True):
@@ -157,7 +161,8 @@ def is_valid_mc_url(mc_endpoint, verify=True):
             mc_endpoint = parse_result.copy_with(host=fqdn_host).unsplit()
             logger.info(f"Using FQDN for host: {mc_endpoint}")
 
-        response = requests.get(mc_endpoint, verify=verify)
+        # a timeout is necessary here e.g. when the firewall drops packages
+        response = requests.get(mc_endpoint, verify=verify, timeout=TIMEOUT)
         if response.status_code == 200:
             if not verify:
                 logger.warning(
