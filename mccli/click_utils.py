@@ -42,7 +42,7 @@ def validate_verify(ctx, param, value):
     except Exception:
         # set the verify in the context meta dict to be used by subcommands
         # only if it was set through the commandline
-        if ctx.get_parameter_source(param.name) == click.core.ParameterSource.COMMANDLINE:
+        if ctx.get_parameter_source(param.name) is click.core.ParameterSource.COMMANDLINE:
             ctx.meta[param.name] = value
     if not value:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -64,7 +64,7 @@ def validate_pass_from_parent(ctx, param, value):
     # set meta value to be used by subcommands only if it was set using the cmdline
     # envvar values should only be processed at subcommand level and not passed from parent
     # this way, the cmdline values take precedence over env vars or default values
-    if value and ctx.get_parameter_source(param.name) == click.core.ParameterSource.COMMANDLINE:
+    if value and ctx.get_parameter_source(param.name) is click.core.ParameterSource.COMMANDLINE:
         ctx.meta[param.name] = value
     return value
 
@@ -99,7 +99,7 @@ def my_logging_simple_verbosity_option(logger=None, *names, **kwargs):
             except Exception as e:
                 # set the log_level in the context meta dict to be used by subcommands
                 # only if it was set through the commandline
-                if ctx.get_parameter_source(param.name) == click.core.ParameterSource.COMMANDLINE:
+                if ctx.get_parameter_source(param.name) is click.core.ParameterSource.COMMANDLINE:
                     ctx.meta['log_level'] = value
 
             x = getattr(logging, value, None)
