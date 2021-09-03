@@ -22,7 +22,7 @@ def cli(**kwargs):
 @cli.command(name="info", short_help="get info about service")
 @common_options
 @click.argument("hostname", required=False)
-def info(mc_endpoint, verify, token, oa_account, iss, hostname):
+def info(mc_endpoint, verify, no_cache, token, oa_account, iss, hostname):
     """Shows various information about the user and the service:
 
     If an Access Token is provided, show information in the token,
@@ -36,8 +36,9 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
     information if issuer of token is supported on the service, as well
     as the status of the local account on service.
     """
-    init_cache()
     try:
+        if not no_cache:
+            init_cache()
         if hostname is None:
             raise Exception("No HOSTNAME provided.")
         if mc_endpoint:
@@ -71,7 +72,7 @@ def info(mc_endpoint, verify, token, oa_account, iss, hostname):
 @common_options
 @click.option("--dry-run", is_flag=True, help="Print sshpass command and exit.")
 @click.argument("ssh_command", nargs=-1, required=True, type=click.UNPROCESSED, callback=tuple_to_list)
-def ssh(mc_endpoint, verify, token, oa_account, iss, dry_run, ssh_command):
+def ssh(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, ssh_command):
     """Connects and logs into HOSTNAME via SSH by using the provided OIDC
     Access Token to authenticate.
 
@@ -85,8 +86,9 @@ def ssh(mc_endpoint, verify, token, oa_account, iss, dry_run, ssh_command):
     is queried for supported issuers; if only one issuer is supported,
     this is used to retrieve the token from the oidc-agent.
     """
-    init_cache()
     try:
+        if not no_cache:
+            init_cache()
         if mc_endpoint:
             mc_url = valid_mc_url(mc_endpoint, verify)
         else:
@@ -107,7 +109,7 @@ def ssh(mc_endpoint, verify, token, oa_account, iss, dry_run, ssh_command):
 @common_options
 @click.option("--dry-run", is_flag=True, help="Print sshpass command and exit.")
 @click.argument("scp_command", nargs=-1, required=True, type=click.UNPROCESSED, callback=tuple_to_list)
-def scp(mc_endpoint, verify, token, oa_account, iss, dry_run, scp_command):
+def scp(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, scp_command):
     """Copies files between hosts on a network over SSH using the provided
     OIDC Access Token to authenticate.
 
@@ -125,8 +127,9 @@ def scp(mc_endpoint, verify, token, oa_account, iss, dry_run, scp_command):
     supported issuers; if only one issuer is supported, this is used to
     retrieve the token from the oidc-agent.
     """
-    init_cache()
     try:
+        if not no_cache:
+            init_cache()
         if mc_endpoint:
             mc_url = valid_mc_url(mc_endpoint, verify)
             at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)

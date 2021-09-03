@@ -118,6 +118,8 @@ def common_options(func):
                   help="motley_cue API endpoint. Default URLs are checked in given order: https://HOSTNAME, https://HOSTNAME:8443, http://HOSTNAME:8080")
     @click.option("--insecure", "verify", is_flag=True, default=True, callback=validate_verify,
                   help="Ignore verifying the SSL certificate for motley_cue endpoint, NOT RECOMMENDED.")
+    @click.option("--no-cache", is_flag=True, default=False, callback=validate_pass_from_parent,
+                  help="Do not cache HTTP requests.")
     @optgroup.group("Access Token sources",
                     help="The sources for retrieving an Access Token, in the order they are checked. If no source is specified, it will try to retrieve the supported token issuer from the service.",
                     cls=MutuallyExclusiveOptionGroup)
