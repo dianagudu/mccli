@@ -262,16 +262,21 @@ def init_cache():
     expire_after = 300  # 5 min
     include_get_headers = True
     allowable_methods = ('GET')
+    urls_expire_after = {
+        '*/user/get_status': 0,
+    }
 
     try:
         requests_cache.install_cache(
             cache_name=cache_name,
             expire_after=expire_after,
             allowable_methods=allowable_methods,
-            include_get_headers=include_get_headers
+            include_get_headers=include_get_headers,
+            urls_expire_after=urls_expire_after
         )
 
         if requests_cache.is_installed():
+            # requests_cache.remove_expired_responses()
             logger.debug(f"HTTP requests cache installed at {cache_name}.sqlite")
     except Exception as e:
         logger.debug(f"Could not install requests cache: {e}. Uninstalling cache...")

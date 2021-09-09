@@ -2,6 +2,7 @@ import requests
 import json
 from rfc3986 import urlparse
 import socket
+import requests_cache
 
 from .logging import logger
 
@@ -16,27 +17,51 @@ def deploy(mc_endpoint, token, verify=True):
     endpoint = mc_endpoint + "/user/deploy"
     headers = {"Authorization": f"Bearer {token}"}
 
-    return requests.get(endpoint, headers=headers, verify=verify)
+    resp = requests.get(endpoint, headers=headers, verify=verify)
+
+    from_cache = getattr(resp, 'from_cache', False)
+    if from_cache:
+        logger.debug(f"Using cached response for {endpoint}")
+
+    return resp
 
 
 def get_status(mc_endpoint, token, verify=True):
     endpoint = mc_endpoint + "/user/get_status"
     headers = {"Authorization": f"Bearer {token}"}
 
-    return requests.get(endpoint, headers=headers, verify=verify)
+    resp = requests.get(endpoint, headers=headers, verify=verify)
+
+    from_cache = getattr(resp, 'from_cache', False)
+    if from_cache:
+        logger.debug(f"Using cached response for {endpoint}")
+
+    return resp
 
 
 def info(mc_endpoint, verify=True):
     endpoint = mc_endpoint + "/info"
 
-    return requests.get(endpoint, verify=verify)
+    resp = requests.get(endpoint, verify=verify)
+
+    from_cache = getattr(resp, 'from_cache', False)
+    if from_cache:
+        logger.debug(f"Using cached response for {endpoint}")
+
+    return resp
 
 
 def info_authorisation(mc_endpoint, token, verify=True):
     endpoint = mc_endpoint + "/info/authorisation"
     headers = {"Authorization": f"Bearer {token}"}
 
-    return requests.get(endpoint, headers=headers, verify=verify)
+    resp = requests.get(endpoint, headers=headers, verify=verify)
+
+    from_cache = getattr(resp, 'from_cache', False)
+    if from_cache:
+        logger.debug(f"Using cached response for {endpoint}")
+
+    return resp
 
 
 def get_info(mc_endpoint, verify=True):
@@ -162,8 +187,13 @@ def is_valid_mc_url(mc_endpoint, verify=True):
             logger.info(f"Using FQDN for host: {mc_endpoint}")
 
         # a timeout is necessary here e.g. when the firewall drops packages
-        response = requests.get(mc_endpoint, verify=verify, timeout=TIMEOUT)
-        if response.status_code == 200:
+        resp = requests.get(mc_endpoint, verify=verify, timeout=TIMEOUT)
+
+        from_cache = getattr(resp, 'from_cache', False)
+        if from_cache:
+            logger.debug(f"Using cached response for {mc_endpoint}")
+
+        if resp.status_code == 200:
             if not verify:
                 logger.warning(
                     "InsecureRequestWarning: Unverified HTTPS"
@@ -171,7 +201,7 @@ def is_valid_mc_url(mc_endpoint, verify=True):
                     "Adding certificate verification is strongly advised."
                 )
             # check for motley_cue
-            if response.json().get("description", None) == "This is the user API for mapping remote identities to local identities.":
+            if resp.json().get("description", None) == "This is the user API for mapping remote identities to local identities.":
                 logger.info("...FOUND IT!")
                 return mc_endpoint
     except requests.exceptions.SSLError:
