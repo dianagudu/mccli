@@ -19,11 +19,6 @@ Usage: mccli [OPTIONS] COMMAND [ARGS]...
   SSH client wrapper with OIDC-based authentication
 
 Options:
-  --mc-endpoint URL               motley_cue API endpoint. Default URLs are
-                                  checked in given order: https://HOSTNAME,
-                                  https://HOSTNAME:8443, http://HOSTNAME:8080
-  --insecure                      Ignore verifying the SSL certificate for
-                                  motley_cue endpoint, NOT RECOMMENDED.
   Access Token sources: [mutually_exclusive]
                                   The sources for retrieving an Access Token,
                                   in the order they are checked. If no source
@@ -41,10 +36,20 @@ Options:
                                   oidc-agent for this issuer will be used.
                                   Environment variables are checked in given
                                   order.  [env var: OIDC_ISS, OIDC_ISSUER]
-  --log-level LEVEL               Either CRITICAL, ERROR, WARNING, INFO or
+  motley_cue options:
+    --mc-endpoint URL             motley_cue API endpoint. Default URLs are
+                                  checked in given order: https://HOSTNAME,
+                                  https://HOSTNAME:8443, http://HOSTNAME:8080
+    --insecure                    Ignore verifying the SSL certificate for
+                                  motley_cue endpoint, NOT RECOMMENDED.
+    --no-cache                    Do not cache HTTP requests.
+  Verbosity:
+    --debug                       Sets the log level to DEBUG.
+    --log-level LEVEL             Either CRITICAL, ERROR, WARNING, INFO or
                                   DEBUG. Default value: ERROR.  [env var: LOG]
-  --version                       Show the version and exit.
-  --help                          Show this message and exit.
+  Help:
+    -h, --help                    Show this message and exit.
+    -V, --version                 Show the version and exit.
 
 Commands:
   info  get info about service

@@ -5,13 +5,13 @@ import click
 from .ssh_wrapper import ssh_wrap, scp_wrap
 from .init_utils import valid_mc_url, init_endpoint, init_token, init_user, init_cache, augmented_scp_command
 from .scp_utils import parse_scp_args
-from .click_utils import SshUsageCommand, ScpUsageCommand, common_options, tuple_to_list
+from .click_utils import SshUsageCommand, ScpUsageCommand, tuple_to_list, basic_options, extended_options
 from .info_utils import get_all_info
 from .logging import logger
 
 
-@click.group(invoke_without_command=False)
-@common_options
+@click.group(invoke_without_command=False, add_help_option=False)
+@basic_options
 def cli(**kwargs):
     """
     SSH client wrapper with OIDC-based authentication
@@ -19,8 +19,8 @@ def cli(**kwargs):
     pass
 
 
-@cli.command(name="info", short_help="get info about service")
-@common_options
+@cli.command(name="info", add_help_option=False, short_help="get info about service")
+@basic_options
 @click.argument("hostname", required=False)
 def info(mc_endpoint, verify, no_cache, token, oa_account, iss, hostname):
     """Shows various information about the user and the service:
@@ -69,8 +69,7 @@ def info(mc_endpoint, verify, no_cache, token, oa_account, iss, hostname):
                  "ignore_unknown_options": True,
                  "allow_extra_args": True
              })
-@common_options
-@click.option("--dry-run", is_flag=True, help="Print sshpass command and exit.")
+@extended_options
 @click.argument("ssh_command", nargs=-1, required=True, type=click.UNPROCESSED, callback=tuple_to_list)
 def ssh(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, ssh_command):
     """Connects and logs into HOSTNAME via SSH by using the provided OIDC
@@ -106,8 +105,7 @@ def ssh(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, ssh_comm
                  "ignore_unknown_options": True,
                  "allow_extra_args": True
              })
-@common_options
-@click.option("--dry-run", is_flag=True, help="Print sshpass command and exit.")
+@extended_options
 @click.argument("scp_command", nargs=-1, required=True, type=click.UNPROCESSED, callback=tuple_to_list)
 def scp(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, scp_command):
     """Copies files between hosts on a network over SSH using the provided
