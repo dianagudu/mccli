@@ -95,9 +95,15 @@ def help_options(func):
 
 
 def basic_options(func):
+    """The basic set of common options to be used by all commands.
+
+    It still contains a hidden `--dry-run` option so that the user
+    can pass it to the parent command as well.
+    """
     @access_token_sources
     @motley_cue_options
     @verbosity_options
+    @optgroup.option("--dry-run", is_flag=True, callback=validate_pass_from_parent, hidden=True)
     @help_options
 
     @wraps(func)
@@ -107,13 +113,13 @@ def basic_options(func):
 
 
 def extended_options(func):
-    """Extends the basic common options by
-    adding a "--dry-run" option to the verbosity group.
+    """Extends the basic common options by adding a `--dry-run` option to the verbosity group.
     """
     @access_token_sources
     @motley_cue_options
     @verbosity_options
-    @optgroup.option("--dry-run", is_flag=True, help="Print sshpass command and exit.")
+    @optgroup.option("--dry-run", is_flag=True, callback=validate_pass_from_parent,
+                     help="Print sshpass command and exit.")
     @help_options
 
     @wraps(func)
