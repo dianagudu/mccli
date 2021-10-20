@@ -264,6 +264,7 @@ def init_cache():
     allowable_methods = ('GET')
     urls_expire_after = {
         '*/user/get_status': 0,
+        '*/user/deploy': 0,
     }
 
     try:
