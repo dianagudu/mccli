@@ -22,7 +22,7 @@ def cli(**kwargs):
 @cli.command(name="info", add_help_option=False, short_help="get info about service")
 @basic_options
 @click.argument("hostname", required=False)
-def info(mc_endpoint, verify, no_cache, token, oa_account, iss, hostname):
+def info(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, hostname):
     """Shows various information about the user and the service:
 
     If an Access Token is provided, show information in the token,
