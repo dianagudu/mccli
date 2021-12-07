@@ -187,10 +187,9 @@ def init_endpoint(ssh_args, verify=True):
     logger.info("Trying to get ssh hostname from arguments.")
     ssh_host = get_hostname(ssh_args)
     if not ssh_host:  # raise error and ask user to specify endpoint
-        msg = f"Could not infer motley_cue endpoint from command. "\
-            "Please specify motley_cue endpoint via --mc-endpoint."
+        msg = f"Could not resolve hostname."
         raise Exception(msg)
-    logger.info(f"Got host '{ssh_host}', looking for motley_cue service on host.")
+    logger.info(f"Got host \'{ssh_host}\', looking for motley_cue service on host.")
 
     # try https
     endpoint = f"https://{ssh_host}"
@@ -213,7 +212,7 @@ def init_endpoint(ssh_args, verify=True):
 
     # raise error and ask user to specify endpoint
     msg = f"No motley_cue service found on host '{ssh_host}' "\
-        "on port 443 or 8080. "\
+        "on port 443, 8443 or 8080. "\
         "Please specify motley_cue endpoint via --mc-endpoint."
     raise Exception(msg)
 
