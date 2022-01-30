@@ -1,4 +1,4 @@
-.. _mccli_scp:
+.. _scp:
 
 .. click:: mccli.mccli:scp
    :prog: mccli scp

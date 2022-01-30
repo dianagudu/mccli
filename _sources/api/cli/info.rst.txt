@@ -1,4 +1,4 @@
-.. _mccli_info:
+.. _info:
 
 .. click:: mccli.mccli:info
    :prog: mccli info
