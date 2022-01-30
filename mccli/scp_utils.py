@@ -83,6 +83,7 @@ class ScpOperand():
 
 class ScpUseCase(Enum):
     """Possible cases when running scp:
+
         * case 1: no motley_cue handling needed
             - all local paths, or
             - all remotes have user specified
