@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>mccli.motley_cue_client &#8212; mccli</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/mccli.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mccli.ssh_wrapper" href="mccli.ssh_wrapper.html" />
+    <link rel="prev" title="mccli sftp" href="../cli/sftp.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="../../_static/logos/mccli-notext.svg" />
+  
+  
+    <link rel="canonical" href="https://dianagudu.github.io/mccli/api/utils/mccli.motley_cue_client.html"/>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logos/mccli.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">SSH client wrapper for SSH with OIDC access token</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=dianagudu&repo=mccli&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../api.html">mccli package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../api.html#cli">CLI</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../api.html#utils">Utils</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">mccli.motley_cue_client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.ssh_wrapper.html">mccli.ssh_wrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.click_utils.html">mccli.click_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.info_utils.html">mccli.info_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.init_utils.html">mccli.init_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.scp_utils.html">mccli.scp_utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../api.html">mccli package</a><ul>
+      <li>Previous: <a href="../cli/sftp.html" title="previous chapter">mccli sftp</a></li>
+      <li>Next: <a href="mccli.ssh_wrapper.html" title="next chapter">mccli.ssh_wrapper</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="mccli-motley-cue-client">
+<span id="id1"></span><h1>mccli.motley_cue_client<a class="headerlink" href="#mccli-motley-cue-client" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-mccli.motley_cue_client"></span><dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.deploy">
+<span class="sig-name descname"><span class="pre">deploy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.deploy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.get_status">
+<span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.get_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.info_authorisation">
+<span class="sig-name descname"><span class="pre">info_authorisation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.info_authorisation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.get_info">
+<span class="sig-name descname"><span class="pre">get_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.get_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.get_supported_ops">
+<span class="sig-name descname"><span class="pre">get_supported_ops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.get_supported_ops" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.get_authorisation_info">
+<span class="sig-name descname"><span class="pre">get_authorisation_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.get_authorisation_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.get_local_status">
+<span class="sig-name descname"><span class="pre">get_local_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.get_local_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.local_username">
+<span class="sig-name descname"><span class="pre">local_username</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.local_username" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.motley_cue_client.is_valid_mc_url">
+<span class="sig-name descname"><span class="pre">is_valid_mc_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.motley_cue_client.is_valid_mc_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>make sure you always set the url schema when calling this method.
+This should be http or https</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../cli/sftp.html" title="Previous document">mccli sftp</a>
+        </li>
+        <li>
+          <a href="mccli.ssh_wrapper.html" title="Next document">mccli.ssh_wrapper</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2021-present, Diana Gudu.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

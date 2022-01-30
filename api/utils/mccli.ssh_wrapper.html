@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>mccli.ssh_wrapper &#8212; mccli</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/mccli.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mccli.click_utils" href="mccli.click_utils.html" />
+    <link rel="prev" title="mccli.motley_cue_client" href="mccli.motley_cue_client.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="../../_static/logos/mccli-notext.svg" />
+  
+  
+    <link rel="canonical" href="https://dianagudu.github.io/mccli/api/utils/mccli.ssh_wrapper.html"/>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logos/mccli.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">SSH client wrapper for SSH with OIDC access token</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=dianagudu&repo=mccli&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../api.html">mccli package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../api.html#cli">CLI</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../api.html#utils">Utils</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mccli.motley_cue_client.html">mccli.motley_cue_client</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">mccli.ssh_wrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.click_utils.html">mccli.click_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.info_utils.html">mccli.info_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.init_utils.html">mccli.init_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.scp_utils.html">mccli.scp_utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../api.html">mccli package</a><ul>
+      <li>Previous: <a href="mccli.motley_cue_client.html" title="previous chapter">mccli.motley_cue_client</a></li>
+      <li>Next: <a href="mccli.click_utils.html" title="next chapter">mccli.click_utils</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="mccli-ssh-wrapper">
+<span id="id1"></span><h1>mccli.ssh_wrapper<a class="headerlink" href="#mccli-ssh-wrapper" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-mccli.ssh_wrapper"></span><dl class="py function">
+<dt class="sig sig-object py" id="mccli.ssh_wrapper.ssh_wrap">
+<span class="sig-name descname"><span class="pre">ssh_wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_get_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.ssh_wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the ssh command given by list of ssh_args, using given username
+and given token as password.</p>
+<p>When dry_run is true, it only prints the sshpass command; when the string
+representation of the command to get the token is not defined (str_get_token),
+the actual token is printed.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.ssh_wrapper.scp_wrap">
+<span class="sig-name descname"><span class="pre">scp_wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_get_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_prompts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.scp_wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the scp command given by list of scp_args.</p>
+<p>If <cite>username</cite> and <cite>tokens</cite> are both None, we are in the NO_MOTLEY_CUE case
+and the process is simply started as it is; the user will interact with the process
+for any needed authentication; there is no motley_cue handling.</p>
+<p>If <cite>username</cite> is set, we are in the SINGLE_REMOTE case, where there is a
+single motley_cue instance in the arguments, so the user can be passed as an ssh
+option with ‘-o User’. The <cite>tokens</cite> argument must be a string in this case.
+The command will prompt for the token <cite>num_prompts</cite> times.</p>
+<p>If <cite>username</cite> is not set, but <cite>tokens</cite> is (must be a list), then we are in the MULTIPLE_REMOTES case,
+where the scp_args have been already augmented with usernames obtained from the motley_cue
+service(s). The <cite>tokens</cite> have to be input when prompted, in the given order. There should
+not be more prompts than tokens; any subsequent prompts will be forwarded to the user to handle.</p>
+<p>When dry_run is true, it only prints the needed command(s); if <cite>str_get_tokens</cite> is set,
+it prints the string representation(s) of the command(s) to get the token(s) instead
+of the actual token(s).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.ssh_wrapper.get_hostname">
+<span class="sig-name descname"><span class="pre">get_hostname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.get_hostname" title="Permalink to this definition">¶</a></dt>
+<dd><p>(HACKY) Try to get the ssh host from <cite>ssh_args</cite>
+by executing the ssh command with invalid <cite>-b</cite> option
+and parsing the output for the actual HOSTNAME.</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="mccli.motley_cue_client.html" title="Previous document">mccli.motley_cue_client</a>
+        </li>
+        <li>
+          <a href="mccli.click_utils.html" title="Next document">mccli.click_utils</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2021-present, Diana Gudu.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

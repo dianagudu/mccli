@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>SSH/SCP-specific options &#8212; mccli</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../_static/mccli.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Retrieve information about user and server" href="info.html" />
+    <link rel="prev" title="Secure copy" href="scp.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="../_static/logos/mccli-notext.svg" />
+  
+  
+    <link rel="canonical" href="https://dianagudu.github.io/mccli/usage/ssh-options.html"/>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logos/mccli.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">SSH client wrapper for SSH with OIDC access token</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=dianagudu&repo=mccli&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../usage.html">Usage</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="at_sources.html">Access Token source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scp.html">Secure copy</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SSH/SCP-specific options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="info.html">Retrieve information about user and server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html">Additional configurations</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">mccli package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../usage.html">Usage</a><ul>
+      <li>Previous: <a href="scp.html" title="previous chapter">Secure copy</a></li>
+      <li>Next: <a href="info.html" title="next chapter">Retrieve information about user and server</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ssh-scp-specific-options">
+<span id="ssh-options"></span><h1>SSH/SCP-specific options<a class="headerlink" href="#ssh-scp-specific-options" title="Permalink to this headline">¶</a></h1>
+<p>Since <code class="docutils literal notranslate"><span class="pre">mccli</span></code> is a wrapper around the SSH/SCP clients, all SSH/SCP-specific options are supported. The options are passed through to the SSH/SCP command unmodified.</p>
+<p>This is enabled by the <a class="reference external" href="https://pexpect.readthedocs.io/">pexpect</a> library (via <a class="reference external" href="https://pexpect.readthedocs.io/en/stable/api/pexpect.html#spawn-class">pexpect.spawn</a>).</p>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>For example, you can pass a non-standart port to connect to the remote host or increase output verbosity like so:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli ssh -vv -p <span class="m">1022</span> <span class="nv">$SSH_SERVER</span>
+</pre></div>
+</div>
+<p>It is also possible to execute a command on the remote host instead of an interactive login shell, by specifying a command after the ssh host, as usual:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli ssh <span class="nv">$SSH_SERVER</span> ls -a
+</pre></div>
+</div>
+<p>Passing options to the <code class="docutils literal notranslate"><span class="pre">scp</span></code> command works in a similar way.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli ssh &lt;SSH options go here&gt; <span class="nv">$SSH_SERVER</span> &lt;<span class="nb">command</span> on remote host&gt;
+mccli scp &lt;SCP options go here&gt; <span class="nv">$SCP_SOURCE</span> ... <span class="nv">$SCP_TARGET</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="scp.html" title="Previous document">Secure copy</a>
+        </li>
+        <li>
+          <a href="info.html" title="Next document">Retrieve information about user and server</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2021-present, Diana Gudu.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

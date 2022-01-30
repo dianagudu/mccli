@@ -1,4 +1,0 @@
-sphinx
-sphinx-click
-sphinxcontrib-apidoc
-sphinx-copybutton

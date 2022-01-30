@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Secure copy &#8212; mccli</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../_static/mccli.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SSH/SCP-specific options" href="ssh-options.html" />
+    <link rel="prev" title="Access Token source" href="at_sources.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="../_static/logos/mccli-notext.svg" />
+  
+  
+    <link rel="canonical" href="https://dianagudu.github.io/mccli/usage/scp.html"/>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logos/mccli.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">SSH client wrapper for SSH with OIDC access token</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=dianagudu&repo=mccli&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../usage.html">Usage</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="at_sources.html">Access Token source</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Secure copy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-usage">General usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ssh-options.html">SSH/SCP-specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="info.html">Retrieve information about user and server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html">Additional configurations</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">mccli package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../usage.html">Usage</a><ul>
+      <li>Previous: <a href="at_sources.html" title="previous chapter">Access Token source</a></li>
+      <li>Next: <a href="ssh-options.html" title="next chapter">SSH/SCP-specific options</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="secure-copy">
+<span id="scp"></span><h1>Secure copy<a class="headerlink" href="#secure-copy" title="Permalink to this headline">¶</a></h1>
+<p>Copying files over SSH is possible by simply prepending your usual <code class="docutils literal notranslate"><span class="pre">scp</span></code> command with <code class="docutils literal notranslate"><span class="pre">mccli</span></code>.</p>
+<p>For example, to copy the local file <em>file.txt</em> to the <em>remotedir</em> folder on a remote host, try:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli scp file.txt <span class="nv">$REMOTE_HOST</span>:remotedir/
+</pre></div>
+</div>
+<p>Of course, you will first need to <a class="reference internal" href="at_sources.html"><span class="doc">configure the Access Token source</span></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do not specify the remote user if you want mccli to handle the OIDC-based authentication to the remote host for you!</p>
+</div>
+<p>If you specify a username for a host, then it will be used and it will be assumed that this specific host does not use OIDC-based authentication. This is useful, for example, when one of the remote hosts in the copy operation does not support OIDC-based authentication. You will have to handle authentication to that host on your own, e.g. via SSH keys.</p>
+<section id="general-usage">
+<h2>General usage<a class="headerlink" href="#general-usage" title="Permalink to this headline">¶</a></h2>
+<p>Consult the <a class="reference internal" href="../api/cli/scp.html"><span class="doc">help page</span></a> for a full account of the options for <code class="docutils literal notranslate"><span class="pre">mccli</span> <span class="pre">scp</span></code>.</p>
+</section>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="at_sources.html" title="Previous document">Access Token source</a>
+        </li>
+        <li>
+          <a href="ssh-options.html" title="Next document">SSH/SCP-specific options</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2021-present, Diana Gudu.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

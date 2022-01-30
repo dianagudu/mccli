@@ -1,9 +1,0 @@
-pexpect
-liboidcagent
-requests
-requests-cache
-click>=8.0.0
-click-option-group
-click-logging
-rfc3986
-flaat

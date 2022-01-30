@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Additional configurations &#8212; mccli</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../_static/mccli.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="mccli package" href="../api.html" />
+    <link rel="prev" title="Retrieve information about user and server" href="info.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="../_static/logos/mccli-notext.svg" />
+  
+  
+    <link rel="canonical" href="https://dianagudu.github.io/mccli/usage/misc.html"/>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logos/mccli.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">SSH client wrapper for SSH with OIDC access token</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=dianagudu&repo=mccli&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../usage.html">Usage</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="at_sources.html">Access Token source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scp.html">Secure copy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ssh-options.html">SSH/SCP-specific options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="info.html">Retrieve information about user and server</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Additional configurations</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">mccli package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../usage.html">Usage</a><ul>
+      <li>Previous: <a href="info.html" title="previous chapter">Retrieve information about user and server</a></li>
+      <li>Next: <a href="../api.html" title="next chapter">mccli package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="additional-configurations">
+<span id="misc"></span><h1>Additional configurations<a class="headerlink" href="#additional-configurations" title="Permalink to this headline">¶</a></h1>
+<p>For a full description of the options, use the help option — also on each subcommand, as they might have additional options available:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli --help
+mccli ssh --help
+mccli info --help
+</pre></div>
+</div>
+<p class="rubric">motley_cue endpoint</p>
+<p><a class="reference external" href="https://github.com/dianagudu/motley_cue">motley_cue</a> is the server-side software that handles the mapping of OIDC identities to local accounts.
+<code class="docutils literal notranslate"><span class="pre">mccli</span></code> queries motley_cue’s REST API to trigger local account provisioning or retrieve the local username to be by SSH.</p>
+<p>Ideally, as a user you do not need to know anything about it. However, you might encounter the following error message: <code class="docutils literal notranslate"><span class="pre">No</span> <span class="pre">motley_cue</span> <span class="pre">service</span> <span class="pre">found</span> <span class="pre">on</span> <span class="pre">host</span></code>.</p>
+<p>This means that the motley_cue API is not running on one of the standard ports: 443, 8443, 8080. In that case, please contact an administrator of the SSH server for more information, and then pass the API URL via <code class="docutils literal notranslate"><span class="pre">--mc-endpoint</span></code> to every <code class="docutils literal notranslate"><span class="pre">mccli</span></code> command.</p>
+<p class="rubric">dry-run</p>
+<p>With this option, <code class="docutils literal notranslate"><span class="pre">mccli</span></code> does not run the given SSH command, but prints the corresponding <code class="docutils literal notranslate"><span class="pre">sshpass</span></code> command that can be used to SSH into the server. In addition, it will trigger the deployment of your local account on the remote machine if the account doesn’t exist.</p>
+<p>For example,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli ssh --oidc egi --dry-run ssh <span class="nv">$SSH_SERVER</span>
+</pre></div>
+</div>
+<p>will output something like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SSHPASS</span><span class="o">=</span><span class="sb">`</span>oidc-token egi<span class="sb">`</span> sshpass -P <span class="s1">&#39;Access Token&#39;</span> -e ssh -l user001 <span class="nv">$SSH_SERVER</span>
+</pre></div>
+</div>
+<p>This means your local account on the remote host is <code class="docutils literal notranslate"><span class="pre">user001</span></code>.</p>
+<p>This could be useful if you want to run this command on a different machine that doesn’t have <code class="docutils literal notranslate"><span class="pre">mccli</span></code> or Python installed.</p>
+<p class="rubric">Logging</p>
+<p>Access more logging information with the following options:</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-log-level">
+<span class="sig-name descname"><span class="pre">--log-level</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;LEVEL&gt;</span></span><a class="headerlink" href="#cmdoption-log-level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Either CRITICAL, ERROR, WARNING, INFO or DEBUG. Default value: ERROR.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-debug">
+<span class="sig-name descname"><span class="pre">--debug</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the log level to DEBUG.</p>
+</dd></dl>
+
+<p>Or simply set the environment variable <strong>LOG</strong> to the desired level.</p>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="info.html" title="Previous document">Retrieve information about user and server</a>
+        </li>
+        <li>
+          <a href="../api.html" title="Next document">mccli package</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2021-present, Diana Gudu.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

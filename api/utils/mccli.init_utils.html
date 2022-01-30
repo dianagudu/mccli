@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>mccli.init_utils &#8212; mccli</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/mccli.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mccli.scp_utils" href="mccli.scp_utils.html" />
+    <link rel="prev" title="mccli.info_utils" href="mccli.info_utils.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="../../_static/logos/mccli-notext.svg" />
+  
+  
+    <link rel="canonical" href="https://dianagudu.github.io/mccli/api/utils/mccli.init_utils.html"/>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logos/mccli.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">SSH client wrapper for SSH with OIDC access token</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=dianagudu&repo=mccli&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../api.html">mccli package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../api.html#cli">CLI</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../api.html#utils">Utils</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mccli.motley_cue_client.html">mccli.motley_cue_client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.ssh_wrapper.html">mccli.ssh_wrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.click_utils.html">mccli.click_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.info_utils.html">mccli.info_utils</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">mccli.init_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mccli.scp_utils.html">mccli.scp_utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../../api.html">mccli package</a><ul>
+      <li>Previous: <a href="mccli.info_utils.html" title="previous chapter">mccli.info_utils</a></li>
+      <li>Next: <a href="mccli.scp_utils.html" title="next chapter">mccli.scp_utils</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="mccli-init-utils">
+<span id="id1"></span><h1>mccli.init_utils<a class="headerlink" href="#mccli-init-utils" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-mccli.init_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.canonical_url">
+<span class="sig-name descname"><span class="pre">canonical_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.canonical_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip URL of protocol info and ending slashes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.oidc_gen_command">
+<span class="sig-name descname"><span class="pre">oidc_gen_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iss</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.oidc_gen_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string containing the appropriate oidc-gen command
+for given issuer, including suggested scopes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.validate_token_length">
+<span class="sig-name descname"><span class="pre">validate_token_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.validate_token_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for init_token that checks if token length is &lt; 1024</p>
+<p>The function takes token returned by init_token and raises an
+Exception if token too long and cannot be used for SSH authentication.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.init_token">
+<span class="sig-name descname"><span class="pre">init_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.init_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.valid_mc_url">
+<span class="sig-name descname"><span class="pre">valid_mc_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.valid_mc_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if there is a motley_cue service
+running at provided url and returns the url
+Raises an exception otherwise.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.init_endpoint">
+<span class="sig-name descname"><span class="pre">init_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.init_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise motley_cue endpoint from ssh args.</p>
+<p>(HACKY) Try to get the ssh host from <cite>ssh_args</cite>
+by executing the ssh command with invalid <cite>-b</cite> option
+and parsing the output for the actual HOSTNAME.</p>
+<p>Then try to use default value for motley_cue endpoint: <a class="reference external" href="https://HOSTNAME">https://HOSTNAME</a>
+If this is not reachable, issue warning and try: <a class="reference external" href="http://HOSTNAME:8080">http://HOSTNAME:8080</a>
+If also not reachable, exit and ask user to specify it using –mc-endpoint</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.init_user">
+<span class="sig-name descname"><span class="pre">init_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.init_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get remote username, will be deployed if it doesn’t exist.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.augmented_scp_command">
+<span class="sig-name descname"><span class="pre">augmented_scp_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oa_account</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.augmented_scp_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives an ScpCommand object and adds the username for each
+host that is remote and has no user specified, by contacting
+the motley_cue service on that host.
+Returns new scp command as list, as well as the tokens that should be
+passed as passwords, in order. A third list contains the
+string representation of each command used to get each token.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.init_utils.init_cache">
+<span class="sig-name descname"><span class="pre">init_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mccli.init_utils.init_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to install caching for HTTP requests.</p>
+<p>Make sure to call this function after setting log level
+for full output.</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="mccli.info_utils.html" title="Previous document">mccli.info_utils</a>
+        </li>
+        <li>
+          <a href="mccli.scp_utils.html" title="Next document">mccli.scp_utils</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2021-present, Diana Gudu.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
