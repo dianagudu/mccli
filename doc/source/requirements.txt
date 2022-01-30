@@ -1,3 +1,4 @@
+mccli
 sphinx
 sphinx-click
 sphinxcontrib-apidoc
