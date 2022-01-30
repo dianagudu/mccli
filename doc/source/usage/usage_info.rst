@@ -1,7 +1,7 @@
-.. _info:
+.. _usage_info:
 
 Retrieve information about user and server
-=========================================
+==========================================
 
 The ``mccli info`` command helps you retrieve various information that you might find useful:
 

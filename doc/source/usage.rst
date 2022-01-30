@@ -20,9 +20,9 @@ More advanced usage below:
   :maxdepth: 1
 
   usage/at_sources
-  usage/scp
+  usage/usage_scp
   usage/ssh-options
-  usage/info
+  usage/usage_info
   usage/misc  
 
 

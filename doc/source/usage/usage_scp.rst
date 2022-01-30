@@ -1,4 +1,4 @@
-.. _scp:
+.. _usage_scp:
 
 Secure copy
 ===========

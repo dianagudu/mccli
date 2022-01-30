@@ -1,4 +1,4 @@
-.. _mccli_sftp:
+.. _sftp:
 
 .. click:: mccli.mccli:sftp
    :prog: mccli sftp

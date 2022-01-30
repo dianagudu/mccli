@@ -1,4 +1,4 @@
-.. _mccli_ssh:
+.. _ssh:
 
 .. click:: mccli.mccli:ssh
    :prog: mccli ssh
