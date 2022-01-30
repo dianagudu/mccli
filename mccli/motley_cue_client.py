@@ -155,6 +155,9 @@ def local_username(mc_endpoint, token, verify=True):
                 if resp.status_code == requests.codes.ok:
                     logger.debug(json.dumps(resp.json(), indent=2))
                     return resp.json()["credentials"]["ssh_user"]
+                elif state == "deployed":
+                    logger.warning(f"Failed on redeploy. Some of your user information might be outdated.")
+                    return output["message"].split()[1]
                 else:
                     resp_dict = json.loads(resp.text)
                     try:
