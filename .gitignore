@@ -1,4 +1,4 @@
-doc/*
+doc/build/*
 *.egg-info/*
 */*.egg-info/*
 .eggs/*
