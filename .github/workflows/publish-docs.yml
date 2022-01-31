@@ -54,7 +54,7 @@ jobs:
         run: tox -e docs
         
       - name: Test build successful
-        run: ls -la docs/build
+        run: ls -la doc/build
 
 #      - name: Publish documentation
 #        uses: peaceiris/actions-gh-pages@v3
