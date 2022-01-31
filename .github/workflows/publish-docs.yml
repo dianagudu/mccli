@@ -52,12 +52,9 @@ jobs:
 
       - name: Build documentation
         run: tox -e docs
-        
-      - name: Test build successful
-        run: ls -la doc/build
 
-#      - name: Publish documentation
-#        uses: peaceiris/actions-gh-pages@v3
-#        with:
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          publish_dir: ./doc/build
+      - name: Publish documentation
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./doc/build
