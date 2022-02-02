@@ -137,13 +137,20 @@ html_theme_options = {
     'warn_border': '#fcece3ff',
     # fonts
     'head_font_family': 'Barlow Semi Condensed Medium, sans-serif',
-    'caption_font_family': 'Montserrat Medium, sans-serif',
-    'code_font_family': 'Liberation Mono, Roboto Mono, monospace',
-    'font_family': 'Montserrat Medium, sans-serif',
-    'font_size': 'medium',
+    'caption_font_family': 'Barlow Semi Condensed, sans-serif',
+    # 'code_font_family': 'Liberation Mono, Roboto Mono, monospace',
+    'font_family': 'Barlow Semi Condensed, sans-serif',
+    # 'font_size': 'medium',
     'code_font_size': 'small',
-    'caption_font_size': 'medium',
+    # 'caption_font_size': 'medium',
 }
+
+## sphinx-copybutton configs
+copybutton_prompt_text = "$ "
+copybutton_only_copy_prompt_lines = True
+copybutton_remove_prompts = True
+copybutton_copy_empty_lines = False
+copybutton_line_continuation_character = "\\"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -175,6 +182,9 @@ html_sidebars = {
         'sourcelink.html', 'searchbox.html' ],
 }
 
+html_css_files = [
+    'css/fonts.css',
+]
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
