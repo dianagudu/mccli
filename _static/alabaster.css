@@ -3,8 +3,8 @@
 /* -- page layout ----------------------------------------------------------- */
 
 body {
-    font-family: Montserrat Medium, sans-serif;
-    font-size: medium;
+    font-family: Barlow Semi Condensed, sans-serif;
+    font-size: 17px;
     background-color: #fff;
     color: #000;
     margin: 0;
@@ -59,8 +59,8 @@ div.footer a {
 }
 
 p.caption {
-    font-family: Montserrat Medium, sans-serif;
-    font-size: medium;
+    font-family: Barlow Semi Condensed, sans-serif;
+    font-size: inherit;
 }
 
 
@@ -151,7 +151,7 @@ div.sphinxsidebar ul li.toctree-l2 > a {
 
 div.sphinxsidebar input {
     border: 1px solid #CCC;
-    font-family: Montserrat Medium, sans-serif;
+    font-family: Barlow Semi Condensed, sans-serif;
     font-size: 1em;
 }
 
@@ -327,7 +327,7 @@ p.admonition-title:after {
 }
 
 pre, tt, code {
-    font-family: Liberation Mono, Roboto Mono, monospace;
+    font-family: 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
     font-size: small;
 }
 
