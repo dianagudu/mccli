@@ -1,4 +1,5 @@
-.. include:: intro.rst
+.. include:: ../../README.rst
+  :end-before: end-of-intro
 
 .. toctree::
   :maxdepth: 2
@@ -6,7 +7,9 @@
   installation
   usage
 
-.. include:: test_server.rst
+.. include:: ../../README.rst
+  :start-after: beginning-of-test-server
+  :end-before: end-of-test-server
 
 
 API reference
