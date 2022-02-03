@@ -1,1 +1,26 @@
-@import url('https://fonts.googleapis.com/css?family=Barlow+Semi+Condensed');
+@font-face {
+    font-family: "Barlow Semi Condensed";
+    src: url("../fonts/BarlowSemiCondensed-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Barlow Semi Condensed Medium";
+    src: url("../fonts/BarlowSemiCondensed-Medium.ttf");
+}
+
+@font-face {
+    font-family: "Barlow Semi Condensed Bold";
+    src: url("../fonts/BarlowSemiCondensed-Bold.ttf");
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: "Barlow Semi Condensed SemiBold";
+    src: url("../fonts/BarlowSemiCondensed-SemiBold.ttf");
+}
+
+@font-face {
+    font-family: "Barlow Semi Condensed Italic";
+    src: url("../fonts/BarlowSemiCondensed-Italic.ttf");
+    font-style: italic;
+}
