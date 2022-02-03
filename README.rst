@@ -1,6 +1,45 @@
-.. include:: doc/source/intro.rst
+mccli
+=====
 
-.. include:: doc/source/test_server.rst
+This is an *SSH client wrapper* that enables SSH with OIDC access tokens.
+
+For server-side software, see `motley_cue <https://github.com/dianagudu/motley_cue>`_.
+
+Compatibility
+-------------
+
+mccli works with Python 3, and only Linux. Windows support is planned as plugins for popular SSH clients, such as PuTTY.
+
+
+Documentation
+-------------
+
+The documentation is available at https://dianagudu.github.io/mccli/.
+
+.. end-of-intro
+.. beginning-of-test-server
+
+Test server
+------------
+
+You can test this tool against our `test SSH server <https://ssh-oidc-demo.data.kit.edu>`_ that supports OIDC-based authentication:
+
+.. code-block:: rst
+
+  ssh-oidc-demo.data.kit.edu
+
+
+The server accepts tokens from the following OIDC providers:
+
+* `EGI Check-in <https://aai.egi.eu/oidc>`_
+* `WLCG <https://wlcg.cloud.cnaf.infn.it>`_
+* `HELMHOLTZ AAI (production) <https://login.helmholtz.de/oauth2>`_
+* `HELMHOLTZ AAI (development) <https://login-dev.helmholtz.de/oauth2>`_
+* `KIT <https://oidc.scc.kit.edu/auth/realms/kit>`_
+* `DEEP Hybrid DataCloud <https://iam.deep-hybrid-datacloud.eu>`_
+* `Google <https://accounts.google.com>`_
+
+.. end-of-test-server
 
 License
 -------
