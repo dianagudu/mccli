@@ -184,6 +184,7 @@ html_sidebars = {
 
 html_css_files = [
     'css/fonts.css',
+    'css/custom.css',
 ]
 
 # Additional templates that should be rendered to pages, maps page names to
