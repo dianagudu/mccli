@@ -46,7 +46,7 @@ License
 
 The source code is licensed under the `MIT license <https://opensource.org/licenses/MIT>`_. 
 
-The logo is licensed under the `Creative Commons Attribution 4.0 International License <http://creativecommons.org/licenses/by/4.0/>`_ (`"Fingerprint" <https://thenounproject.com/icon/fingerprint-286941/>`_ icon by Roselin Christina.S from NounProject.com).
+The logo is licensed under the `Creative Commons Attribution 4.0 International License <http://creativecommons.org/licenses/by/4.0/>`_ .
 
 ..
     .. image:: https://i.creativecommons.org/l/by/4.0/88x31.png
