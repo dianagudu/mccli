@@ -1,9 +1,9 @@
 mccli
 =====
 
-This is an *SSH client wrapper* that enables SSH with OIDC access tokens.
+This is an SSH client wrapper that enables SSH with OIDC access tokens.
 
-For server-side software, see `motley_cue <https://github.com/dianagudu/motley_cue>`_.
+For server-side software, see `motley_cue <https://dianagudu.github.io/motley_cue>`_.
 
 Compatibility
 -------------

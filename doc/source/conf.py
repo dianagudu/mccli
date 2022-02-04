@@ -108,11 +108,11 @@ html_show_sourcelink = True
 # documentation.
 html_theme_options = {
     'description': 'SSH client wrapper for SSH with OIDC access token',
-    'logo': 'logos/mccli.svg',
+    'logo': 'logos/mccli.png',
     'github_user': 'dianagudu',
     'github_repo': 'mccli',
     'canonical_url': 'https://dianagudu.github.io/mccli/',
-    'touch_icon': 'logos/mccli-notext.svg',
+    'touch_icon': 'logos/mccli-notext.png',
     'show_relbar_bottom': True,
     'show_relbar_top': False,
     'show_powered_by': False,
@@ -159,7 +159,7 @@ html_static_path = [
     '_static/logos/mccli.ico'
 ]
 
-#html_logo = '_static/logos/mccli-white.svg'
+#html_logo = '_static/logos/mccli-white.png'
 
 html_favicon = '_static/logos/mccli.ico'
 
@@ -246,7 +246,7 @@ latex_documents = [
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = "_static/logos/mccli.svg"
+#latex_logo = "_static/logos/mccli.png"
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
