@@ -86,9 +86,12 @@ def get_hostname(ssh_args):
     and parsing the output for the actual HOSTNAME.
     """
     # add -G option to make ssh print its configuration
+    # option added to the beginning of the list to avoid clashes with
+    #   parameters from command to be executed remotely, e.g.:
+    #   `ssh host ls -l`
     ssh_args = ssh_args.copy()
     if "-G" not in ssh_args:
-        ssh_args.append("-G")
+        ssh_args.insert(0, "-G")
 
     command = f"ssh {' '.join(ssh_args)}" 
 
