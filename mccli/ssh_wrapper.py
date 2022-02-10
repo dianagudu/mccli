@@ -1,4 +1,3 @@
-from cmath import log
 import struct
 import fcntl
 import termios
@@ -7,8 +6,6 @@ import sys
 import re
 import pexpect
 import os
-import ipaddress
-import socket
 from functools import partial
 from click import echo
 from random import randint
