@@ -1,3 +1,6 @@
 import pkg_resources  # part of setuptools
 
-__version__ = pkg_resources.require("mccli")[0].version
+try:
+    __version__ = pkg_resources.get_distribution("mccli").version
+except Exception:
+    __version__ = "unknown"
