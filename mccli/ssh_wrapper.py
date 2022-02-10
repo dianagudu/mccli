@@ -14,13 +14,7 @@ from .logging import logger
 
 
 PASSWORD_REGEX = r"(?:[^\n]*)(?:Access Token:)$"
-SSH_HOSTNAME_REGEX = r"debug1: Connecting to (?P<host>\S+) \[\S+\] port \d+."
-SSH_HOSTNAME_PATTERN = re.compile(SSH_HOSTNAME_REGEX)
-BIND_ADDRESS = "SOMETHING_OBVIOUSLY_WRONG_1234567890"
-ERROR_MSG_1 = "Name or service not known"
-ERROR_MSG_2 = "No address associated with hostname"
-SSH_ERROR_BIND_ADDRESS = rf"(?P<errorprefix>getaddrinfo: {BIND_ADDRESS}:) (?P<errormsg>[^\r\n]+)"
-
+SSH_HOSTNAME_PATTERN = re.compile(r"^hostname\s+(?P<hostname>\S+)\s+$", flags=re.MULTILINE)
 
 def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
     """Runs the ssh command given by list of ssh_args, using given username
@@ -84,35 +78,33 @@ def scp_wrap(scp_args, username=None, tokens=None, str_get_tokens=None,
 
 
 def get_hostname(ssh_args):
-    """(HACKY) Try to get the ssh host from `ssh_args`
-    by executing the ssh command with invalid `-b` option
+    """Try to get the ssh host from `ssh_args`
+    by executing the ssh command with `-G` option
     and parsing the output for the actual HOSTNAME.
     """
-    # add strange option to make ssh fail without even sstarting pre-auth
-    add_opts = ['ssh', '-v', '-b', BIND_ADDRESS]
-    new_args = ssh_args.copy()
-    # remove possible duplicate -b options
-    for i in range(new_args.count('-b')):
-        index = new_args.index('-b')
-        del new_args[index:index+2]
-    new_args = add_opts + new_args
-    command = " ".join(new_args)
+    # add -G option to make ssh print its configuration
+    # option added to the beginning of the list to avoid clashes with
+    #   parameters from command to be executed remotely, e.g.:
+    #   `ssh host ls -l`
+    ssh_args = ssh_args.copy()
+    if "-G" not in ssh_args:
+        ssh_args.insert(0, "-G")
+
+    command = f"ssh {' '.join(ssh_args)}" 
+
     try:
-        logger.debug(f"Running this command is expected to fail: {command}")
-        child_process = pexpect.spawn(command)
-        child_process.expect(SSH_ERROR_BIND_ADDRESS)
-        errorprefix = child_process.match.group('errorprefix').decode('utf-8')
-        errormsg = child_process.match.group('errormsg').decode('utf-8')
-        logger.debug(f"Command failed with error message: '{errorprefix} {errormsg}'")
-        result = SSH_HOSTNAME_PATTERN.search(
-            child_process.before.decode("utf-8"))
-        if result:
-            hostname = result.group("host")
-            logger.debug(f"Found hostname by parsing command error logs: {hostname}")
-            return hostname
+        logger.debug(f"Running this command to get ssh configuration: {command}")
+        output = pexpect.run(command).decode("utf-8")
+        pattern_match = SSH_HOSTNAME_PATTERN.search(output)
+        if not pattern_match:
+            logger.error(f"Could not find hostname from ssh command {command}")
+            return None
+        hostname = pattern_match.group("hostname")
+        logger.debug(f"Found hostname by parsing command output: {hostname}")
+        return hostname
     except pexpect.ExceptionPexpect as e:
         logger.debug(e)
-        logger.info("Error trying to get real hostname from ssh command")
+        logger.error(f"Error trying to get real hostname from ssh command {command}")
     return None
 
 
