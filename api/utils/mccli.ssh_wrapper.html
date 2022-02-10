@@ -154,8 +154,8 @@ of the actual token(s).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="mccli.ssh_wrapper.get_hostname">
 <span class="sig-name descname"><span class="pre">get_hostname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.get_hostname" title="Permalink to this definition">¶</a></dt>
-<dd><p>(HACKY) Try to get the ssh host from <cite>ssh_args</cite>
-by executing the ssh command with invalid <cite>-b</cite> option
+<dd><p>Try to get the ssh host from <cite>ssh_args</cite>
+by executing the ssh command with <cite>-G</cite> option
 and parsing the output for the actual HOSTNAME.</p>
 </dd></dl>
 
