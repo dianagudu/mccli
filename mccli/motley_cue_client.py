@@ -2,7 +2,6 @@ import requests
 import json
 from rfc3986 import urlparse
 import socket
-import requests_cache
 
 from .logging import logger
 
@@ -80,7 +79,7 @@ def get_info(mc_endpoint, verify=True):
 def get_supported_ops(mc_endpoint, verify=True):
     service_info = get_info(mc_endpoint, verify)
     if service_info is not None:
-        return service_info["supported OPs"]
+        return service_info.get("supported_OPs", None)
     return None
 
 
