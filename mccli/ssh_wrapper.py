@@ -114,7 +114,7 @@ def __sigwinch_passthrough(sig=None, data=None, child_process=None):
     s = struct.pack("HHHH", 0, 0, 0, 0)
     a = struct.unpack('hhhh', fcntl.ioctl(sys.stdout.fileno(),
                                           termios.TIOCGWINSZ, s))
-    if not child_process.closed:
+    if child_process is not None and not child_process.closed:
         child_process.setwinsize(a[0], a[1])
 
 

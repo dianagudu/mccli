@@ -6,6 +6,7 @@ from click_option_group import optgroup, MutuallyExclusiveOptionGroup
 from functools import wraps
 import urllib3
 import logging
+import inspect
 
 from .logging import logger
 from .version import __version__
@@ -15,6 +16,10 @@ FC = t.TypeVar("FC", t.Callable[..., t.Any], click.Command)
 
 
 class CustomUsageCommand(click.Command):
+    @property
+    def usage_text(self):
+        return ""
+
     def format_usage(self, ctx, formatter):
         formatter.write(self.usage_text)
         formatter.write_paragraph()

@@ -1,5 +1,5 @@
 from rfc3986 import urlparse
-import urllib
+from urllib import parse
 import re
 from click import UsageError
 from enum import Enum
@@ -251,10 +251,10 @@ def __valid_path(value):
         return ScpOperand(
             remote=True,
             uri=True,
-            user=urllib.parse.unquote(parsed_uri.userinfo) \
+            user=parse.unquote(parsed_uri.userinfo) \
                 if parsed_uri.userinfo and parsed_uri.userinfo != '' else None,
-            host=urllib.parse.unquote(parsed_uri.host),
-            path=urllib.parse.unquote(parsed_uri.path) \
+            host=parse.unquote(parsed_uri.host),
+            path=parse.unquote(parsed_uri.path) \
                 if parsed_uri.path and parsed_uri.path != '' else None,
             port=parsed_uri.port,
             original_str=value
