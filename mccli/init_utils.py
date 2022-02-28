@@ -1,8 +1,8 @@
-import requests
 import requests_cache
 import os.path
 import liboidcagent as agent
-from flaat import tokentools
+from time import time
+from flaat.access_tokens import get_access_token_info
 
 from .motley_cue_client import local_username, get_supported_ops, is_valid_mc_url
 from .ssh_wrapper import get_hostname
@@ -67,8 +67,14 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
     expired = False
     if token is not None:
         # check if token is expired
-        info_in_token = tokentools.get_accesstoken_info(token)
-        timeleft = tokentools.get_timeleft(info_in_token)
+        try:
+            info_in_token = get_access_token_info(token)
+            if info_in_token:
+                timeleft = info_in_token.body["exp"] - time()
+            else:
+                timeleft = None
+        except Exception:
+            timeleft = None
         if not timeleft:
             logger.warning("Could not get expiration date from provided token, it might not be a JWT. Using it anyway...")
             logger.debug(f"Access Token: {token}")
@@ -262,8 +268,8 @@ def init_cache():
     include_get_headers = True
     allowable_methods = ('GET')
     urls_expire_after = {
-        '*/user/get_status': 0,
-        '*/user/deploy': 0,
+        '*/user/*': 0,
+        '*/admin/*': 0,
     }
 
     try:
