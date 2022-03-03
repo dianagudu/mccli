@@ -79,7 +79,11 @@ def get_info(mc_endpoint, verify=True):
 def get_supported_ops(mc_endpoint, verify=True):
     service_info = get_info(mc_endpoint, verify)
     if service_info is not None:
-        return service_info.get("supported_OPs", [])
+        supported_ops = service_info.get("supported_OPs", [])
+        # backward compat with old motley_cue
+        if supported_ops == []:
+            supported_ops = service_info.get("supported OPs", [])
+        return supported_ops
     return []
 
 
