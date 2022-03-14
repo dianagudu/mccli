@@ -4,7 +4,7 @@ import liboidcagent as agent
 from time import time
 from flaat.access_tokens import get_access_token_info
 
-from .motley_cue_client import local_username, get_supported_ops, is_valid_mc_url
+from .motley_cue_client import local_username, get_supported_ops, is_valid_mc_url, get_audience
 from .ssh_wrapper import get_hostname
 from .logging import logger
 
@@ -38,7 +38,7 @@ def oidc_gen_command(iss):
     return oidc_gen_command_strings.get(canonical_url(iss), f"oidc-gen --iss {iss}")
 
 
-def validate_token_length(func):
+def _validate_token_length(func):
     """Decorator for init_token that checks if token length is < 1024
 
     The function takes token returned by init_token and raises an
@@ -52,7 +52,30 @@ def validate_token_length(func):
     return wrapper
 
 
-@validate_token_length
+def _get_access_token(oa_account=None, iss=None, mc_endpoint=None, verify=True):
+    """Retrieve access token from oidc-agent, then query motley_cue API with this token
+    to check if specific audience is needed for authz
+    """
+    def _get_token_from_agent(oa_account=None, iss=None, audience=None):
+        if oa_account is not None:
+            return agent.get_access_token(
+                oa_account, application_hint="mccli", audience=audience
+            ), _str_init_token(oa_account=oa_account, audience=audience)
+        elif iss is not None:
+            return agent.get_access_token_by_issuer_url(
+                iss, application_hint="mccli", audience=audience
+            ), _str_init_token(iss=iss, audience=audience)
+        return None, None
+
+    at, str_at = _get_token_from_agent(oa_account, iss)
+    if at is not None:
+        audience = get_audience(mc_endpoint, at, verify)
+        if audience is not None:
+            at, str_at = _get_token_from_agent(oa_account, iss, audience)
+    return at, str_at
+
+
+@_validate_token_length
 def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_length=True):
     """Retrieve an oidc token:
 
@@ -92,9 +115,7 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
     if oa_account is not None:
         try:
             logger.info(f"Using oidc-agent account: {oa_account}")
-            return agent.get_access_token(
-                oa_account, application_hint="mccli"
-            ), _str_init_token(oa_account=oa_account)
+            return _get_access_token(oa_account=oa_account, mc_endpoint=mc_endpoint)
         except Exception as e:
             logger.warning(f"Failed to get Access Token for oidc-agent account '{oa_account}': {e}.")
             logger.warning(f"Are you sure this account is loaded? Load it with:\n    oidc-add {oa_account}")
@@ -107,9 +128,7 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
             if not iss.startswith("http"):
                 iss = f"https://{iss}"
                 logger.warning(f"The issuer URL you provided does not contain protocol information, assuming HTTPS: {iss}")
-            return agent.get_access_token_by_issuer_url(
-                iss, application_hint="mccli"
-            ), _str_init_token(iss=iss)
+            return _get_access_token(iss=iss, mc_endpoint=mc_endpoint)
         except Exception as e:
             logger.warning(f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}.")
             logger.warning(f"Are you sure the issuer URL is correct or that you have an account configured with oidc-agent for this issuer? Create it with:\n    {oidc_gen_command(iss)}")
@@ -122,9 +141,7 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
             iss = supported_ops[0]
             try:
                 logger.info(f"Using the only issuer supported on service to retrieve token from oidc-agent: {iss}")
-                return agent.get_access_token_by_issuer_url(
-                    iss, application_hint="mccli"
-                ), _str_init_token(iss=iss)
+                return _get_access_token(iss=iss, mc_endpoint=mc_endpoint)
             except Exception as e:
                 logger.warning(f"Failed to get Access Token from oidc-agent for the only issuer supported on service '{iss}': {e}")
                 logger.warning(f"If you don't have an oidc-agent account configured for this issuer, create it with:\n    {oidc_gen_command(iss)}")
@@ -141,19 +158,22 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
     raise Exception(msg)
 
 
-def _str_init_token(token=None, oa_account=None, iss=None):
+def _str_init_token(token=None, oa_account=None, iss=None, audience=None):
     """String representation of command used to get Access Token:
     * full token if token is set
     * `oidc-token oa_account` if oidc-agent account is set
     * `oidc-token iss` if issuer is set
-    *  ... (`oidc-token iss` is iss can be retrieved from service)
+    *  ... (`oidc-token iss` if iss can be retrieved from service)
     """
+    aud_str = ""
+    if audience:
+        aud_str = f"--aud {audience} "
     if token:
         return f"'{token}'"
     if oa_account:
-        return f"`oidc-token {oa_account}`"
+        return f"`oidc-token {aud_str}{oa_account}`"
     elif iss:
-        return f"`oidc-token {iss}`"
+        return f"`oidc-token {aud_str}{iss}`"
     raise Exception("No access token found")
 
 

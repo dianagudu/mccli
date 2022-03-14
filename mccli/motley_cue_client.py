@@ -97,6 +97,15 @@ def get_authorisation_info(mc_endpoint, token, verify=True):
     return None
 
 
+def get_audience(mc_endpoint, token, verify=True):
+    try:
+        resp = info_authorisation(mc_endpoint, token, verify=verify)
+        return resp.json().get("audience", None)
+    except Exception as e:
+        logger.debug("Failed to get audience from service, assuming no specific audience needed.")
+    return None
+
+
 def get_local_status(mc_endpoint, token, verify=True):
     try:
         resp = get_status(mc_endpoint, token, verify=verify)
