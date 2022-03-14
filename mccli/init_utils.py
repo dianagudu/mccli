@@ -4,7 +4,12 @@ import liboidcagent as agent
 from time import time
 from flaat.access_tokens import get_access_token_info
 
-from .motley_cue_client import local_username, get_supported_ops, is_valid_mc_url, get_audience
+from .motley_cue_client import (
+    local_username,
+    get_supported_ops,
+    is_valid_mc_url,
+    get_audience,
+)
 from .ssh_wrapper import get_hostname
 from .logging import logger
 
@@ -13,12 +18,12 @@ oidc_gen_command_strings = {
     "aai.egi.eu/oidc": 'oidc-gen --pub --iss https://aai.egi.eu/oidc --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" egi',
     "wlcg.cloud.cnaf.infn.it": 'oidc-gen --pub --issuer https://wlcg.cloud.cnaf.infn.it --scope "openid profile offline_access eduperson_entitlement eduperson_scoped_affiliation wlcg.groups wlcg" wlcg',
     "login.helmholtz.de/oauth2": 'oidc-gen --pub --iss https://login.helmholtz.de/oauth2 --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" helmholtz',
-    "accounts.google.com": 'oidc-gen --pub --iss https://accounts.google.com/ --flow device --scope max google'
+    "accounts.google.com": "oidc-gen --pub --iss https://accounts.google.com/ --flow device --scope max google",
 }
 
+
 def canonical_url(url):
-    """Strip URL of protocol info and ending slashes
-    """
+    """Strip URL of protocol info and ending slashes"""
     url = url.lower()
     if url.startswith("http://"):
         url = url[7:]
@@ -44,11 +49,15 @@ def _validate_token_length(func):
     The function takes token returned by init_token and raises an
     Exception if token too long and cannot be used for SSH authentication.
     """
+
     def wrapper(*args, **kwargs):
         at, str_get_at = func(*args, **kwargs)
         if kwargs.get("validate_length", True) and len(at) > 1024:
-            raise Exception(f"Sorry, your token is too long ({len(at)} > 1024) and cannot be used for SSH authentication. Please ask your OP admin if they can release shorter tokens.")
+            raise Exception(
+                f"Sorry, your token is too long ({len(at)} > 1024) and cannot be used for SSH authentication. Please ask your OP admin if they can release shorter tokens."
+            )
         return at, str_get_at
+
     return wrapper
 
 
@@ -56,6 +65,7 @@ def _get_access_token(oa_account=None, iss=None, mc_endpoint=None, verify=True):
     """Retrieve access token from oidc-agent, then query motley_cue API with this token
     to check if specific audience is needed for authz
     """
+
     def _get_token_from_agent(oa_account=None, iss=None, audience=None):
         if oa_account is not None:
             return agent.get_access_token(
@@ -76,7 +86,9 @@ def _get_access_token(oa_account=None, iss=None, mc_endpoint=None, verify=True):
 
 
 @_validate_token_length
-def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_length=True):
+def init_token(
+    token, oa_account, iss, mc_endpoint=None, verify=True, validate_length=True
+):
     """Retrieve an oidc token:
 
     * use token if set,
@@ -99,16 +111,22 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
         except Exception:
             timeleft = None
         if not timeleft:
-            logger.warning("Could not get expiration date from provided token, it might not be a JWT. Using it anyway...")
+            logger.warning(
+                "Could not get expiration date from provided token, it might not be a JWT. Using it anyway..."
+            )
             logger.debug(f"Access Token: {token}")
             return token, _str_init_token(token=token)
         elif timeleft > 0:
-            logger.info(f"Token valid for {timeleft} more seconds, using provided token.")
+            logger.info(
+                f"Token valid for {timeleft} more seconds, using provided token."
+            )
             logger.debug(f"Access Token: {token}")
             return token, _str_init_token(token=token)
         else:
             expired = True
-            logger.warning(f"Token is expired for {-timeleft} seconds. Looking for another source for Access Token...")
+            logger.warning(
+                f"Token is expired for {-timeleft} seconds. Looking for another source for Access Token..."
+            )
             logger.debug(f"Access Token: {token}")
     else:
         logger.info("No access token provided.")
@@ -117,9 +135,15 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
             logger.info(f"Using oidc-agent account: {oa_account}")
             return _get_access_token(oa_account=oa_account, mc_endpoint=mc_endpoint)
         except Exception as e:
-            logger.warning(f"Failed to get Access Token for oidc-agent account '{oa_account}': {e}.")
-            logger.warning(f"Are you sure this account is loaded? Load it with:\n    oidc-add {oa_account}")
-            logger.warning(f"Are you sure this account is configured? Create it with:\n    oidc-gen {oa_account}")
+            logger.warning(
+                f"Failed to get Access Token for oidc-agent account '{oa_account}': {e}."
+            )
+            logger.warning(
+                f"Are you sure this account is loaded? Load it with:\n    oidc-add {oa_account}"
+            )
+            logger.warning(
+                f"Are you sure this account is configured? Create it with:\n    oidc-gen {oa_account}"
+            )
     else:
         logger.info("No oidc-agent account provided.")
     if iss is not None:
@@ -127,11 +151,17 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
             logger.info(f"Using issuer: {iss}")
             if not iss.startswith("http"):
                 iss = f"https://{iss}"
-                logger.warning(f"The issuer URL you provided does not contain protocol information, assuming HTTPS: {iss}")
+                logger.warning(
+                    f"The issuer URL you provided does not contain protocol information, assuming HTTPS: {iss}"
+                )
             return _get_access_token(iss=iss, mc_endpoint=mc_endpoint)
         except Exception as e:
-            logger.warning(f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}.")
-            logger.warning(f"Are you sure the issuer URL is correct or that you have an account configured with oidc-agent for this issuer? Create it with:\n    {oidc_gen_command(iss)}")
+            logger.warning(
+                f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}."
+            )
+            logger.warning(
+                f"Are you sure the issuer URL is correct or that you have an account configured with oidc-agent for this issuer? Create it with:\n    {oidc_gen_command(iss)}"
+            )
     else:
         logger.info("No issuer URL provided.")
     if mc_endpoint is not None:
@@ -140,21 +170,33 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
         if len(supported_ops) == 1:
             iss = supported_ops[0]
             try:
-                logger.info(f"Using the only issuer supported on service to retrieve token from oidc-agent: {iss}")
+                logger.info(
+                    f"Using the only issuer supported on service to retrieve token from oidc-agent: {iss}"
+                )
                 return _get_access_token(iss=iss, mc_endpoint=mc_endpoint)
             except Exception as e:
-                logger.warning(f"Failed to get Access Token from oidc-agent for the only issuer supported on service '{iss}': {e}")
-                logger.warning(f"If you don't have an oidc-agent account configured for this issuer, create it with:\n    {oidc_gen_command(iss)}")
+                logger.warning(
+                    f"Failed to get Access Token from oidc-agent for the only issuer supported on service '{iss}': {e}"
+                )
+                logger.warning(
+                    f"If you don't have an oidc-agent account configured for this issuer, create it with:\n    {oidc_gen_command(iss)}"
+                )
         elif len(supported_ops) > 1:
-            logger.warning("Multiple issuers supported on service, I don't know which one to use:")
-            logger.warning("[" + '\n    '.join(['']+supported_ops) + "\n]")
+            logger.warning(
+                "Multiple issuers supported on service, I don't know which one to use:"
+            )
+            logger.warning("[" + "\n    ".join([""] + supported_ops) + "\n]")
     if expired:
-        msg = "The provided Access Token is expired. Have you considered using 'oidc-agent' to always have valid tokens?\n" + \
-              "    https://github.com/indigo-dc/oidc-agent\n" + \
-              "Try 'mccli --help' for help on specifying the Access Token source."
+        msg = (
+            "The provided Access Token is expired. Have you considered using 'oidc-agent' to always have valid tokens?\n"
+            + "    https://github.com/indigo-dc/oidc-agent\n"
+            + "Try 'mccli --help' for help on specifying the Access Token source."
+        )
     else:
-        msg = "No Access Token found.\n" + \
-              "Try 'mccli --help' for help on specifying the Access Token source."
+        msg = (
+            "No Access Token found.\n"
+            + "Try 'mccli --help' for help on specifying the Access Token source."
+        )
     raise Exception(msg)
 
 
@@ -194,8 +236,10 @@ def valid_mc_url(mc_endpoint, verify=True):
             valid_endpoint = is_valid_mc_url(endpoint, verify)
             if valid_endpoint:
                 return valid_endpoint
-    msg = f"No motley_cue service found at '{mc_endpoint}'. "\
+    msg = (
+        f"No motley_cue service found at '{mc_endpoint}'. "
         "Please specify a valid motley_cue endpoint."
+    )
     raise Exception(msg)
 
 
@@ -215,7 +259,7 @@ def init_endpoint(ssh_args, verify=True):
     if not ssh_host:  # raise error and ask user to specify endpoint
         msg = f"Could not resolve hostname."
         raise Exception(msg)
-    logger.info(f"Got host \'{ssh_host}\', looking for motley_cue service on host.")
+    logger.info(f"Got host '{ssh_host}', looking for motley_cue service on host.")
 
     # try https
     endpoint = f"https://{ssh_host}"
@@ -237,15 +281,16 @@ def init_endpoint(ssh_args, verify=True):
         return valid_endpoint
 
     # raise error and ask user to specify endpoint
-    msg = f"No motley_cue service found on host '{ssh_host}' "\
-        "on port 443, 8443 or 8080. "\
+    msg = (
+        f"No motley_cue service found on host '{ssh_host}' "
+        "on port 443, 8443 or 8080. "
         "Please specify motley_cue endpoint via --mc-endpoint."
+    )
     raise Exception(msg)
 
 
 def init_user(mc_endpoint, token, verify=True):
-    """Get remote username, will be deployed if it doesn't exist.
-    """
+    """Get remote username, will be deployed if it doesn't exist."""
     return local_username(mc_endpoint, token, verify=verify)
 
 
@@ -263,7 +308,9 @@ def augmented_scp_command(scp_command, token, oa_account, iss, verify=False):
     for operand in scp_command.sources + [scp_command.target]:
         if operand.remote and operand.user is None:
             # this is definitely a motley_cue managed host
-            logger.debug(f"Trying to get username from motley_cue service on {operand.host}.")
+            logger.debug(
+                f"Trying to get username from motley_cue service on {operand.host}."
+            )
             mc_url = init_endpoint([operand.host], verify)
             at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)
             username = init_user(mc_url, at, verify)
@@ -286,10 +333,10 @@ def init_cache():
     cache_name = os.path.expanduser("~/.cache/mccli_cache")
     expire_after = 300  # 5 min
     include_get_headers = True
-    allowable_methods = ('GET')
+    allowable_methods = "GET"
     urls_expire_after = {
-        '*/user/*': 0,
-        '*/admin/*': 0,
+        "*/user/*": 0,
+        "*/admin/*": 0,
     }
 
     try:
@@ -298,7 +345,7 @@ def init_cache():
             expire_after=expire_after,
             allowable_methods=allowable_methods,
             include_get_headers=include_get_headers,
-            urls_expire_after=urls_expire_after
+            urls_expire_after=urls_expire_after,
         )
 
         if requests_cache.is_installed():
@@ -307,4 +354,6 @@ def init_cache():
     except Exception as e:
         logger.debug(f"Could not install requests cache: {e}. Uninstalling cache...")
         requests_cache.uninstall_cache()
-        logger.warning(f"Something went wrong when initialising cache, will not cache HTTP requests. Executing command might be slower.")
+        logger.warning(
+            f"Something went wrong when initialising cache, will not cache HTTP requests. Executing command might be slower."
+        )

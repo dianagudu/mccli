@@ -14,7 +14,10 @@ from .logging import logger
 
 
 PASSWORD_REGEX = r"(?:[^\n]*)(?:Access Token:)$"
-SSH_HOSTNAME_PATTERN = re.compile(r"^hostname\s+(?P<hostname>\S+)\s+$", flags=re.MULTILINE)
+SSH_HOSTNAME_PATTERN = re.compile(
+    r"^hostname\s+(?P<hostname>\S+)\s+$", flags=re.MULTILINE
+)
+
 
 def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
     """Runs the ssh command given by list of ssh_args, using given username
@@ -37,8 +40,14 @@ def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
         __process_wrap(ssh_command_str, passwords=[token])
 
 
-def scp_wrap(scp_args, username=None, tokens=None, str_get_tokens=None,
-             num_prompts=1, dry_run=False):
+def scp_wrap(
+    scp_args,
+    username=None,
+    tokens=None,
+    str_get_tokens=None,
+    num_prompts=1,
+    dry_run=False,
+):
     """Runs the scp command given by list of scp_args.
 
     If `username` and `tokens` are both None, we are in the NO_MOTLEY_CUE case
@@ -57,12 +66,12 @@ def scp_wrap(scp_args, username=None, tokens=None, str_get_tokens=None,
 
     When dry_run is true, it only prints the needed command(s); if `str_get_tokens` is set,
     it prints the string representation(s) of the command(s) to get the token(s) instead
-    of the actual token(s). 
+    of the actual token(s).
     """
     if not username and not tokens:
         passwords = tokens
     elif username and isinstance(tokens, str):
-        scp_args = ['-o', f"User={username}"] + scp_args   # scp_args is a tuple
+        scp_args = ["-o", f"User={username}"] + scp_args  # scp_args is a tuple
         passwords = [tokens] * num_prompts
     elif not username and isinstance(tokens, list):
         passwords = tokens
@@ -71,8 +80,12 @@ def scp_wrap(scp_args, username=None, tokens=None, str_get_tokens=None,
 
     scp_command_str = f"scp {' '.join(scp_args)}"
     if dry_run:
-        __dry_run(scp_command_str, tokens=tokens,
-                  str_get_tokens=str_get_tokens, num_prompts=num_prompts)
+        __dry_run(
+            scp_command_str,
+            tokens=tokens,
+            str_get_tokens=str_get_tokens,
+            num_prompts=num_prompts,
+        )
     else:
         __process_wrap(scp_command_str, passwords=passwords)
 
@@ -90,7 +103,7 @@ def get_hostname(ssh_args):
     if "-G" not in ssh_args:
         ssh_args.insert(0, "-G")
 
-    command = f"ssh {' '.join(ssh_args)}" 
+    command = f"ssh {' '.join(ssh_args)}"
 
     try:
         logger.debug(f"Running this command to get ssh configuration: {command}")
@@ -109,11 +122,9 @@ def get_hostname(ssh_args):
 
 
 def __sigwinch_passthrough(sig=None, data=None, child_process=None):
-    """ Pass window changes to child
-    """
+    """Pass window changes to child"""
     s = struct.pack("HHHH", 0, 0, 0, 0)
-    a = struct.unpack('hhhh', fcntl.ioctl(sys.stdout.fileno(),
-                                          termios.TIOCGWINSZ, s))
+    a = struct.unpack("hhhh", fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, s))
     if child_process is not None and not child_process.closed:
         child_process.setwinsize(a[0], a[1])
 
@@ -123,7 +134,12 @@ def __output_filter(data, info=None):
     and sends the first password in list to the process.
     Removes the password from the list until the list is empty.
     """
-    if info and info["passwords"] and len(info["passwords"]) and re.match(PASSWORD_REGEX, data.decode("utf-8")):
+    if (
+        info
+        and info["passwords"]
+        and len(info["passwords"])
+        and re.match(PASSWORD_REGEX, data.decode("utf-8"))
+    ):
         info["child_process"].sendline(info["passwords"][0])
         info["child_process"].readline()  # to hide the token
         del info["passwords"][0]
@@ -135,20 +151,18 @@ def __process_wrap(command, passwords=None):
     """Spawns a new process to run given command,
     and lets the user interact with it, except when prompted for
     Access Tokens, when it inputs the given passwords on
-    behalf of the user, in the given order. 
+    behalf of the user, in the given order.
     """
     try:
         child_process = pexpect.spawn(command)
-        signal.signal(signal.SIGWINCH, partial(
-            __sigwinch_passthrough, child_process=child_process))
+        signal.signal(
+            signal.SIGWINCH,
+            partial(__sigwinch_passthrough, child_process=child_process),
+        )
         __sigwinch_passthrough(child_process=child_process)
         if passwords:
-            info = {
-                "child_process": child_process,
-                "passwords": passwords
-            }
-            child_process.interact(
-                output_filter=partial(__output_filter, info=info))
+            info = {"child_process": child_process, "passwords": passwords}
+            child_process.interact(output_filter=partial(__output_filter, info=info))
         else:
             child_process.interact()
     except pexpect.ExceptionPexpect as e:
