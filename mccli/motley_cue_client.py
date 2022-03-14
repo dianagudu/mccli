@@ -2,7 +2,6 @@ import requests
 import json
 from rfc3986 import urlparse
 import socket
-import requests_cache
 
 from .logging import logger
 
@@ -19,7 +18,7 @@ def deploy(mc_endpoint, token, verify=True):
 
     resp = requests.get(endpoint, headers=headers, verify=verify)
 
-    from_cache = getattr(resp, 'from_cache', False)
+    from_cache = getattr(resp, "from_cache", False)
     if from_cache:
         logger.debug(f"Using cached response for {endpoint}")
 
@@ -32,7 +31,7 @@ def get_status(mc_endpoint, token, verify=True):
 
     resp = requests.get(endpoint, headers=headers, verify=verify)
 
-    from_cache = getattr(resp, 'from_cache', False)
+    from_cache = getattr(resp, "from_cache", False)
     if from_cache:
         logger.debug(f"Using cached response for {endpoint}")
 
@@ -44,7 +43,7 @@ def info(mc_endpoint, verify=True):
 
     resp = requests.get(endpoint, verify=verify)
 
-    from_cache = getattr(resp, 'from_cache', False)
+    from_cache = getattr(resp, "from_cache", False)
     if from_cache:
         logger.debug(f"Using cached response for {endpoint}")
 
@@ -57,7 +56,7 @@ def info_authorisation(mc_endpoint, token, verify=True):
 
     resp = requests.get(endpoint, headers=headers, verify=verify)
 
-    from_cache = getattr(resp, 'from_cache', False)
+    from_cache = getattr(resp, "from_cache", False)
     if from_cache:
         logger.debug(f"Using cached response for {endpoint}")
 
@@ -80,8 +79,12 @@ def get_info(mc_endpoint, verify=True):
 def get_supported_ops(mc_endpoint, verify=True):
     service_info = get_info(mc_endpoint, verify)
     if service_info is not None:
-        return service_info["supported OPs"]
-    return None
+        supported_ops = service_info.get("supported_OPs", [])
+        # backward compat with old motley_cue
+        if supported_ops == []:
+            supported_ops = service_info.get("supported OPs", [])
+        return supported_ops
+    return []
 
 
 def get_authorisation_info(mc_endpoint, token, verify=True):
@@ -91,6 +94,17 @@ def get_authorisation_info(mc_endpoint, token, verify=True):
     except Exception as e:
         logger.debug(f"Something went wrong: {e}")
         logger.error("Failed to get authorisation info from service")
+    return None
+
+
+def get_audience(mc_endpoint, token, verify=True):
+    try:
+        resp = info_authorisation(mc_endpoint, token, verify=verify)
+        return resp.json().get("audience", None)
+    except Exception as e:
+        logger.debug(
+            "Failed to get audience from service, assuming no specific audience needed."
+        )
     return None
 
 
@@ -110,7 +124,9 @@ def get_local_status(mc_endpoint, token, verify=True):
             elif state == "pending":
                 status_string = f"Your account creation on service is still pending approval. {infostring}"
             elif state == "unknown":
-                status_string = f"Your account on service is in an undefined state. {infostring}"
+                status_string = (
+                    f"Your account on service is in an undefined state. {infostring}"
+                )
             elif state == "not_deployed":
                 status_string = f"Your account on service is not deployed, but it will be created on the first login if authorised."
             elif state == "deployed":
@@ -137,16 +153,24 @@ def local_username(mc_endpoint, token, verify=True):
             state = output["state"]
             logger.info(f"State of your local account: {state}")
             if state == "suspended":
-                logger.warning(f"Your account on service is suspended, you might not be able to login. {infostring}")
+                logger.warning(
+                    f"Your account on service is suspended, you might not be able to login. {infostring}"
+                )
                 return output["message"].split()[1]
             elif state == "limited":
-                logger.warning(f"Your account on service has limited capabilities, but you might still be able to login. {infostring}")
+                logger.warning(
+                    f"Your account on service has limited capabilities, but you might still be able to login. {infostring}"
+                )
                 return output["message"].split()[1]
             elif state == "pending":
-                raise Exception(f"Your account creation on service is still pending approval. {infostring}")
+                raise Exception(
+                    f"Your account creation on service is still pending approval. {infostring}"
+                )
             elif state == "unknown" or state == "not_deployed" or state == "deployed":
                 if state == "unknown":
-                    logger.warning("Your account on service is in an undefined state. Will try redeploying...")
+                    logger.warning(
+                        "Your account on service is in an undefined state. Will try redeploying..."
+                    )
                 elif state == "not_deployed":
                     logger.info("Creating local account...")
                 elif state == "deployed":
@@ -156,22 +180,34 @@ def local_username(mc_endpoint, token, verify=True):
                     logger.debug(json.dumps(resp.json(), indent=2))
                     return resp.json()["credentials"]["ssh_user"]
                 elif state == "deployed":
-                    logger.warning(f"Failed on redeploy. Some of your user information might be outdated.")
+                    logger.warning(
+                        f"Failed on redeploy. Some of your user information might be outdated."
+                    )
                     return output["message"].split()[1]
                 else:
                     resp_dict = json.loads(resp.text)
                     try:
-                        logger.error(f'Failed on deploy: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}')
+                        logger.error(
+                            f'Failed on deploy: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}'
+                        )
                     except Exception:
-                        logger.error(f"Failed on deploy: [HTTP {resp.status_code}] {resp.text}")
+                        logger.error(
+                            f"Failed on deploy: [HTTP {resp.status_code}] {resp.text}"
+                        )
             else:
-                raise Exception(f"Weird, this should never have happened... Your account is in state: {state}. {infostring}")
+                raise Exception(
+                    f"Weird, this should never have happened... Your account is in state: {state}. {infostring}"
+                )
         else:
             resp_dict = json.loads(resp.text)
             try:
-                logger.error(f'Failed on get_status: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}')
+                logger.error(
+                    f'Failed on get_status: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}'
+                )
             except Exception:
-                logger.error(f"Failed on get_status: [HTTP {resp.status_code}] {resp.text}")
+                logger.error(
+                    f"Failed on get_status: [HTTP {resp.status_code}] {resp.text}"
+                )
     except Exception as e:
         logger.error(f"Something went wrong: {e}")
     raise Exception("Failed to get ssh username")
@@ -192,7 +228,7 @@ def is_valid_mc_url(mc_endpoint, verify=True):
         # a timeout is necessary here e.g. when the firewall drops packages
         resp = requests.get(mc_endpoint, verify=verify, timeout=TIMEOUT)
 
-        from_cache = getattr(resp, 'from_cache', False)
+        from_cache = getattr(resp, "from_cache", False)
         if from_cache:
             logger.debug(f"Using cached response for {mc_endpoint}")
 
@@ -204,12 +240,17 @@ def is_valid_mc_url(mc_endpoint, verify=True):
                     "Adding certificate verification is strongly advised."
                 )
             # check for motley_cue
-            if resp.json().get("description", None) == "This is the user API for mapping remote identities to local identities.":
+            if (
+                resp.json().get("description", None)
+                == "This is the user API for mapping remote identities to local identities."
+            ):
                 logger.info("...FOUND IT!")
                 return mc_endpoint
     except requests.exceptions.SSLError:
-        msg = "SSL certificate verification failed. "\
+        msg = (
+            "SSL certificate verification failed. "
             "Use --insecure if you wish to ignore SSL certificate verification"
+        )
         logger.info(msg)
         raise Exception(msg)
     except Exception as e:

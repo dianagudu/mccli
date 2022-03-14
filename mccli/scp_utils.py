@@ -1,5 +1,5 @@
 from rfc3986 import urlparse
-import urllib
+from urllib import parse
 import re
 from click import UsageError
 from enum import Enum
@@ -7,10 +7,17 @@ from enum import Enum
 from .logging import logger
 
 
-class ScpOperand():
-    def __init__(self, remote=False, uri=False,
-                 user=None, host=None, path=None,
-                 port=None, original_str=None):
+class ScpOperand:
+    def __init__(
+        self,
+        remote=False,
+        uri=False,
+        user=None,
+        host=None,
+        path=None,
+        port=None,
+        original_str=None,
+    ):
         self.__remote = remote
         self.__uri = uri
         self.__user = user
@@ -61,7 +68,9 @@ class ScpOperand():
             # format [user@]host[:path]
             if self.port:
                 # should not happen
-                raise Exception("Port cannot be specified in this format [user@]host[:path]")
+                raise Exception(
+                    "Port cannot be specified in this format [user@]host[:path]"
+                )
             if not user:
                 return f"{self.host}:{self.path}"
             else:
@@ -74,33 +83,36 @@ class ScpOperand():
         return self.__str__()
 
     def __str__(self):
-        return "ScpOperand["\
-            f"remote: {self.remote}, uri: {self.uri}, "\
-            f"user: {self.user}, host: {self.host}, "\
-            f"path: {self.path}, port: {self.port}"\
+        return (
+            "ScpOperand["
+            f"remote: {self.remote}, uri: {self.uri}, "
+            f"user: {self.user}, host: {self.host}, "
+            f"path: {self.path}, port: {self.port}"
             "]"
+        )
 
 
 class ScpUseCase(Enum):
     """Possible cases when running scp:
 
-        * case 1: no motley_cue handling needed
-            - all local paths, or
-            - all remotes have user specified
-        * case 2: a single motley_cue remote host
-            - can also appear multiple times
-            - the user can be passed as an ssh option with '-o'
-            - no other remotes with specified users are present
-        * case 3: multiple remotes
-            - the sources/target have to be modified to pass the username
+    * case 1: no motley_cue handling needed
+        - all local paths, or
+        - all remotes have user specified
+    * case 2: a single motley_cue remote host
+        - can also appear multiple times
+        - the user can be passed as an ssh option with '-o'
+        - no other remotes with specified users are present
+    * case 3: multiple remotes
+        - the sources/target have to be modified to pass the username
     """
-    NO_MOTLEY_CUE = 1,
-    SINGLE_REMOTE = 2,
+
+    NO_MOTLEY_CUE = (1,)
+    SINGLE_REMOTE = (2,)
     MULTIPLE_REMOTES = 3
 
 
-class ScpCommand():
-    def __init__(self, opts, sources, target):  
+class ScpCommand:
+    def __init__(self, opts, sources, target):
         self.__opts = opts
         self.__sources = sources
         self.__target = target
@@ -126,7 +138,7 @@ class ScpCommand():
                 else:
                     # increase number of password prompts for latest mc_host
                     number_of_pass_prompts += 1
-         # set mc_host and pass_prompts only for SINGLE_REMOTE case
+        # set mc_host and pass_prompts only for SINGLE_REMOTE case
         if number_of_unique_mc_remotes == 0:
             self.__use_case = ScpUseCase.NO_MOTLEY_CUE
         elif number_of_unique_mc_remotes == 1 and not number_of_remotes_with_user:
@@ -173,14 +185,16 @@ class ScpCommand():
         return self.__str__()
 
     def __str__(self):
-        return "ScpCommand{\n"\
-            f"  use_case: {self.use_case}\n"\
-            f"  opts: {self.opts}\n"\
-            f"  sources: {self.sources}\n"\
-            f"  target: {self.target}\n"\
-            f"  mc_host: {self.mc_host}\n"\
-            f"  num_prompts: {self.num_prompts}\n"\
+        return (
+            "ScpCommand{\n"
+            f"  use_case: {self.use_case}\n"
+            f"  opts: {self.opts}\n"
+            f"  sources: {self.sources}\n"
+            f"  target: {self.target}\n"
+            f"  mc_host: {self.mc_host}\n"
+            f"  num_prompts: {self.num_prompts}\n"
             "}"
+        )
 
 
 def parse_scp_args(scp_args):
@@ -209,17 +223,12 @@ def parse_scp_args(scp_args):
             operands += [opt]
 
     if len(operands) < 2:
-        raise UsageError(
-            "Please specify at least one SOURCE and TARGET for scp.")
+        raise UsageError("Please specify at least one SOURCE and TARGET for scp.")
     # target should be last
     target = __valid_path(operands[-1])
     # parse sources
     sources = [__valid_path(src) for src in operands[:-1]]
-    return ScpCommand(
-        opts=scp_opts,
-        sources=sources,
-        target=target
-    )
+    return ScpCommand(opts=scp_opts, sources=sources, target=target)
 
 
 def __valid_path(value):
@@ -243,49 +252,50 @@ def __valid_path(value):
         except Exception as e:
             logger.debug(e)
             raise Exception(
-                f"SCP operand {value} in URI form (cf RFC3986) could not be parsed")
-        if not parsed_uri.host or parsed_uri.host == '':
+                f"SCP operand {value} in URI form (cf RFC3986) could not be parsed"
+            )
+        if not parsed_uri.host or parsed_uri.host == "":
             raise Exception(
-                f"SCP operand {value} in URI form (cf RFC3986) does not contain a host")
+                f"SCP operand {value} in URI form (cf RFC3986) does not contain a host"
+            )
         logger.debug(f"{parsed_uri}")
         return ScpOperand(
             remote=True,
             uri=True,
-            user=urllib.parse.unquote(parsed_uri.userinfo) \
-                if parsed_uri.userinfo and parsed_uri.userinfo != '' else None,
-            host=urllib.parse.unquote(parsed_uri.host),
-            path=urllib.parse.unquote(parsed_uri.path) \
-                if parsed_uri.path and parsed_uri.path != '' else None,
+            user=parse.unquote(parsed_uri.userinfo)
+            if parsed_uri.userinfo and parsed_uri.userinfo != ""
+            else None,
+            host=parse.unquote(parsed_uri.host),
+            path=parse.unquote(parsed_uri.path)
+            if parsed_uri.path and parsed_uri.path != ""
+            else None,
             port=parsed_uri.port,
-            original_str=value
+            original_str=value,
         )
     else:
         logger.debug(f"{value} is of form [user@]host:[path]")
         if colon == len(value):
             path = "."
         else:
-            path = value[colon+1:]
+            path = value[colon + 1 :]
         user_host = value[:colon].split("@")
         host = user_host[-1]
         user = "@".join(user_host[:-1])
-        user = None if user == '' else user
+        user = None if user == "" else user
         if host == "":
             raise Exception(
-                f"SCP operand {value} in [user@]host:[path] does not contain a host")
+                f"SCP operand {value} in [user@]host:[path] does not contain a host"
+            )
         logger.debug(f"ParseResult: [user={user}, host={host}, path={path}]")
         return ScpOperand(
-            remote=True,
-            user=user,
-            host=host,
-            path=path,
-            original_str=value
+            remote=True, user=user, host=host, path=path, original_str=value
         )
 
 
 def __colon(value):
     """This is the equivalent of the colon function in SCP
 
-    Returns colon index or -1 when the host is not remote. 
+    Returns colon index or -1 when the host is not remote.
     """
     flag = False
     if value.startswith(":"):
@@ -293,16 +303,15 @@ def __colon(value):
     if value.startswith("["):
         flag = True
     for i, v in enumerate(value):
-        if v == "@" and len(value) > i+1 and value[i+1] == "[":
+        if v == "@" and len(value) > i + 1 and value[i + 1] == "[":
             flag = True
-        if v == "]" and len(value) > i+1 and value[i+1] == ":" and flag:
-            return i+1
+        if v == "]" and len(value) > i + 1 and value[i + 1] == ":" and flag:
+            return i + 1
         if v == ":" and not flag:
             return i
         if v == "/":
             return -1
     return -1
-
 
 
 # def extract_hostname_from_ssh(ssh_args):
