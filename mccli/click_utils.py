@@ -88,8 +88,10 @@ def motley_cue_options(func):
     @optgroup.option(
         "--mc-endpoint",
         metavar="URL",
+        envvar=["MC_ENDPOINT", "MOTLEY_CUE_ENDPOINT"],
+        show_envvar=True,
         callback=validate_pass_from_parent,
-        help="motley_cue API endpoint. Default URLs are checked in given order: https://HOSTNAME, https://HOSTNAME:8443, http://HOSTNAME:8080",
+        help="motley_cue API endpoint. Default URLs are checked in given order: https://HOSTNAME, https://HOSTNAME:8443",
     )
     @optgroup.option(
         "--insecure",

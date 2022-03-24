@@ -250,9 +250,10 @@ def init_endpoint(ssh_args, verify=True):
     by executing the ssh command with invalid `-b` option
     and parsing the output for the actual HOSTNAME.
 
-    Then try to use default value for motley_cue endpoint: https://HOSTNAME
-    If this is not reachable, issue warning and try: http://HOSTNAME:8080
-    If also not reachable, exit and ask user to specify it using --mc-endpoint
+    Then try to use default values for motley_cue endpoint:
+        - https://HOSTNAME
+        - https://HOSTNAME:8443
+    If not reachable, exit and ask user to specify it using --mc-endpoint
     """
     logger.info("Trying to get ssh hostname from arguments.")
     ssh_host = get_hostname(ssh_args)
@@ -273,17 +274,10 @@ def init_endpoint(ssh_args, verify=True):
     if valid_endpoint:
         return valid_endpoint
 
-    # try http on 8080 but issue warning
-    endpoint = f"http://{ssh_host}:8080"
-    valid_endpoint = is_valid_mc_url(endpoint)
-    if valid_endpoint:
-        logger.warning(f"using unencrypted motley_cue endpoint: {endpoint}")
-        return valid_endpoint
-
     # raise error and ask user to specify endpoint
     msg = (
         f"No motley_cue service found on host '{ssh_host}' "
-        "on port 443, 8443 or 8080. "
+        "on port 443 or 8443. "
         "Please specify motley_cue endpoint via --mc-endpoint."
     )
     raise Exception(msg)
