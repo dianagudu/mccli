@@ -38,6 +38,19 @@ def get_status(mc_endpoint, token, verify=True):
     return resp
 
 
+def generate_otp(mc_endpoint, token, verify=True):
+    endpoint = mc_endpoint + "/user/generate_otp"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    resp = requests.get(endpoint, headers=headers, verify=verify)
+
+    from_cache = getattr(resp, "from_cache", False)
+    if from_cache:
+        logger.debug(f"Using cached response for {endpoint}")
+
+    return resp
+
+
 def info(mc_endpoint, verify=True):
     endpoint = mc_endpoint + "/info"
 
