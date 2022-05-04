@@ -49,7 +49,7 @@ def oidc_gen_command(iss):
 
 def check_and_replace_long_token(token, str_init_token):
     """If token too long, create a new OTP to be used as ssh password, by hashing given token."""
-    if len(token) <= 1024:
+    if len(token) < 1024:
         return token, str_init_token
     otp = hashlib.sha512(bytearray(token, "ascii")).hexdigest()
     logger.debug(f"Created OTP [{otp}] to be used as SSH password.")
@@ -65,7 +65,7 @@ def _validate_token_length(func):
 
     def wrapper(*args, **kwargs):
         at, str_get_at = func(*args, **kwargs)
-        if kwargs.get("validate_length", True) and len(at) > 1024:
+        if kwargs.get("validate_length", True) and len(at) >= 1024:
             mc_endpoint = kwargs.get("mc_endpoint", None)
             verify = kwargs.get("verify", True)
             response = generate_otp(mc_endpoint=mc_endpoint, token=at, verify=verify)
@@ -76,7 +76,7 @@ def _validate_token_length(func):
                 use_otp = supported and successful
             if not use_otp:
                 raise Exception(
-                    f"Sorry, your token is too long ({len(at)} > 1024) and cannot be used for SSH "
+                    f"Sorry, your token is too long ({len(at)} >= 1024) and cannot be used for SSH "
                     "authentication. Please ask your OP admin if they can release shorter tokens, "
                     "or the service admin if they can support one-time passwords."
                 )
