@@ -122,9 +122,7 @@ def ssh(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, ssh_comm
             mc_url = valid_mc_url(mc_endpoint, verify)
         else:
             mc_url = init_endpoint(ssh_command, verify)
-        at, str_get_at = init_token(
-            token, oa_account, iss, mc_endpoint=mc_url, verify=verify
-        )
+        at, str_get_at = init_token(token, oa_account, iss, mc_endpoint=mc_url, verify=verify)
         username = init_user(mc_url, at, verify)
         at, str_get_at = check_and_replace_long_token(at, str_get_at)
         ssh_wrap(ssh_command, username, at, str_get_token=str_get_at, dry_run=dry_run)
@@ -169,9 +167,7 @@ def scp(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, scp_comm
             init_cache()
         if mc_endpoint:
             mc_url = valid_mc_url(mc_endpoint, verify)
-            at, str_get_at = init_token(
-                token, oa_account, iss, mc_endpoint=mc_url, verify=verify
-            )
+            at, str_get_at = init_token(token, oa_account, iss, mc_endpoint=mc_url, verify=verify)
             username = init_user(mc_url, at, verify)
             at, str_get_at = check_and_replace_long_token(at, str_get_at)
             scp_wrap(

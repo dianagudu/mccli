@@ -152,9 +152,7 @@ def basic_options(func):
     @access_token_sources
     @motley_cue_options
     @verbosity_options
-    @optgroup.option(
-        "--dry-run", is_flag=True, callback=validate_pass_from_parent, hidden=True
-    )
+    @optgroup.option("--dry-run", is_flag=True, callback=validate_pass_from_parent, hidden=True)
     @help_options
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -198,10 +196,7 @@ def validate_verify(ctx, param, value):
     except Exception:
         # set the verify in the context meta dict to be used by subcommands
         # only if it was set through the commandline
-        if (
-            ctx.get_parameter_source(param.name)
-            is click.core.ParameterSource.COMMANDLINE
-        ):
+        if ctx.get_parameter_source(param.name) is click.core.ParameterSource.COMMANDLINE:
             ctx.meta[param.name] = value
     if not value:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -223,11 +218,7 @@ def validate_pass_from_parent(ctx, param, value):
     # set meta value to be used by subcommands only if it was set using the cmdline
     # envvar values should only be processed at subcommand level and not passed from parent
     # this way, the cmdline values take precedence over env vars or default values
-    if (
-        value
-        and ctx.get_parameter_source(param.name)
-        is click.core.ParameterSource.COMMANDLINE
-    ):
+    if value and ctx.get_parameter_source(param.name) is click.core.ParameterSource.COMMANDLINE:
         ctx.meta[param.name] = value
     return value
 
@@ -265,18 +256,13 @@ def my_logging_simple_verbosity_option(logger=None, *names, **kwargs):
             except Exception as e:
                 # set the log_level in the context meta dict to be used by subcommands
                 # only if it was set through the commandline
-                if (
-                    ctx.get_parameter_source(param.name)
-                    is click.core.ParameterSource.COMMANDLINE
-                ):
+                if ctx.get_parameter_source(param.name) is click.core.ParameterSource.COMMANDLINE:
                     ctx.meta["log_level"] = value
 
             x = getattr(logging, value, None)
             if x is None:
                 raise click.BadParameter(
-                    "Must be CRITICAL, ERROR, WARNING, INFO or DEBUG, not {}".format(
-                        value
-                    )
+                    "Must be CRITICAL, ERROR, WARNING, INFO or DEBUG, not {}".format(value)
                 )
             logger.setLevel(x)
 
@@ -429,8 +415,7 @@ def my_version_option(
                 version = metadata.version(package_name)  # type: ignore
             except metadata.PackageNotFoundError:  # type: ignore
                 raise RuntimeError(
-                    f"{package_name!r} is not installed. Try passing"
-                    " 'package_name' instead."
+                    f"{package_name!r} is not installed. Try passing" " 'package_name' instead."
                 )
 
         if version is None:
@@ -439,8 +424,7 @@ def my_version_option(
             )
 
         click.echo(
-            t.cast(str, message)
-            % {"prog": prog_name, "package": package_name, "version": version},
+            t.cast(str, message) % {"prog": prog_name, "package": package_name, "version": version},
             color=ctx.color,
         )
         ctx.exit()

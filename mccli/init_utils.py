@@ -114,9 +114,7 @@ def _get_access_token(oa_account=None, iss=None, mc_endpoint=None, verify=True):
 
 
 @_validate_token_length
-def init_token(
-    token, oa_account, iss, mc_endpoint=None, verify=True, validate_length=True
-):
+def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_length=True):
     """Retrieve an oidc token:
 
     * use token if set,
@@ -145,9 +143,7 @@ def init_token(
             logger.debug(f"Access Token: {token}")
             return token, _str_init_token(token=token)
         elif timeleft > 0:
-            logger.info(
-                f"Token valid for {timeleft} more seconds, using provided token."
-            )
+            logger.info(f"Token valid for {timeleft} more seconds, using provided token.")
             logger.debug(f"Access Token: {token}")
             return token, _str_init_token(token=token)
         else:
@@ -184,9 +180,7 @@ def init_token(
                 )
             return _get_access_token(iss=iss, mc_endpoint=mc_endpoint)
         except Exception as e:
-            logger.warning(
-                f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}."
-            )
+            logger.warning(f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}.")
             logger.warning(
                 f"Are you sure the issuer URL is correct or that you have an account configured with oidc-agent for this issuer? Create it with:\n    {oidc_gen_command(iss)}"
             )
@@ -210,9 +204,7 @@ def init_token(
                     f"If you don't have an oidc-agent account configured for this issuer, create it with:\n    {oidc_gen_command(iss)}"
                 )
         elif len(supported_ops) > 1:
-            logger.warning(
-                "Multiple issuers supported on service, I don't know which one to use:"
-            )
+            logger.warning("Multiple issuers supported on service, I don't know which one to use:")
             logger.warning("[" + "\n    ".join([""] + supported_ops) + "\n]")
     if expired:
         msg = (
@@ -336,14 +328,10 @@ def augmented_scp_command(scp_command, token, oa_account, iss, verify=False):
     for operand in scp_command.sources + [scp_command.target]:
         if operand.remote and operand.user is None:
             # this is definitely a motley_cue managed host
-            logger.debug(
-                f"Trying to get username from motley_cue service on {operand.host}."
-            )
+            logger.debug(f"Trying to get username from motley_cue service on {operand.host}.")
             mc_url = init_endpoint([operand.host], verify)
             logger.debug("mc endpoint: %s", mc_url)
-            at, str_get_at = init_token(
-                token, oa_account, iss, mc_endpoint=mc_url, verify=verify
-            )
+            at, str_get_at = init_token(token, oa_account, iss, mc_endpoint=mc_url, verify=verify)
             username = init_user(mc_url, at, verify)
             at, str_get_at = check_and_replace_long_token(at, str_get_at)
             scp_args += [operand.unsplit(username)]
