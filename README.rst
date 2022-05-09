@@ -3,7 +3,7 @@ mccli
 
 This is an SSH client wrapper that enables SSH with OIDC access tokens.
 
-For server-side software, see `motley_cue <https://dianagudu.github.io/motley_cue>`_.
+For server-side software, see `motley_cue <https://motley-cue.readthedocs.io>`_.
 
 Compatibility
 -------------
@@ -14,7 +14,10 @@ mccli works with Python 3 (>=3.7), and only Linux. Windows support is planned as
 Documentation
 -------------
 
-The documentation is available at https://dianagudu.github.io/mccli/.
+The documentation is available at `readthedocs <https://mccli.readthedocs.io/>_`.
+
+..
+  or `GitHub Pages <https://dianagudu.github.io/mccli/>`_.
 
 .. end-of-intro
 .. beginning-of-test-server
