@@ -10,6 +10,7 @@ from .init_utils import (
     init_user,
     init_cache,
     augmented_scp_command,
+    check_and_replace_long_token,
 )
 from .scp_utils import parse_scp_args
 from .click_utils import (
@@ -64,7 +65,12 @@ def info(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, hostnam
         logger.warning("Cannot show service-related information.")
     try:
         at, _ = init_token(
-            token, oa_account, iss, mc_url, verify, validate_length=False
+            token,
+            oa_account,
+            iss,
+            mc_endpoint=mc_url,
+            verify=verify,
+            validate_length=False,
         )
     except Exception as e:
         at = None
@@ -116,8 +122,9 @@ def ssh(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, ssh_comm
             mc_url = valid_mc_url(mc_endpoint, verify)
         else:
             mc_url = init_endpoint(ssh_command, verify)
-        at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)
+        at, str_get_at = init_token(token, oa_account, iss, mc_endpoint=mc_url, verify=verify)
         username = init_user(mc_url, at, verify)
+        at, str_get_at = check_and_replace_long_token(at, str_get_at)
         ssh_wrap(ssh_command, username, at, str_get_token=str_get_at, dry_run=dry_run)
     except Exception as e:
         logger.error(e)
@@ -160,8 +167,9 @@ def scp(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, scp_comm
             init_cache()
         if mc_endpoint:
             mc_url = valid_mc_url(mc_endpoint, verify)
-            at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)
+            at, str_get_at = init_token(token, oa_account, iss, mc_endpoint=mc_url, verify=verify)
             username = init_user(mc_url, at, verify)
+            at, str_get_at = check_and_replace_long_token(at, str_get_at)
             scp_wrap(
                 scp_command,
                 username=username,
@@ -181,8 +189,11 @@ def scp(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, scp_comm
             elif scp_args.single_mc():
                 logger.info("Only one host with motley_cue detected. Easy.")
                 mc_url = init_endpoint([scp_args.mc_host], verify)
-                at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)
+                at, str_get_at = init_token(
+                    token, oa_account, iss, mc_endpoint=mc_url, verify=verify
+                )
                 username = init_user(mc_url, at, verify)
+                at, str_get_at = check_and_replace_long_token(at, str_get_at)
                 scp_wrap(
                     scp_command,
                     username=username,

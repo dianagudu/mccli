@@ -1,14 +1,18 @@
+from logging import log
 import requests_cache
+import hashlib
 import os.path
 import liboidcagent as agent
 from time import time
 from flaat.access_tokens import get_access_token_info
+import requests
 
 from .motley_cue_client import (
     local_username,
     get_supported_ops,
     is_valid_mc_url,
     get_audience,
+    generate_otp,
 )
 from .ssh_wrapper import get_hostname
 from .logging import logger
@@ -43,6 +47,15 @@ def oidc_gen_command(iss):
     return oidc_gen_command_strings.get(canonical_url(iss), f"oidc-gen --iss {iss}")
 
 
+def check_and_replace_long_token(token, str_init_token):
+    """If token too long, create a new OTP to be used as ssh password, by hashing given token."""
+    if len(token) < 1024:
+        return token, str_init_token
+    otp = hashlib.sha512(bytearray(token, "ascii")).hexdigest()
+    logger.debug(f"Created OTP [{otp}] to be used as SSH password.")
+    return otp, otp
+
+
 def _validate_token_length(func):
     """Decorator for init_token that checks if token length is < 1024
 
@@ -52,10 +65,25 @@ def _validate_token_length(func):
 
     def wrapper(*args, **kwargs):
         at, str_get_at = func(*args, **kwargs)
-        if kwargs.get("validate_length", True) and len(at) > 1024:
-            raise Exception(
-                f"Sorry, your token is too long ({len(at)} > 1024) and cannot be used for SSH authentication. Please ask your OP admin if they can release shorter tokens."
-            )
+        if kwargs.get("validate_length", True) and len(at) >= 1024:
+            mc_endpoint = kwargs.get("mc_endpoint", None)
+            verify = kwargs.get("verify", True)
+            response = generate_otp(mc_endpoint=mc_endpoint, token=at, verify=verify)
+            use_otp = False
+            if response.status_code == requests.codes.ok:
+                supported = response.json().get("supported", False)
+                successful = response.json().get("successful", False)
+                use_otp = supported and successful
+            if not use_otp:
+                raise Exception(
+                    f"Sorry, your token is too long ({len(at)} >= 1024) and cannot be used for SSH "
+                    "authentication. Please ask your OP admin if they can release shorter tokens, "
+                    "or the service admin if they can support one-time passwords."
+                )
+            else:
+                logger.debug(
+                    f"Generated one-time password for use with SSH instead of long access token."
+                )
         return at, str_get_at
 
     return wrapper
@@ -86,9 +114,7 @@ def _get_access_token(oa_account=None, iss=None, mc_endpoint=None, verify=True):
 
 
 @_validate_token_length
-def init_token(
-    token, oa_account, iss, mc_endpoint=None, verify=True, validate_length=True
-):
+def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_length=True):
     """Retrieve an oidc token:
 
     * use token if set,
@@ -117,9 +143,7 @@ def init_token(
             logger.debug(f"Access Token: {token}")
             return token, _str_init_token(token=token)
         elif timeleft > 0:
-            logger.info(
-                f"Token valid for {timeleft} more seconds, using provided token."
-            )
+            logger.info(f"Token valid for {timeleft} more seconds, using provided token.")
             logger.debug(f"Access Token: {token}")
             return token, _str_init_token(token=token)
         else:
@@ -156,9 +180,7 @@ def init_token(
                 )
             return _get_access_token(iss=iss, mc_endpoint=mc_endpoint)
         except Exception as e:
-            logger.warning(
-                f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}."
-            )
+            logger.warning(f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}.")
             logger.warning(
                 f"Are you sure the issuer URL is correct or that you have an account configured with oidc-agent for this issuer? Create it with:\n    {oidc_gen_command(iss)}"
             )
@@ -182,9 +204,7 @@ def init_token(
                     f"If you don't have an oidc-agent account configured for this issuer, create it with:\n    {oidc_gen_command(iss)}"
                 )
         elif len(supported_ops) > 1:
-            logger.warning(
-                "Multiple issuers supported on service, I don't know which one to use:"
-            )
+            logger.warning("Multiple issuers supported on service, I don't know which one to use:")
             logger.warning("[" + "\n    ".join([""] + supported_ops) + "\n]")
     if expired:
         msg = (
@@ -308,12 +328,12 @@ def augmented_scp_command(scp_command, token, oa_account, iss, verify=False):
     for operand in scp_command.sources + [scp_command.target]:
         if operand.remote and operand.user is None:
             # this is definitely a motley_cue managed host
-            logger.debug(
-                f"Trying to get username from motley_cue service on {operand.host}."
-            )
+            logger.debug(f"Trying to get username from motley_cue service on {operand.host}.")
             mc_url = init_endpoint([operand.host], verify)
-            at, str_get_at = init_token(token, oa_account, iss, mc_url, verify)
+            logger.debug("mc endpoint: %s", mc_url)
+            at, str_get_at = init_token(token, oa_account, iss, mc_endpoint=mc_url, verify=verify)
             username = init_user(mc_url, at, verify)
+            at, str_get_at = check_and_replace_long_token(at, str_get_at)
             scp_args += [operand.unsplit(username)]
             tokens += [at]
             str_get_tokens += [str_get_at]

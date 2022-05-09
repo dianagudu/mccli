@@ -14,9 +14,7 @@ from .logging import logger
 
 
 PASSWORD_REGEX = r"(?:[^\n]*)(?:Access Token:)$"
-SSH_HOSTNAME_PATTERN = re.compile(
-    r"^hostname\s+(?P<hostname>\S+)\s+$", flags=re.MULTILINE
-)
+SSH_HOSTNAME_PATTERN = re.compile(r"^hostname\s+(?P<hostname>\S+)\s+$", flags=re.MULTILINE)
 
 
 def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
