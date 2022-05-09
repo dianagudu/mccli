@@ -14,7 +14,7 @@ mccli works with Python 3 (>=3.7), and only Linux. Windows support is planned as
 Documentation
 -------------
 
-The documentation is available at `readthedocs <https://mccli.readthedocs.io/>_`.
+The documentation is available at `readthedocs <https://mccli.readthedocs.io/>`_.
 
 ..
   or `GitHub Pages <https://dianagudu.github.io/mccli/>`_.
