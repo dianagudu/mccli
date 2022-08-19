@@ -156,67 +156,77 @@ def get_local_status(mc_endpoint, token, verify=True):
     return None
 
 
-def local_username(mc_endpoint, token, verify=True):
+def _get_username_from_message(message):
     try:
-        resp = get_status(mc_endpoint, token, verify=verify)
-        if resp.status_code == requests.codes.ok:
-            output = resp.json()
-            state = output["state"]
-            logger.info(f"State of your local account: {state}")
-            if state == "suspended":
+        return message.split()[1]
+    except Exception as e:
+        logger.debug(f"Something went wrong: {e}")
+        logger.error("Failed to get SSH username from server")
+
+def local_username(mc_endpoint, token, verify=True):
+    resp = get_status(mc_endpoint, token, verify=verify)
+    if resp.status_code == requests.codes.ok:
+        output = resp.json()
+        state = output["state"]
+        logger.info(f"State of your local account: {state}")
+        if state == "suspended":
+            logger.warning(
+                f"Your account on service is suspended, you might not be able to login. {infostring}"
+            )
+            return _get_username_from_message(output["message"])
+        elif state == "limited":
+            logger.warning(
+                f"Your account on service has limited capabilities, but you might still be able to login. {infostring}"
+            )
+            return _get_username_from_message(output["message"])
+        elif state in ["unknown", "not_deployed", "deployed", "pending"]:
+            if state == "unknown":
                 logger.warning(
-                    f"Your account on service is suspended, you might not be able to login. {infostring}"
+                    "Your account on service is in an undefined state. Will try redeploying..."
                 )
-                return output["message"].split()[1]
-            elif state == "limited":
-                logger.warning(
-                    f"Your account on service has limited capabilities, but you might still be able to login. {infostring}"
-                )
-                return output["message"].split()[1]
+            elif state == "not_deployed":
+                logger.info("Creating local account...")
+            elif state == "deployed":
+                logger.info("Updating local account...")
             elif state == "pending":
-                raise Exception(
-                    f"Your account creation on service is still pending approval. {infostring}"
-                )
-            elif state == "unknown" or state == "not_deployed" or state == "deployed":
-                if state == "unknown":
-                    logger.warning(
-                        "Your account on service is in an undefined state. Will try redeploying..."
+                logger.info("Your account creation on service is still pending approval. Sending another request for deployment...")
+            resp = deploy(mc_endpoint, token, verify=verify)
+            if resp.status_code == requests.codes.ok:
+                new_state = resp.json()["state"]
+                if new_state == "pending":
+                    message = resp.json().get("message", "Your account creation on service is pending approval.")
+                    raise Exception(
+                        f"{message} {infostring}"
                     )
-                elif state == "not_deployed":
-                    logger.info("Creating local account...")
-                elif state == "deployed":
-                    logger.info("Updating local account...")
-                resp = deploy(mc_endpoint, token, verify=verify)
-                if resp.status_code == requests.codes.ok:
+                elif new_state == "deployed":
                     logger.debug(json.dumps(resp.json(), indent=2))
                     return resp.json()["credentials"]["ssh_user"]
-                elif state == "deployed":
-                    logger.warning(
-                        f"Failed on redeploy. Some of your user information might be outdated."
-                    )
-                    return output["message"].split()[1]
-                else:
-                    resp_dict = json.loads(resp.text)
-                    try:
-                        logger.error(
-                            f'Failed on deploy: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}'
-                        )
-                    except Exception:
-                        logger.error(f"Failed on deploy: [HTTP {resp.status_code}] {resp.text}")
+                return _get_username_from_message(resp.json()["message"])
+            elif state == "deployed":
+                logger.warning(
+                    f"Failed on redeploy. Some of your user information might be outdated."
+                )
+                return _get_username_from_message(output["message"])
             else:
-                raise Exception(
-                    f"Weird, this should never have happened... Your account is in state: {state}. {infostring}"
-                )
+                resp_dict = json.loads(resp.text)
+                try:
+                    logger.error(
+                        f'Failed on deploy: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}'
+                    )
+                except Exception:
+                    logger.error(f"Failed on deploy: [HTTP {resp.status_code}] {resp.text}")
         else:
-            resp_dict = json.loads(resp.text)
-            try:
-                logger.error(
-                    f'Failed on get_status: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}'
-                )
-            except Exception:
-                logger.error(f"Failed on get_status: [HTTP {resp.status_code}] {resp.text}")
-    except Exception as e:
-        logger.error(f"Something went wrong: {e}")
+            raise Exception(
+                f"Weird, this should never have happened... Your account is in state: {state}. {infostring}"
+            )
+    else:
+        resp_dict = json.loads(resp.text)
+        try:
+            logger.error(
+                f'Failed on get_status: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}'
+            )
+        except Exception:
+            logger.error(f"Failed on get_status: [HTTP {resp.status_code}] {resp.text}")
     raise Exception("Failed to get ssh username")
 
 
