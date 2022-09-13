@@ -6,6 +6,7 @@ import liboidcagent as agent
 from time import time
 from flaat.access_tokens import get_access_token_info
 import requests
+import json
 
 from .motley_cue_client import (
     local_username,
@@ -70,20 +71,28 @@ def _validate_token_length(func):
             verify = kwargs.get("verify", True)
             response = generate_otp(mc_endpoint=mc_endpoint, token=at, verify=verify)
             use_otp = False
-            if response.status_code == requests.codes.ok:
+            if response.status_code == requests.codes.ok:  # pylint: disable=no-member
                 supported = response.json().get("supported", False)
                 successful = response.json().get("successful", False)
                 use_otp = supported and successful
-            if not use_otp:
-                raise Exception(
-                    f"Sorry, your token is too long ({len(at)} >= 1024) and cannot be used for SSH "
-                    "authentication. Please ask your OP admin if they can release shorter tokens, "
-                    "or the service admin if they can support one-time passwords."
-                )
-            else:
-                logger.debug(
-                    f"Generated one-time password for use with SSH instead of long access token."
-                )
+                if not use_otp:
+                    raise Exception(
+                        f"Sorry, your token is too long ({len(at)} >= 1024) and cannot be used for SSH "
+                        "authentication. Please ask your OP admin if they can release shorter tokens, "
+                        "or the service admin if they can support one-time passwords."
+                    )
+                else:
+                    logger.debug(
+                        f"Generated one-time password for use with SSH instead of long access token."
+                    )
+            else:  # probably not authorised (401, 403), or internal server error (500)
+                resp_dict = json.loads(response.text)
+                try:
+                    logger.error(
+                        f'Failed on generate_otp: [HTTP {response.status_code}] {resp_dict["error"]} - {resp_dict["error_description"]}'
+                    )
+                except Exception:
+                    logger.error(f"Failed on generate_otp: [HTTP {response.status_code}] {response.text}")
         return at, str_get_at
 
     return wrapper
@@ -149,7 +158,7 @@ def init_token(token, oa_account, iss, mc_endpoint=None, verify=True, validate_l
         else:
             expired = True
             logger.warning(
-                f"Token is expired for {-timeleft} seconds. Looking for another source for Access Token..."
+                f"Token is expired for {0-timeleft} seconds. Looking for another source for Access Token..."
             )
             logger.debug(f"Access Token: {token}")
     else:
