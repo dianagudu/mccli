@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Retrieve information about user and server &#8212; mccli</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -15,6 +15,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
@@ -101,7 +102,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -119,7 +120,7 @@
           <div class="body" role="main">
             
   <section id="retrieve-information-about-user-and-server">
-<span id="usage-info"></span><h1>Retrieve information about user and server<a class="headerlink" href="#retrieve-information-about-user-and-server" title="Permalink to this headline">¶</a></h1>
+<span id="usage-info"></span><h1>Retrieve information about user and server<a class="headerlink" href="#retrieve-information-about-user-and-server" title="Permalink to this heading">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">mccli</span> <span class="pre">info</span></code> command helps you retrieve various information that you might find useful:</p>
 <ul class="simple">
 <li><p>about your federated identity</p></li>
@@ -127,7 +128,7 @@
 <li><p>about your local account on an OIDC-enabled SSH server</p></li>
 </ul>
 <section id="oidc-user-information">
-<h2>OIDC user information<a class="headerlink" href="#oidc-user-information" title="Permalink to this headline">¶</a></h2>
+<h2>OIDC user information<a class="headerlink" href="#oidc-user-information" title="Permalink to this heading">¶</a></h2>
 <p>You can find out more information about your OIDC identity by passing the corresponding OIDC Access Token (or oidc-agent account) to mccli:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli info --oidc egi
 </pre></div>
@@ -144,7 +145,7 @@
 <p>Powered by the <a class="reference external" href="https://github.com/indigo-dc/flaat">flaat-userinfo</a> tool.</p>
 </section>
 <section id="server-information">
-<h2>Server information<a class="headerlink" href="#server-information" title="Permalink to this headline">¶</a></h2>
+<h2>Server information<a class="headerlink" href="#server-information" title="Permalink to this heading">¶</a></h2>
 <p>Before trying to connect to an OIDC-enabled SSH server, you can check which OIDC providers (OPs) are supported, as well as other login information, with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli info <span class="nv">$SSH_SERVER</span>
 </pre></div>

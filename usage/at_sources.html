@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Access Token source &#8212; mccli</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -15,6 +15,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
@@ -100,7 +101,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -118,7 +119,7 @@
           <div class="body" role="main">
             
   <section id="access-token-source">
-<span id="at-sources"></span><h1>Access Token source<a class="headerlink" href="#access-token-source" title="Permalink to this headline">¶</a></h1>
+<span id="at-sources"></span><h1>Access Token source<a class="headerlink" href="#access-token-source" title="Permalink to this heading">¶</a></h1>
 <p>You’ll need an OIDC Access Token to authenticate to the SSH server.</p>
 <p>You might want to check out the <a class="reference external" href="https://github.com/indigo-dc/oidc-agent">oidc-agent</a> for that. It is a daemon that can provide valid access tokens from any number of configured OIDC Providers (OPs).</p>
 <p>Once you get the <code class="docutils literal notranslate"><span class="pre">oidc-agent</span></code> running, configure an account for your preferred OP. For example, you can generate an account configuration for the <a class="reference external" href="https://aai.egi.eu/oidc">EGI AAI</a>  named <code class="docutils literal notranslate"><span class="pre">egi</span></code> as follows:</p>
@@ -134,7 +135,7 @@
 </pre></div>
 </div>
 <section id="configuration-options">
-<h2>Configuration options<a class="headerlink" href="#configuration-options" title="Permalink to this headline">¶</a></h2>
+<h2>Configuration options<a class="headerlink" href="#configuration-options" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">mccli</span></code> supports multiple ways of retrieving an Access Token.</p>
 <p>They are shown below, in the order they are checked. The first source that is found will be used. If no source is specified, it will try to retrieve the supported token issuer from the service.</p>
 <p class="rubric">Options</p>
@@ -160,19 +161,19 @@
 <p>Instead of the options above, environment variables can provide default values for the different sources.</p>
 <dl class="std envvar">
 <dt class="sig sig-object std" id="envvar-ACCESS_TOKEN-OIDC-OS_ACCESS_TOKEN-OIDC_ACCESS_TOKEN-WATTS_TOKEN-WATTSON_TOKEN">
-<span id="envvar-[ACCESS_TOKEN, OIDC, OS_ACCESS_TOKEN, OIDC_ACCESS_TOKEN, WATTS_TOKEN, WATTSON_TOKEN]"></span><span class="sig-name descname"><span class="pre">[ACCESS_TOKEN,</span> <span class="pre">OIDC,</span> <span class="pre">OS_ACCESS_TOKEN,</span> <span class="pre">OIDC_ACCESS_TOKEN,</span> <span class="pre">WATTS_TOKEN,</span> <span class="pre">WATTSON_TOKEN]</span></span><a class="headerlink" href="#envvar-ACCESS_TOKEN-OIDC-OS_ACCESS_TOKEN-OIDC_ACCESS_TOKEN-WATTS_TOKEN-WATTSON_TOKEN" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">[ACCESS_TOKEN,</span> <span class="pre">OIDC,</span> <span class="pre">OS_ACCESS_TOKEN,</span> <span class="pre">OIDC_ACCESS_TOKEN,</span> <span class="pre">WATTS_TOKEN,</span> <span class="pre">WATTSON_TOKEN]</span></span><a class="headerlink" href="#envvar-ACCESS_TOKEN-OIDC-OS_ACCESS_TOKEN-OIDC_ACCESS_TOKEN-WATTS_TOKEN-WATTSON_TOKEN" title="Permalink to this definition">¶</a></dt>
 <dd><p>provide a default for <a class="reference internal" href="#cmdoption-token"><code class="xref std std-option docutils literal notranslate"><span class="pre">--token</span></code></a></p>
 </dd></dl>
 
 <dl class="std envvar">
 <dt class="sig sig-object std" id="envvar-OIDC_AGENT_ACCOUNT">
-<span id="envvar-[OIDC_AGENT_ACCOUNT]"></span><span class="sig-name descname"><span class="pre">[OIDC_AGENT_ACCOUNT]</span></span><a class="headerlink" href="#envvar-OIDC_AGENT_ACCOUNT" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">[OIDC_AGENT_ACCOUNT]</span></span><a class="headerlink" href="#envvar-OIDC_AGENT_ACCOUNT" title="Permalink to this definition">¶</a></dt>
 <dd><p>provide a default for <a class="reference internal" href="#cmdoption-oa-account"><code class="xref std std-option docutils literal notranslate"><span class="pre">--oa-account</span></code></a></p>
 </dd></dl>
 
 <dl class="std envvar">
 <dt class="sig sig-object std" id="envvar-OIDC_ISS-OIDC_ISSUER">
-<span id="envvar-[OIDC_ISS, OIDC_ISSUER]"></span><span class="sig-name descname"><span class="pre">[OIDC_ISS,</span> <span class="pre">OIDC_ISSUER]</span></span><a class="headerlink" href="#envvar-OIDC_ISS-OIDC_ISSUER" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">[OIDC_ISS,</span> <span class="pre">OIDC_ISSUER]</span></span><a class="headerlink" href="#envvar-OIDC_ISS-OIDC_ISSUER" title="Permalink to this definition">¶</a></dt>
 <dd><p>provide a default for <a class="reference internal" href="#cmdoption-iss"><code class="xref std std-option docutils literal notranslate"><span class="pre">--iss</span></code></a></p>
 </dd></dl>
 
