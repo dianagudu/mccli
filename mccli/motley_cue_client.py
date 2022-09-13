@@ -79,7 +79,7 @@ def info_authorisation(mc_endpoint, token, verify=True):
 def get_info(mc_endpoint, verify=True):
     try:
         resp = info(mc_endpoint, verify=verify)
-        if resp.status_code == requests.codes.ok:
+        if resp.status_code == requests.codes.ok:  # pylint: disable=no-member
             return resp.json()
         else:
             resp.raise_for_status()
@@ -122,7 +122,7 @@ def get_audience(mc_endpoint, token, verify=True):
 def get_local_status(mc_endpoint, token, verify=True):
     try:
         resp = get_status(mc_endpoint, token, verify=verify)
-        if resp.status_code == requests.codes.ok:
+        if resp.status_code == requests.codes.ok:  # pylint: disable=no-member
             output = resp.json()
             state = output["state"]
             status_string = None
@@ -165,7 +165,7 @@ def _get_username_from_message(message):
 
 def local_username(mc_endpoint, token, verify=True):
     resp = get_status(mc_endpoint, token, verify=verify)
-    if resp.status_code == requests.codes.ok:
+    if resp.status_code == requests.codes.ok:  # pylint: disable=no-member
         output = resp.json()
         state = output["state"]
         logger.info(f"State of your local account: {state}")
@@ -191,7 +191,7 @@ def local_username(mc_endpoint, token, verify=True):
             elif state == "pending":
                 logger.info("Your account creation on service is still pending approval. Sending another request for deployment...")
             resp = deploy(mc_endpoint, token, verify=verify)
-            if resp.status_code == requests.codes.ok:
+            if resp.status_code == requests.codes.ok:  # pylint: disable=no-member
                 new_state = resp.json()["state"]
                 if new_state == "pending":
                     message = resp.json().get("message", "Your account creation on service is pending approval.")
@@ -223,7 +223,7 @@ def local_username(mc_endpoint, token, verify=True):
         resp_dict = json.loads(resp.text)
         try:
             logger.error(
-                f'Failed on get_status: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}'
+                f'Failed on get_status: [HTTP {resp.status_code}] {resp_dict["error"]} - {resp_dict["error_description"]}'
             )
         except Exception:
             logger.error(f"Failed on get_status: [HTTP {resp.status_code}] {resp.text}")
