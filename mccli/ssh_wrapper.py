@@ -123,9 +123,12 @@ def get_hostname(ssh_args):
 def __sigwinch_passthrough(sig=None, data=None, child_process=None):
     """Pass window changes to child"""
     s = struct.pack("HHHH", 0, 0, 0, 0)
-    a = struct.unpack("hhhh", fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, s))
-    if child_process is not None and not child_process.closed:
-        child_process.setwinsize(a[0], a[1])
+    try:
+        a = struct.unpack("hhhh", fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, s))
+        if child_process is not None and not child_process.closed:
+            child_process.setwinsize(a[0], a[1])
+    except Exception as e:
+        logger.warning(f"Error trying to set window size: {e}")
 
 
 def __output_filter(data, info=None):
