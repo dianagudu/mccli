@@ -11,6 +11,7 @@ from click import echo
 from random import randint
 
 from .logging import logger
+from . import exceptions
 
 
 PASSWORD_REGEX = r"(?:[^\n]*)(?:Access Token:)$"
@@ -165,9 +166,9 @@ def __process_wrap(command, passwords=None):
             child_process.interact()
     except pexpect.ExceptionPexpect as e:
         child_process.logout()
-        logger.error(e)
+        raise exceptions.FatalMccliException(e)
     except Exception as e:
-        logger.error(e)
+        raise exceptions.FatalMccliException(e)
 
 
 def __dry_run(command, tokens=None, str_get_tokens=None, num_prompts=1):

@@ -22,6 +22,7 @@ from .click_utils import (
 )
 from .info_utils import get_all_info
 from .logging import logger
+from . import exceptions
 
 
 @click.group(invoke_without_command=False, add_help_option=False)
@@ -81,7 +82,7 @@ def info(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, hostnam
     if info_string:
         click.echo(info_string)
     else:
-        logger.error(
+        raise exceptions.FatalMccliException(
             "No information available: please provide a hostname and/or an Access Token.\n"
             + "Try 'mccli info --help' for usage information."
         )
@@ -127,7 +128,7 @@ def ssh(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, ssh_comm
         at, str_get_at = check_and_replace_long_token(at, str_get_at)
         ssh_wrap(ssh_command, username, at, str_get_token=str_get_at, dry_run=dry_run)
     except Exception as e:
-        logger.error(e)
+        raise exceptions.FatalMccliException(e)
 
 
 @cli.command(
@@ -222,7 +223,7 @@ def scp(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, scp_comm
                     "which paths are remote and which are local."
                 )
     except Exception as e:
-        logger.error(e)
+        raise exceptions.FatalMccliException(e)
 
 
 @cli.command(name="sftp", short_help="secure file transfer")
@@ -230,7 +231,7 @@ def sftp():
     """
     --- Not implemented ---
     """
-    logger.error("Not implemented.")
+    raise exceptions.FatalMccliException("Not implemented.")
 
 
 if __name__ == "__main__":
