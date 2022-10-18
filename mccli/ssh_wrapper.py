@@ -9,6 +9,7 @@ import os
 from functools import partial
 from click import echo
 from random import randint
+import regex
 
 from .logging import logger
 from . import exceptions
@@ -30,13 +31,31 @@ def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
     random_no = randint(10000, 99999)
     oidc_sock = os.getenv("OIDC_SOCK")
     if oidc_sock:
-        ssh_args = ["-R", f"/tmp/oidc-forward-{random_no}:{oidc_sock}"] + ssh_args
+        remote_oidc_sock = f"/tmp/oidc-agent-{random_no}"
+        ssh_args = [
+            "-R",
+            f"{remote_oidc_sock}:{oidc_sock}",
+            "-o",
+            f'SetEnv="OIDC_SOCK={remote_oidc_sock}"',
+        ] + ssh_args
     ssh_command_str = " ".join(ssh_args)
     ssh_command_str = f"ssh -l {username} {ssh_command_str}"
     if dry_run:
         __dry_run(ssh_command_str, tokens=token, str_get_tokens=str_get_token)
-    else:
+    elif sys.__stdin__.isatty():
+        logger.debug("is a tty")
         __process_wrap(ssh_command_str, passwords=[token])
+    else:
+        # ssh_command, remote_command = __parse_ssh_args(ssh_args)
+        # ssh_command = ["ssh", "-l", username, "-o", "StrictHostKeyChecking=no"] + ssh_command
+        # ssh_command_str = " ".join(ssh_command)
+        # remote_command_str = " ".join(remote_command)
+        # __execute_command(ssh_command_str, remote_command_str, token)
+        logger.debug("is not a tty")
+        ssh_args = ["-o", "StrictHostKeyChecking=no", "-T"] + ssh_args
+        ssh_command_str = " ".join(ssh_args)
+        ssh_command_str = f"ssh -l {username} {ssh_command_str}"
+        __non_interactive_ssh(ssh_command_str, token)
 
 
 def scp_wrap(
@@ -76,6 +95,9 @@ def scp_wrap(
         passwords = tokens
     else:
         raise Exception("Unsupported use case")
+
+    if sys.__stdin__.isatty():
+        scp_args = ["-o", "StrictHostKeyChecking=no"] + scp_args
 
     scp_command_str = f"scp {' '.join(scp_args)}"
     if dry_run:
@@ -120,6 +142,32 @@ def get_hostname(ssh_args):
     return None
 
 
+def __parse_ssh_args(ssh_args):
+    """Parses the ssh command arguments and returns a tuple with the
+    list of arguments to be passed to ssh, and the remote command to be executed.
+    """
+    ssh_command = []
+    remote_command = []
+    ssh_args_copy = ssh_args.copy()
+    while len(ssh_args_copy) > 0:
+        if regex.match("-[46AaCfGgKkMNnqsTtVvXxYy]", ssh_args[0]):
+            ssh_command.append(ssh_args_copy.pop(0))
+            ssh_args = ssh_args[1:]
+        if regex.match("-[BbcDEeFIiJLlmOopQRSWw]", ssh_args[0]):
+            ssh_command.append(ssh_args_copy.pop(0))
+            ssh_command.append(ssh_args_copy.pop(0))
+            ssh_args = ssh_args[2:]
+        else:
+            # hostname
+            ssh_command.append(ssh_args_copy.pop(0))
+            break
+    if len(ssh_args_copy) > 0:
+        remote_command = ssh_args_copy
+    logger.debug(f"ssh command: {ssh_command}")
+    logger.debug(f"remote command: {remote_command}")
+    return ssh_command, remote_command
+
+
 def __sigwinch_passthrough(sig=None, data=None, child_process=None):
     """Pass window changes to child"""
     s = struct.pack("HHHH", 0, 0, 0, 0)
@@ -149,6 +197,55 @@ def __output_filter(data, info=None):
     return data
 
 
+def __non_interactive_ssh(command, token):
+    """Runs the ssh command in non-interactive mode,
+    sending the token as a password when prompted.
+    """
+    child = pexpect.spawn(command)
+    child.expect(PASSWORD_REGEX)
+    logger.debug("Got token prompt. Sending token as password")
+    child.sendline(token)
+    child.readline()  # to hide the token
+    logger.debug("Logged in")
+
+    child.setecho(False)
+    for line in sys.stdin:
+        logger.debug(f"Sending line to child: {line}")
+        child.sendline(line)
+    child.sendeof()
+
+    for line in child.readlines():
+        logger.debug(f"Received line from child: {line}")
+        sys.stdout.write(line.decode("utf-8"))
+    child.close()
+
+
+def __execute_command(ssh_command_str, remote_command_str, token):
+    """Executes ssh login command with token as password and then remote command"""
+    try:
+        logger.debug("Executing command: " + ssh_command_str)
+        child_process = pexpect.spawn(ssh_command_str)
+        child_process.expect(PASSWORD_REGEX)
+        child_process.sendline(token)
+        logger.debug(f"Sent token {token}")
+        child_process.readline()  # to hide the token
+        # logger.debug(f"Readline returned {child_process.readline()}")
+        logger.debug(f"Sending remote command {remote_command_str}")
+        child_process.sendline(remote_command_str)
+        child_process.readline()  # to hide the command
+        child_process.sendeof()
+        # for line in child_process.readlines():
+        #     # logger.debug(f"Received line from child: {line}")
+        #     sys.stdout.write(line.decode("utf-8"))
+        logger.debug(f"Readline returned {child_process.readline()}")
+        child_process.close()
+    except pexpect.EOF:
+        print(child_process.before.decode("utf-8"))
+        logger.debug("EOF")
+    except pexpect.TIMEOUT:
+        logger.debug("TIMEOUT")
+
+
 def __process_wrap(command, passwords=None):
     """Spawns a new process to run given command,
     and lets the user interact with it, except when prompted for
@@ -168,7 +265,8 @@ def __process_wrap(command, passwords=None):
         else:
             child_process.interact()
     except pexpect.ExceptionPexpect as e:
-        child_process.logout()
+        if child_process and not child_process.closed:
+            child_process.logout()
         raise exceptions.FatalMccliException(e)
     except Exception as e:
         raise exceptions.FatalMccliException(e)
