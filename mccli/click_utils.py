@@ -1,15 +1,15 @@
 import typing as t
 from gettext import gettext as _
 import click
+import types
 import click_logging
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup
 from functools import wraps
 import urllib3
 import logging
-import inspect
 
 from .logging import logger
-from .version import __version__
+from . import __version__ as mccli_version, __name__ as mccli_name
 
 
 FC = t.TypeVar("FC", t.Callable[..., t.Any], click.Command)
@@ -134,7 +134,9 @@ def verbosity_options(func):
 def help_options(func):
     @optgroup.group("Help")
     @my_help_option("-h", "--help")
-    @my_version_option(__version__, "-V", "--version")
+    @optgroup.option(
+        "-V", "--version", is_flag=True, expose_value=False, is_eager=True, callback=print_version
+    )
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
@@ -179,6 +181,26 @@ def extended_options(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def print_version(ctx, param, value):
+    """Print version and exit context."""
+
+    package_name = mccli_name
+    package_version = mccli_version
+    prog_name = ctx.find_root().info_name
+
+    message = _("%(package)s, %(version)s")
+
+    if package_version is None:
+        raise RuntimeError(f"Could not determine the version for {package_name!r} automatically.")
+
+    click.echo(
+        t.cast(str, message)
+        % {"prog": prog_name, "package": package_name, "version": package_version},
+        color=ctx.color,
+    )
+    ctx.exit()
 
 
 def validate_verify(ctx, param, value):
@@ -330,112 +352,6 @@ def my_help_option(*param_decls: str, **kwargs: t.Any) -> t.Callable[[FC], FC]:
     kwargs.setdefault("expose_value", False)
     kwargs.setdefault("is_eager", True)
     kwargs.setdefault("help", _("Show this message and exit."))
-    kwargs["callback"] = callback
-    return optgroup.option(*param_decls, **kwargs)
-
-
-def my_version_option(
-    version: t.Optional[str] = None,
-    *param_decls: str,
-    package_name: t.Optional[str] = None,
-    prog_name: t.Optional[str] = None,
-    message: t.Optional[str] = None,
-    **kwargs: t.Any,
-) -> t.Callable[[FC], FC]:
-    """My version of @click.version_option that adds --version to
-    the optgroup.
-
-    Add a ``--version`` option which immediately prints the version
-    number and exits the program.
-
-    If ``version`` is not provided, Click will try to detect it using
-    :func:`importlib.metadata.version` to get the version for the
-    ``package_name``. On Python < 3.8, the ``importlib_metadata``
-    backport must be installed.
-
-    If ``package_name`` is not provided, Click will try to detect it by
-    inspecting the stack frames. This will be used to detect the
-    version, so it must match the name of the installed package.
-
-    :param version: The version number to show. If not provided, Click
-        will try to detect it.
-    :param param_decls: One or more option names. Defaults to the single
-        value ``"--version"``.
-    :param package_name: The package name to detect the version from. If
-        not provided, Click will try to detect it.
-    :param prog_name: The name of the CLI to show in the message. If not
-        provided, it will be detected from the command.
-    :param message: The message to show. The values ``%(prog)s``,
-        ``%(package)s``, and ``%(version)s`` are available. Defaults to
-        ``"%(prog)s, version %(version)s"``.
-    :param kwargs: Extra arguments are passed to :func:`option`.
-    :raise RuntimeError: ``version`` could not be detected.
-    """
-    if message is None:
-        message = _("%(prog)s, version %(version)s")
-
-    if version is None and package_name is None:
-        frame = inspect.currentframe()
-        assert frame is not None
-        assert frame.f_back is not None
-        f_globals = frame.f_back.f_globals if frame is not None else None
-        # break reference cycle
-        # https://docs.python.org/3/library/inspect.html#the-interpreter-stack
-        del frame
-
-        if f_globals is not None:
-            package_name = f_globals.get("__name__")
-
-            if package_name == "__main__":
-                package_name = f_globals.get("__package__")
-
-            if package_name:
-                package_name = package_name.partition(".")[0]
-
-    def callback(ctx: click.Context, param: click.Parameter, value: bool) -> None:
-        if not value or ctx.resilient_parsing:
-            return
-
-        nonlocal prog_name
-        nonlocal version
-
-        if prog_name is None:
-            prog_name = ctx.find_root().info_name
-
-        if version is None and package_name is not None:
-            metadata: t.Optional[types.ModuleType]
-
-            try:
-                from importlib import metadata  # type: ignore
-            except ImportError:
-                # Python < 3.8
-                import importlib_metadata as metadata  # type: ignore
-
-            try:
-                version = metadata.version(package_name)  # type: ignore
-            except metadata.PackageNotFoundError:  # type: ignore
-                raise RuntimeError(
-                    f"{package_name!r} is not installed. Try passing" " 'package_name' instead."
-                )
-
-        if version is None:
-            raise RuntimeError(
-                f"Could not determine the version for {package_name!r} automatically."
-            )
-
-        click.echo(
-            t.cast(str, message) % {"prog": prog_name, "package": package_name, "version": version},
-            color=ctx.color,
-        )
-        ctx.exit()
-
-    if not param_decls:
-        param_decls = ("--version",)
-
-    kwargs.setdefault("is_flag", True)
-    kwargs.setdefault("expose_value", False)
-    kwargs.setdefault("is_eager", True)
-    kwargs.setdefault("help", _("Show the version and exit."))
     kwargs["callback"] = callback
     return optgroup.option(*param_decls, **kwargs)
 
