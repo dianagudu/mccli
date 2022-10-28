@@ -22,7 +22,7 @@ Utils
 ----------
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   api/utils/mccli.motley_cue_client
   api/utils/mccli.ssh_wrapper

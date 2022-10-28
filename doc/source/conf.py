@@ -18,6 +18,7 @@
 
 import os
 import sys
+from importlib.metadata import version
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -67,6 +68,10 @@ author = "Diana Gudu"
 # release = version.release_string
 # The short X.Y version.
 # version = version.version_string
+release = version("mccli")
+# for example take major/minor
+version = ".".join(release.split(".")[:2])
+
 
 # A list of glob-style patterns that should be excluded when looking for
 # source files. They are matched against the source file names relative to the
