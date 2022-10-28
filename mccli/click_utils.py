@@ -183,8 +183,10 @@ def extended_options(func):
     return wrapper
 
 
-def print_version(ctx, param, value):
+def print_version(ctx: click.Context, param: click.Parameter, value: bool) -> None:
     """Print version and exit context."""
+    if not value or ctx.resilient_parsing:
+        return
 
     package_name = mccli_name
     package_version = mccli_version
@@ -221,7 +223,7 @@ def validate_verify(ctx, param, value):
         if ctx.get_parameter_source(param.name) is click.core.ParameterSource.COMMANDLINE:
             ctx.meta[param.name] = value
     if not value:
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        urllib3.disable_warnings()
     return value
 
 

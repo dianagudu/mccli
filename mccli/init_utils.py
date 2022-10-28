@@ -1,4 +1,3 @@
-from logging import log
 import requests_cache
 import hashlib
 import os.path
@@ -92,7 +91,9 @@ def _validate_token_length(func):
                         f'Failed on generate_otp: [HTTP {response.status_code}] {resp_dict["error"]} - {resp_dict["error_description"]}'
                     )
                 except Exception:
-                    logger.error(f"Failed on generate_otp: [HTTP {response.status_code}] {response.text}")
+                    logger.error(
+                        f"Failed on generate_otp: [HTTP {response.status_code}] {response.text}"
+                    )
         return at, str_get_at
 
     return wrapper
@@ -374,7 +375,7 @@ def init_cache():
             expire_after=expire_after,
             allowable_methods=allowable_methods,
             include_get_headers=include_get_headers,
-            urls_expire_after=urls_expire_after,
+            urls_expire_after=urls_expire_after,  # type: ignore
         )
 
         if requests_cache.is_installed():

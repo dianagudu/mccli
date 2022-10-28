@@ -46,11 +46,6 @@ def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
         logger.debug("is a tty")
         __process_wrap(ssh_command_str, passwords=[token])
     else:
-        # ssh_command, remote_command = __parse_ssh_args(ssh_args)
-        # ssh_command = ["ssh", "-l", username, "-o", "StrictHostKeyChecking=no"] + ssh_command
-        # ssh_command_str = " ".join(ssh_command)
-        # remote_command_str = " ".join(remote_command)
-        # __execute_command(ssh_command_str, remote_command_str, token)
         logger.debug("is not a tty")
         ssh_args = ["-o", "StrictHostKeyChecking=no", "-T"] + ssh_args
         ssh_command_str = " ".join(ssh_args)
@@ -220,32 +215,6 @@ def __non_interactive_ssh(command, token):
     child.close()
 
 
-def __execute_command(ssh_command_str, remote_command_str, token):
-    """Executes ssh login command with token as password and then remote command"""
-    try:
-        logger.debug("Executing command: " + ssh_command_str)
-        child_process = pexpect.spawn(ssh_command_str)
-        child_process.expect(PASSWORD_REGEX)
-        child_process.sendline(token)
-        logger.debug(f"Sent token {token}")
-        child_process.readline()  # to hide the token
-        # logger.debug(f"Readline returned {child_process.readline()}")
-        logger.debug(f"Sending remote command {remote_command_str}")
-        child_process.sendline(remote_command_str)
-        child_process.readline()  # to hide the command
-        child_process.sendeof()
-        # for line in child_process.readlines():
-        #     # logger.debug(f"Received line from child: {line}")
-        #     sys.stdout.write(line.decode("utf-8"))
-        logger.debug(f"Readline returned {child_process.readline()}")
-        child_process.close()
-    except pexpect.EOF:
-        print(child_process.before.decode("utf-8"))
-        logger.debug("EOF")
-    except pexpect.TIMEOUT:
-        logger.debug("TIMEOUT")
-
-
 def __process_wrap(command, passwords=None):
     """Spawns a new process to run given command,
     and lets the user interact with it, except when prompted for
@@ -254,6 +223,9 @@ def __process_wrap(command, passwords=None):
     """
     try:
         child_process = pexpect.spawn(command)
+    except pexpect.ExceptionPexpect as e:
+        raise exceptions.FatalMccliException(e)
+    try:
         signal.signal(
             signal.SIGWINCH,
             partial(__sigwinch_passthrough, child_process=child_process),
@@ -266,7 +238,7 @@ def __process_wrap(command, passwords=None):
             child_process.interact()
     except pexpect.ExceptionPexpect as e:
         if child_process and not child_process.closed:
-            child_process.logout()
+            child_process.close()
         raise exceptions.FatalMccliException(e)
     except Exception as e:
         raise exceptions.FatalMccliException(e)
@@ -286,12 +258,12 @@ def __dry_run(command, tokens=None, str_get_tokens=None, num_prompts=1):
     pass the access token when prompted for it. With multiple prompts,
     print the token and the command separately, with information.
     """
-    if not str_get_tokens:
-        str_get_tokens = tokens
-    if not tokens:
+    if tokens is None:
         echo(command)
     elif isinstance(tokens, list):
         echo("# you'll need to input the tokens below when prompted, in this order:")
+        if str_get_tokens is None:
+            str_get_tokens = tokens
         for str_at in str_get_tokens:
             echo(f"echo {str_at}")
         echo(f"{command}")
