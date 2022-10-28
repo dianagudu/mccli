@@ -33,7 +33,11 @@ def get_version_and_cmdclass(pkg_path):
     from importlib.util import module_from_spec, spec_from_file_location
 
     spec = spec_from_file_location("version", os.path.join(pkg_path, "_version.py"))
+    if spec is None:
+        raise RuntimeError("Failed to load version file")
     module = module_from_spec(spec)
+    if spec.loader is None:
+        raise RuntimeError("Failed to get module loader from spec")
     spec.loader.exec_module(module)
     return module.__version__, module.get_cmdclass(pkg_path)
 
