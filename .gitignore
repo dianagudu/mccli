@@ -10,3 +10,4 @@ dist/*
 AUTHORS
 ChangeLog
 VERSION.txt
+build/*
