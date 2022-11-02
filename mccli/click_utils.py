@@ -142,6 +142,7 @@ def help_options(func):
         expose_value=False,
         is_eager=True,
         callback=print_version,
+        help="Print program version and exit.",
     )
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -191,6 +192,23 @@ def extended_options(func):
     return wrapper
 
 
+def additional_options(func):
+    """A group for additional options that are not used by all commands."""
+
+    @optgroup.group("Additional options")
+    @optgroup.option(
+        "--set-remote-env",
+        is_flag=True,
+        help="Set remote environment variables (OIDC_SOCK). Server must be configured to allow this.",
+        default=False,
+    )
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 def warn_if_outdated_wrapper(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -214,7 +232,7 @@ def disable_version_check_option(logger=None, *names, **kwargs):
     kwargs.setdefault("expose_value", False)
     kwargs.setdefault(
         "help",
-        "Don't check PyPI to determine whether a new version of mccli is available for download.",
+        "Disable warnings if a new version of mccli is available for download on Pypi.",
     )
     kwargs.setdefault("is_eager", True)
 

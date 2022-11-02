@@ -19,6 +19,7 @@ from .click_utils import (
     tuple_to_list,
     basic_options,
     extended_options,
+    additional_options,
     warn_if_outdated_wrapper,
 )
 from .info_utils import get_all_info
@@ -95,6 +96,7 @@ def info(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, hostnam
     context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
 )
 @extended_options
+@additional_options
 @click.argument(
     "ssh_command",
     nargs=-1,
@@ -102,7 +104,17 @@ def info(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, hostnam
     type=click.UNPROCESSED,
     callback=tuple_to_list,
 )
-def ssh(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, ssh_command):
+def ssh(
+    mc_endpoint,
+    verify,
+    no_cache,
+    token,
+    oa_account,
+    iss,
+    dry_run,
+    set_remote_env,
+    ssh_command,
+):
     """Connects and logs into HOSTNAME via SSH by using the provided OIDC
     Access Token to authenticate.
 
@@ -128,7 +140,14 @@ def ssh(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, ssh_comm
         )
         username = init_user(mc_url, at, verify)
         at, str_get_at = check_and_replace_long_token(at, str_get_at)
-        ssh_wrap(ssh_command, username, at, str_get_token=str_get_at, dry_run=dry_run)
+        ssh_wrap(
+            ssh_command,
+            username,
+            at,
+            str_get_token=str_get_at,
+            dry_run=dry_run,
+            set_remote_env=set_remote_env,
+        )
     except Exception as e:
         raise exceptions.FatalMccliException(e)
 
