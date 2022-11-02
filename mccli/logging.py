@@ -3,6 +3,7 @@ import click_logging
 
 
 logger = logging.getLogger(__name__)
+logger_outdated = logging.getLogger(f"outdated.{__name__}")
 echo_kwargs = {
     "debug": dict(err=True),
     "info": dict(err=True),
@@ -15,3 +16,6 @@ style_kwargs = {
     "info": dict(fg="green"),
 }
 click_logging.basic_config(logger, echo_kwargs=echo_kwargs, style_kwargs=style_kwargs)
+click_logging.basic_config(
+    logger_outdated, echo_kwargs=echo_kwargs, style_kwargs=style_kwargs
+)

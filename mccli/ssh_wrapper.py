@@ -10,6 +10,7 @@ from functools import partial
 from click import echo
 from random import randint
 import regex
+from requests import options
 
 from .logging import logger
 from . import exceptions
@@ -21,25 +22,35 @@ SSH_HOSTNAME_PATTERN = re.compile(
 )
 
 
-def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
+def ssh_wrap(
+    ssh_args, username, token, str_get_token=None, dry_run=False, set_remote_env=False
+):
     """Runs the ssh command given by list of ssh_args, using given username
     and given token as password.
 
     When dry_run is true, it only prints the sshpass command; when the string
     representation of the command to get the token is not defined (str_get_token),
     the actual token is printed.
+
+    When set_remote_env is true, it sets the environment variable OIDC_SOCK on the
+    remote host to the forwarded oidc agent socket. This is useful for non-interactive
+    ssh sessions, when the user does not have a shell on the remote host.
     """
     # add oidc-agent forwarding
     random_no = randint(10000, 99999)
     oidc_sock = os.getenv("OIDC_SOCK")
     if oidc_sock:
         remote_oidc_sock = f"/tmp/oidc-agent-{random_no}"
-        ssh_args = [
+        options_oidc_sock = [
             "-R",
             f"{remote_oidc_sock}:{oidc_sock}",
-            "-o",
-            f'SetEnv="OIDC_SOCK={remote_oidc_sock}"',
-        ] + ssh_args
+        ]
+        if set_remote_env:
+            options_oidc_sock += [
+                "-o",
+                f'SetEnv="OIDC_SOCK={remote_oidc_sock}"',
+            ]
+        ssh_args = options_oidc_sock + ssh_args
     ssh_command_str = " ".join(ssh_args)
     ssh_command_str = f"ssh -l {username} {ssh_command_str}"
     if dry_run:
@@ -175,7 +186,7 @@ def __sigwinch_passthrough(sig=None, data=None, child_process=None):
         if child_process is not None and not child_process.closed:
             child_process.setwinsize(a[0], a[1])
     except Exception as e:
-        logger.warning(f"Error trying to set window size: {e}")
+        logger.info(f"Error trying to set window size: {e}")
 
 
 def __output_filter(data, info=None):

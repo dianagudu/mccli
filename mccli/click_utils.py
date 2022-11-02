@@ -1,14 +1,14 @@
 import typing as t
 from gettext import gettext as _
 import click
-import types
 import click_logging
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup
 from functools import wraps
 import urllib3
 import logging
 
-from .logging import logger
+from .logging import logger, logger_outdated
+from .init_utils import warn_if_outdated
 from . import __version__ as mccli_version, __name__ as mccli_name
 
 
@@ -124,6 +124,7 @@ def verbosity_options(func):
         envvar="LOG",
         show_envvar=True,
     )
+    @disable_version_check_option(logger_outdated, default=False)
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
@@ -141,6 +142,7 @@ def help_options(func):
         expose_value=False,
         is_eager=True,
         callback=print_version,
+        help="Print program version and exit.",
     )
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -188,6 +190,64 @@ def extended_options(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def additional_options(func):
+    """A group for additional options that are not used by all commands."""
+
+    @optgroup.group("Additional options")
+    @optgroup.option(
+        "--set-remote-env",
+        is_flag=True,
+        help="Set remote environment variables (OIDC_SOCK). Server must be configured to allow this.",
+        default=False,
+    )
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def warn_if_outdated_wrapper(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        warn_if_outdated()
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def disable_version_check_option(logger=None, *names, **kwargs):
+    """A decorator that adds a `--disable-version-check` option to the decorated command.
+
+    Name can be configured through ``*names``. Keyword arguments are passed to
+    the underlying ``click.option`` decorator.
+    """
+    if not names:
+        names = ["--disable-version-check"]
+
+    kwargs.setdefault("default", False)
+    kwargs.setdefault("is_flag", True)
+    kwargs.setdefault("expose_value", False)
+    kwargs.setdefault(
+        "help",
+        "Disable warnings if a new version of mccli is available for download on Pypi.",
+    )
+    kwargs.setdefault("is_eager", True)
+
+    logger = click_logging.core._normalize_logger(logger)
+
+    def decorator(f):
+        def _set_debug(ctx, param, value):
+            if value:
+                # when enabled, version checking for mccli is skipped
+                ctx.meta["disable_version_check"] = True
+                logger.setLevel(logging.ERROR)
+
+        return optgroup.option(*names, callback=_set_debug, **kwargs)(f)
+
+    return decorator
 
 
 def print_version(ctx: click.Context, param: click.Parameter, value: bool) -> None:
