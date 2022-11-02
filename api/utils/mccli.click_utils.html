@@ -198,6 +198,12 @@ can pass it to the parent command as well.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mccli.click_utils.print_version">
+<span class="sig-name descname"><span class="pre">print_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#mccli.click_utils.print_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print version and exit context.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mccli.click_utils.validate_verify">
 <span class="sig-name descname"><span class="pre">validate_verify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.click_utils.validate_verify" title="Permalink to this definition">¶</a></dt>
 <dd><p>First, take over value from parent, if set.
@@ -253,43 +259,6 @@ passed.</p>
 value <code class="docutils literal notranslate"><span class="pre">&quot;--help&quot;</span></code>.</p></li>
 <li><p><strong>kwargs</strong> – Extra arguments are passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">option()</span></code>.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="mccli.click_utils.my_version_option">
-<span class="sig-name descname"><span class="pre">my_version_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">param_decls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prog_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">FC</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FC</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#mccli.click_utils.my_version_option" title="Permalink to this definition">¶</a></dt>
-<dd><p>My version of &#64;click.version_option that adds –version to
-the optgroup.</p>
-<p>Add a <code class="docutils literal notranslate"><span class="pre">--version</span></code> option which immediately prints the version
-number and exits the program.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">version</span></code> is not provided, Click will try to detect it using
-<code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.metadata.version()</span></code> to get the version for the
-<code class="docutils literal notranslate"><span class="pre">package_name</span></code>. On Python &lt; 3.8, the <code class="docutils literal notranslate"><span class="pre">importlib_metadata</span></code>
-backport must be installed.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">package_name</span></code> is not provided, Click will try to detect it by
-inspecting the stack frames. This will be used to detect the
-version, so it must match the name of the installed package.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>version</strong> – The version number to show. If not provided, Click
-will try to detect it.</p></li>
-<li><p><strong>param_decls</strong> – One or more option names. Defaults to the single
-value <code class="docutils literal notranslate"><span class="pre">&quot;--version&quot;</span></code>.</p></li>
-<li><p><strong>package_name</strong> – The package name to detect the version from. If
-not provided, Click will try to detect it.</p></li>
-<li><p><strong>prog_name</strong> – The name of the CLI to show in the message. If not
-provided, it will be detected from the command.</p></li>
-<li><p><strong>message</strong> – The message to show. The values <code class="docutils literal notranslate"><span class="pre">%(prog)s</span></code>,
-<code class="docutils literal notranslate"><span class="pre">%(package)s</span></code>, and <code class="docutils literal notranslate"><span class="pre">%(version)s</span></code> are available. Defaults to
-<code class="docutils literal notranslate"><span class="pre">&quot;%(prog)s,</span> <span class="pre">version</span> <span class="pre">%(version)s&quot;</span></code>.</p></li>
-<li><p><strong>kwargs</strong> – Extra arguments are passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">option()</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>RuntimeError</strong> – <code class="docutils literal notranslate"><span class="pre">version</span></code> could not be detected.</p>
 </dd>
 </dl>
 </dd></dl>
