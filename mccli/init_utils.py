@@ -408,9 +408,8 @@ def _check_outdated():
 
         if latest_version > __version__:
             logger_outdated.warning(
-                f"Installed version of mccli ({__version__}) is outdated. "
-                f"Please update to version {latest_version}.",
-                extra={"color": "yellow", "bold": True},
+                f"You are using mccli version {__version__}; however, version {latest_version} is available. "
+                f"You should consider upgrading via the 'pip install --upgrade mccli' command.",
             )
     except Exception as e:
         logger.debug(f"Could not get latest version from pypi: {e}.")
