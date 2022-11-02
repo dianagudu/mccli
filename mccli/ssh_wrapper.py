@@ -16,7 +16,9 @@ from . import exceptions
 
 
 PASSWORD_REGEX = r"(?:[^\n]*)(?:Access Token:)$"
-SSH_HOSTNAME_PATTERN = re.compile(r"^hostname\s+(?P<hostname>\S+)\s+$", flags=re.MULTILINE)
+SSH_HOSTNAME_PATTERN = re.compile(
+    r"^hostname\s+(?P<hostname>\S+)\s+$", flags=re.MULTILINE
+)
 
 
 def ssh_wrap(ssh_args, username, token, str_get_token=None, dry_run=False):
@@ -167,7 +169,9 @@ def __sigwinch_passthrough(sig=None, data=None, child_process=None):
     """Pass window changes to child"""
     s = struct.pack("HHHH", 0, 0, 0, 0)
     try:
-        a = struct.unpack("hhhh", fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, s))
+        a = struct.unpack(
+            "hhhh", fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, s)
+        )
         if child_process is not None and not child_process.closed:
             child_process.setwinsize(a[0], a[1])
     except Exception as e:

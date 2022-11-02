@@ -52,19 +52,21 @@ def get_all_info(mc_url, token, verify=False):
     if mc_url and token:
         authz_info = get_authorisation_info(mc_url, token, verify)
         if authz_info:
-            info_string += "\n==== Authorisation on service for provided token issuer (OP) ====\n"
+            info_string += (
+                "\n==== Authorisation on service for provided token issuer (OP) ====\n"
+            )
             info_string += json.dumps(authz_info, indent=4)
             info_string += "\n"
         local_status = get_local_status(mc_url, token, verify)
         if local_status:
-            info_string += (
-                "\n==== Information about your local account on service for provided token ====\n"
-            )
+            info_string += "\n==== Information about your local account on service for provided token ====\n"
             info_string += local_status
             info_string += "\n"
     if token:
         access_token_info = get_access_token_info(token)
-        info_string += "\n==== Information stored inside the provided Access Token ====\n"
+        info_string += (
+            "\n==== Information stored inside the provided Access Token ====\n"
+        )
         if access_token_info:
             info_string += json.dumps(
                 {
@@ -92,8 +94,9 @@ def get_all_info(mc_url, token, verify=False):
                 if timeleft > 0:
                     info_string += "\nToken valid for %.1f more seconds." % timeleft
                 else:
-                    info_string += "\nYour token is already EXPIRED for %.1f seconds!" % abs(
-                        timeleft
+                    info_string += (
+                        "\nYour token is already EXPIRED for %.1f seconds!"
+                        % abs(timeleft)
                     )
                 info_string += "\n"
 

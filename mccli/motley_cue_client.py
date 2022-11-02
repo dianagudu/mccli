@@ -115,7 +115,9 @@ def get_audience(mc_endpoint, token, verify=True):
         resp = info_authorisation(mc_endpoint, token, verify=verify)
         return resp.json().get("audience", None)
     except Exception as e:
-        logger.debug("Failed to get audience from service, assuming no specific audience needed.")
+        logger.debug(
+            "Failed to get audience from service, assuming no specific audience needed."
+        )
     return None
 
 
@@ -133,11 +135,11 @@ def get_local_status(mc_endpoint, token, verify=True):
                 status_string = f"Your account on service has limited capabilities, but you might still be able to login. {infostring}"
                 status_string += f'\nLocal username: {output["message"].split()[1]}'
             elif state == "pending":
-                status_string = (
-                    f"Your account creation on service is still pending approval. {infostring}"
-                )
+                status_string = f"Your account creation on service is still pending approval. {infostring}"
             elif state == "unknown":
-                status_string = f"Your account on service is in an undefined state. {infostring}"
+                status_string = (
+                    f"Your account on service is in an undefined state. {infostring}"
+                )
             elif state == "not_deployed":
                 status_string = f"Your account on service is not deployed, but it will be created on the first login if authorised."
             elif state == "deployed":
@@ -162,6 +164,7 @@ def _get_username_from_message(message):
     except Exception as e:
         logger.debug(f"Something went wrong: {e}")
         logger.error("Failed to get SSH username from server")
+
 
 def local_username(mc_endpoint, token, verify=True):
     resp = get_status(mc_endpoint, token, verify=verify)
@@ -189,15 +192,18 @@ def local_username(mc_endpoint, token, verify=True):
             elif state == "deployed":
                 logger.info("Updating local account...")
             elif state == "pending":
-                logger.info("Your account creation on service is still pending approval. Sending another request for deployment...")
+                logger.info(
+                    "Your account creation on service is still pending approval. Sending another request for deployment..."
+                )
             resp = deploy(mc_endpoint, token, verify=verify)
             if resp.status_code == requests.codes.ok:  # pylint: disable=no-member
                 new_state = resp.json()["state"]
                 if new_state == "pending":
-                    message = resp.json().get("message", "Your account creation on service is pending approval.")
-                    raise Exception(
-                        f"{message} {infostring}"
+                    message = resp.json().get(
+                        "message",
+                        "Your account creation on service is pending approval.",
                     )
+                    raise Exception(f"{message} {infostring}")
                 elif new_state == "deployed":
                     logger.debug(json.dumps(resp.json(), indent=2))
                     return resp.json()["credentials"]["ssh_user"]
@@ -214,7 +220,9 @@ def local_username(mc_endpoint, token, verify=True):
                         f'Failed on deploy: [HTTP {resp.status_code}] [state={resp_dict["state"]}] {resp_dict["message"]}'
                     )
                 except Exception:
-                    logger.error(f"Failed on deploy: [HTTP {resp.status_code}] {resp.text}")
+                    logger.error(
+                        f"Failed on deploy: [HTTP {resp.status_code}] {resp.text}"
+                    )
         else:
             raise Exception(
                 f"Weird, this should never have happened... Your account is in state: {state}. {infostring}"

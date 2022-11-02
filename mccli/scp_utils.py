@@ -68,7 +68,9 @@ class ScpOperand:
             # format [user@]host[:path]
             if self.port:
                 # should not happen
-                raise Exception("Port cannot be specified in this format [user@]host[:path]")
+                raise Exception(
+                    "Port cannot be specified in this format [user@]host[:path]"
+                )
             if not user:
                 return f"{self.host}:{self.path}"
             else:
@@ -249,9 +251,13 @@ def __valid_path(value):
             parsed_uri = urlparse(value)
         except Exception as e:
             logger.debug(e)
-            raise Exception(f"SCP operand {value} in URI form (cf RFC3986) could not be parsed")
+            raise Exception(
+                f"SCP operand {value} in URI form (cf RFC3986) could not be parsed"
+            )
         if not parsed_uri.host or parsed_uri.host == "":
-            raise Exception(f"SCP operand {value} in URI form (cf RFC3986) does not contain a host")
+            raise Exception(
+                f"SCP operand {value} in URI form (cf RFC3986) does not contain a host"
+            )
         logger.debug(f"{parsed_uri}")
         return ScpOperand(
             remote=True,
@@ -277,9 +283,13 @@ def __valid_path(value):
         user = "@".join(user_host[:-1])
         user = None if user == "" else user
         if host == "":
-            raise Exception(f"SCP operand {value} in [user@]host:[path] does not contain a host")
+            raise Exception(
+                f"SCP operand {value} in [user@]host:[path] does not contain a host"
+            )
         logger.debug(f"ParseResult: [user={user}, host={host}, path={path}]")
-        return ScpOperand(remote=True, user=user, host=host, path=path, original_str=value)
+        return ScpOperand(
+            remote=True, user=user, host=host, path=path, original_str=value
+        )
 
 
 def __colon(value):
