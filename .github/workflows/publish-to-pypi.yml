@@ -13,7 +13,12 @@ jobs:
     name: Build and publish Python distribution 📦 to PyPI and TestPyPI
     runs-on: ubuntu-latest
     steps:
+      - name: Check out src from Git
       - uses: actions/checkout@master
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
