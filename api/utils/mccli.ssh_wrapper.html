@@ -125,12 +125,15 @@
 <span id="id1"></span><h1>mccli.ssh_wrapper<a class="headerlink" href="#mccli-ssh-wrapper" title="Permalink to this heading">¶</a></h1>
 <span class="target" id="module-mccli.ssh_wrapper"></span><dl class="py function">
 <dt class="sig sig-object py" id="mccli.ssh_wrapper.ssh_wrap">
-<span class="sig-name descname"><span class="pre">ssh_wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_get_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.ssh_wrap" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ssh_wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_get_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_remote_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.ssh_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the ssh command given by list of ssh_args, using given username
 and given token as password.</p>
 <p>When dry_run is true, it only prints the sshpass command; when the string
 representation of the command to get the token is not defined (str_get_token),
 the actual token is printed.</p>
+<p>When set_remote_env is true, it sets the environment variable OIDC_SOCK on the
+remote host to the forwarded oidc agent socket. This is useful for non-interactive
+ssh sessions, when the user does not have a shell on the remote host.</p>
 </dd></dl>
 
 <dl class="py function">

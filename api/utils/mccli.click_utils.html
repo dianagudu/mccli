@@ -198,6 +198,25 @@ can pass it to the parent command as well.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mccli.click_utils.additional_options">
+<span class="sig-name descname"><span class="pre">additional_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.click_utils.additional_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>A group for additional options that are not used by all commands.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.click_utils.warn_if_outdated_wrapper">
+<span class="sig-name descname"><span class="pre">warn_if_outdated_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.click_utils.warn_if_outdated_wrapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mccli.click_utils.disable_version_check_option">
+<span class="sig-name descname"><span class="pre">disable_version_check_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.click_utils.disable_version_check_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>A decorator that adds a <cite>–disable-version-check</cite> option to the decorated command.</p>
+<p>Name can be configured through <code class="docutils literal notranslate"><span class="pre">*names</span></code>. Keyword arguments are passed to
+the underlying <code class="docutils literal notranslate"><span class="pre">click.option</span></code> decorator.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mccli.click_utils.print_version">
 <span class="sig-name descname"><span class="pre">print_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#mccli.click_utils.print_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print version and exit context.</p>
