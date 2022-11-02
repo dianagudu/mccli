@@ -175,7 +175,7 @@ def __sigwinch_passthrough(sig=None, data=None, child_process=None):
         if child_process is not None and not child_process.closed:
             child_process.setwinsize(a[0], a[1])
     except Exception as e:
-        logger.warning(f"Error trying to set window size: {e}")
+        logger.info(f"Error trying to set window size: {e}")
 
 
 def __output_filter(data, info=None):

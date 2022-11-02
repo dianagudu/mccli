@@ -6,6 +6,7 @@ from time import time
 from flaat.access_tokens import get_access_token_info
 import requests
 import json
+from threading import Thread
 
 from .motley_cue_client import (
     local_username,
@@ -15,7 +16,8 @@ from .motley_cue_client import (
     generate_otp,
 )
 from .ssh_wrapper import get_hostname
-from .logging import logger
+from .logging import logger, logger_outdated
+from ._version import __version__
 
 # some predefined oidc-gen commands for different issuers
 oidc_gen_command_strings = {
@@ -149,7 +151,7 @@ def init_token(
         except Exception:
             timeleft = None
         if not timeleft:
-            logger.warning(
+            logger.info(
                 "Could not get expiration date from provided token, it might not be a JWT. Using it anyway..."
             )
             logger.debug(f"Access Token: {token}")
@@ -173,11 +175,9 @@ def init_token(
             logger.info(f"Using oidc-agent account: {oa_account}")
             return _get_access_token(oa_account=oa_account, mc_endpoint=mc_endpoint)
         except Exception as e:
+            logger.debug(f"Failed to get token from oidc-agent account: {e}")
             logger.warning(
-                f"Failed to get Access Token for oidc-agent account '{oa_account}': {e}."
-            )
-            logger.warning(
-                f"Are you sure this account is loaded? Load it with:\n    oidc-add {oa_account}"
+                f"Failed to get Access Token for oidc-agent account '{oa_account}'."
             )
             logger.warning(
                 f"Are you sure this account is configured? Create it with:\n    oidc-gen {oa_account}"
@@ -189,13 +189,14 @@ def init_token(
             logger.info(f"Using issuer: {iss}")
             if not iss.startswith("http"):
                 iss = f"https://{iss}"
-                logger.warning(
+                logger.info(
                     f"The issuer URL you provided does not contain protocol information, assuming HTTPS: {iss}"
                 )
             return _get_access_token(iss=iss, mc_endpoint=mc_endpoint)
         except Exception as e:
+            logger.debug(f"Failed to get token from oidc-agent issuer: {e}")
             logger.warning(
-                f"Failed to get Access Token from oidc-agent for issuer '{iss}': {e}."
+                f"Failed to get Access Token from oidc-agent for issuer '{iss}'."
             )
             logger.warning(
                 f"Are you sure the issuer URL is correct or that you have an account configured with oidc-agent for this issuer? Create it with:\n    {oidc_gen_command(iss)}"
@@ -213,8 +214,9 @@ def init_token(
                 )
                 return _get_access_token(iss=iss, mc_endpoint=mc_endpoint)
             except Exception as e:
+                logger.debug(f"Failed to get token from oidc-agent issuer: {e}")
                 logger.warning(
-                    f"Failed to get Access Token from oidc-agent for the only issuer supported on service '{iss}': {e}"
+                    f"Failed to get Access Token from oidc-agent for the only issuer supported on service '{iss}'."
                 )
                 logger.warning(
                     f"If you don't have an oidc-agent account configured for this issuer, create it with:\n    {oidc_gen_command(iss)}"
@@ -231,10 +233,7 @@ def init_token(
             + "Try 'mccli --help' for help on specifying the Access Token source."
         )
     else:
-        msg = (
-            "No Access Token found.\n"
-            + "Try 'mccli --help' for help on specifying the Access Token source."
-        )
+        msg = "No Access Token found. Try 'mccli --help' for help on specifying the Access Token source."
     raise Exception(msg)
 
 
@@ -269,7 +268,7 @@ def valid_mc_url(mc_endpoint, verify=True):
     else:
         for schema in ["http", "https"]:
             # they should be in this order, since https can raise SSL related exception
-            logger.warning(f"No URL schema specified for mc-endpoint, trying {schema}")
+            logger.info(f"No URL schema specified for mc-endpoint, trying {schema}")
             endpoint = f"{schema}://{mc_endpoint}"
             valid_endpoint = is_valid_mc_url(endpoint, verify)
             if valid_endpoint:
@@ -396,6 +395,30 @@ def init_cache():
     except Exception as e:
         logger.debug(f"Could not install requests cache: {e}. Uninstalling cache...")
         requests_cache.uninstall_cache()
-        logger.warning(
+        logger.info(
             f"Something went wrong when initialising cache, will not cache HTTP requests. Executing command might be slower."
         )
+
+
+def _check_outdated():
+    try:
+        r = requests.get("https://pypi.org/pypi/mccli/json")
+        r.raise_for_status()
+        latest_version = r.json()["info"]["version"]
+
+        if latest_version > __version__:
+            logger_outdated.warning(
+                f"Installed version of mccli ({__version__}) is outdated. "
+                f"Please update to version {latest_version}.",
+                extra={"color": "yellow", "bold": True},
+            )
+    except Exception as e:
+        logger.debug(f"Could not get latest version from pypi: {e}.")
+
+
+def warn_if_outdated():
+    """Warn user if the installed version of mccli is outdated.
+    Runs in a separate thread to not slow down the execution of the command.
+    """
+    check_thread = Thread(target=_check_outdated)
+    check_thread.start()

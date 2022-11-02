@@ -19,6 +19,7 @@ from .click_utils import (
     tuple_to_list,
     basic_options,
     extended_options,
+    warn_if_outdated_wrapper,
 )
 from .info_utils import get_all_info
 from .logging import logger
@@ -27,6 +28,7 @@ from . import exceptions
 
 @click.group(invoke_without_command=False, add_help_option=False)
 @basic_options
+@warn_if_outdated_wrapper
 def cli(**kwargs):
     """
     SSH client wrapper with OIDC-based authentication
@@ -62,8 +64,7 @@ def info(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, hostnam
             mc_url = init_endpoint([hostname], verify)
     except Exception as e:
         mc_url = None
-        logger.warning(e)
-        logger.warning("Cannot show service-related information.")
+        logger.warning(f"{e} Cannot show service-related information.")
     try:
         at, _ = init_token(
             token,
@@ -75,15 +76,14 @@ def info(mc_endpoint, verify, no_cache, token, oa_account, iss, dry_run, hostnam
         )
     except Exception as e:
         at = None
-        logger.warning(e)
-        logger.warning("Cannot show token information")
+        logger.warning(f"{e} Cannot show token information.")
 
     info_string = get_all_info(mc_url, at, verify)
     if info_string:
         click.echo(info_string)
     else:
         raise exceptions.FatalMccliException(
-            "No information available: please provide a hostname and/or an Access Token.\n"
+            "No information available: please provide a hostname and/or an Access Token. "
             + "Try 'mccli info --help' for usage information."
         )
 
