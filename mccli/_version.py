@@ -1,10 +1,6 @@
-try:
-    from importlib.metadata import version, PackageNotFoundError
-except ImportError:
-    from importlib_metadata import version, PackageNotFoundError
+import os
 
-try:
-    __version__ = version("mccli")
-except PackageNotFoundError:
-    __version__ = "unknown"
-    pass
+__version__ = "UNKNOWN"
+
+with open(os.path.join(os.path.dirname(__file__), "VERSION")) as version_file:
+    __version__ = version_file.read().strip()
