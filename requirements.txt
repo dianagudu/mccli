@@ -7,4 +7,3 @@ click-option-group
 click-logging
 rfc3986
 flaat>=1.0.0
-importlib-metadata
