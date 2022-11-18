@@ -110,15 +110,20 @@ def get_authorisation_info(mc_endpoint, token, verify=True):
     return None
 
 
-def get_audience(mc_endpoint, token, verify=True):
+def get_op_info(mc_endpoint, op_url, verify=True):
     try:
-        resp = info_authorisation(mc_endpoint, token, verify=verify)
-        return resp.json().get("audience", None)
+        endpoint = f"{mc_endpoint}/info/op?url={op_url}"
+        resp = requests.get(endpoint, verify=verify)
+        from_cache = getattr(resp, "from_cache", False)
+        if from_cache:
+            logger.debug(f"Using cached response for {endpoint}")
+        if resp.status_code == requests.codes.ok:  # pylint: disable=no-member
+            return resp.json()
+        else:
+            resp.raise_for_status()
     except Exception as e:
-        logger.debug(
-            "Failed to get audience from service, assuming no specific audience needed."
-        )
-    return None
+        logger.debug(f"Failed to get additional info for OP {op_url}: {e}")
+    return {}
 
 
 def get_local_status(mc_endpoint, token, verify=True):
