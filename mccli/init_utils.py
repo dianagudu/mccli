@@ -12,7 +12,7 @@ from .motley_cue_client import (
     local_username,
     get_supported_ops,
     is_valid_mc_url,
-    get_audience,
+    get_op_info,
     generate_otp,
 )
 from .ssh_wrapper import get_hostname
@@ -102,27 +102,43 @@ def _validate_token_length(func):
 
 
 def _get_access_token(oa_account=None, iss=None, mc_endpoint=None, verify=True):
-    """Retrieve access token from oidc-agent, then query motley_cue API with this token
-    to check if specific audience is needed for authz
+    """If oidc-agent account is set, get token issuer (and at) from oidc-agent.
+    Otherwise, use the given iss.
+
+    Get any additional info from the OP (if mc_endpoint is set), s.a. the
+    required scopes and audience.
+
+    Use the issuer url, scopes and audience to get an access token from
+    the oidc-agent.
+
+    Return a tuple of (access_token, str_get_at), where str_get_at is the string
+    representation of the command used to get the access token.
     """
 
-    def _get_token_from_agent(oa_account=None, iss=None, audience=None):
-        if oa_account is not None:
-            return agent.get_access_token(
-                oa_account, application_hint="mccli", audience=audience
-            ), _str_init_token(oa_account=oa_account, audience=audience)
-        elif iss is not None:
-            return agent.get_access_token_by_issuer_url(
-                iss, application_hint="mccli", audience=audience
-            ), _str_init_token(iss=iss, audience=audience)
-        return None, None
+    def _get_scope_and_aud(iss=None, mc_endpoint=None, verify=True):
+        """Get scope and audience from motley_cue if mc_endpoint is set."""
+        scope = None
+        aud = None
+        if mc_endpoint and iss:
+            op_info = get_op_info(mc_endpoint=mc_endpoint, op_url=iss, verify=verify)
+            scope = op_info.get("scopes", None)
+            aud = op_info.get("audience", None)
+            if isinstance(scope, list):
+                scope = " ".join(scope)
+        return scope, aud
 
-    at, str_at = _get_token_from_agent(oa_account, iss)
-    if at is not None:
-        audience = get_audience(mc_endpoint, at, verify)
-        if audience is not None:
-            at, str_at = _get_token_from_agent(oa_account, iss, audience)
-    return at, str_at
+    if oa_account is not None:
+        _, iss, _ = agent.get_token_response(oa_account, application_hint="mccli")
+        scope, audience = _get_scope_and_aud(iss=iss, mc_endpoint=mc_endpoint)
+        return agent.get_access_token(
+            oa_account, scope=scope, audience=audience, application_hint="mccli"
+        ), _str_init_token(oa_account=oa_account, scope=scope, audience=audience)
+    if iss is not None:
+        scope, audience = _get_scope_and_aud(iss=iss, mc_endpoint=mc_endpoint)
+        return agent.get_access_token_by_issuer_url(
+            iss, scope=scope, audience=audience, application_hint="mccli"
+        ), _str_init_token(iss=iss, scope=scope, audience=audience)
+    return None, None
 
 
 @_validate_token_length
@@ -237,22 +253,21 @@ def init_token(
     raise Exception(msg)
 
 
-def _str_init_token(token=None, oa_account=None, iss=None, audience=None):
+def _str_init_token(token=None, oa_account=None, iss=None, scope=None, audience=None):
     """String representation of command used to get Access Token:
     * full token if token is set
     * `oidc-token oa_account` if oidc-agent account is set
     * `oidc-token iss` if issuer is set
     *  ... (`oidc-token iss` if iss can be retrieved from service)
     """
-    aud_str = ""
-    if audience:
-        aud_str = f"--aud {audience} "
     if token:
         return f"'{token}'"
+    scope_str = f' --scope "{scope}"' if scope else ""
+    aud_str = f" --aud {audience}" if audience else ""
     if oa_account:
-        return f"`oidc-token {aud_str}{oa_account}`"
+        return f"`oidc-token{scope_str}{aud_str} {oa_account}`"
     elif iss:
-        return f"`oidc-token {aud_str}{iss}`"
+        return f"`oidc-token{scope_str}{aud_str} {iss}`"
     raise Exception("No access token found")
 
 
