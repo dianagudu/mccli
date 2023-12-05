@@ -101,7 +101,10 @@ def _validate_token_length(func):
 
     return wrapper
 
-def _get_access_token(token=None, oa_account=None, iss=None, mc_endpoint=None, verify=True):
+
+def _get_access_token(
+    token=None, oa_account=None, iss=None, mc_endpoint=None, verify=True
+):
     """Get token with required scopes and audience. Throw an exception if not possible.
 
     Use the first available source to get an access token:
@@ -136,7 +139,9 @@ def _get_access_token(token=None, oa_account=None, iss=None, mc_endpoint=None, v
         if info_in_token:
             iss = info_in_token.body.get("iss", None)
             if iss:
-                scope, audience = _get_required_scope_and_aud_from_mc(iss=iss, mc_endpoint=mc_endpoint, verify=verify)
+                scope, audience = _get_required_scope_and_aud_from_mc(
+                    iss=iss, mc_endpoint=mc_endpoint, verify=verify
+                )
         else:
             logger.warning(
                 "Could not get issuer from provided token, it might not be a JWT. Won't be able to validate scope and audience."
@@ -145,20 +150,29 @@ def _get_access_token(token=None, oa_account=None, iss=None, mc_endpoint=None, v
         ret_str_get_at = _str_init_token(token=token)
     elif oa_account is not None:
         _, iss, _ = agent.get_token_response(oa_account, application_hint="mccli")
-        scope, audience = _get_required_scope_and_aud_from_mc(iss=iss, mc_endpoint=mc_endpoint, verify=verify)
-        logger.info(f"Requesting token from oidc-agent for account {oa_account} with scope {scope} and audience {audience}.")
+        scope, audience = _get_required_scope_and_aud_from_mc(
+            iss=iss, mc_endpoint=mc_endpoint, verify=verify
+        )
+        logger.info(
+            f"Requesting token from oidc-agent for account {oa_account} with scope {scope} and audience {audience}."
+        )
         ret_token = agent.get_access_token(
             oa_account, scope=scope, audience=audience, application_hint="mccli"
         )
-        ret_str_get_at = _str_init_token(oa_account=oa_account, scope=scope, audience=audience)
+        ret_str_get_at = _str_init_token(
+            oa_account=oa_account, scope=scope, audience=audience
+        )
     elif iss is not None:
-        scope, audience = _get_required_scope_and_aud_from_mc(iss=iss, mc_endpoint=mc_endpoint, verify=verify)
-        logger.info(f"Requesting token from oidc-agent for issuer {iss} with scope {scope} and audience {audience}.")
+        scope, audience = _get_required_scope_and_aud_from_mc(
+            iss=iss, mc_endpoint=mc_endpoint, verify=verify
+        )
+        logger.info(
+            f"Requesting token from oidc-agent for issuer {iss} with scope {scope} and audience {audience}."
+        )
         ret_token = agent.get_access_token_by_issuer_url(
             iss, scope=scope, audience=audience, application_hint="mccli"
         )
         ret_str_get_at = _str_init_token(iss=iss, scope=scope, audience=audience)
-    
 
     # validate that required scope and audience are present in token
     if ret_token and (scope or audience):
