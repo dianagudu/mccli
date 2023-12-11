@@ -16,12 +16,13 @@ from .motley_cue_client import (
     generate_otp,
 )
 from .ssh_wrapper import get_hostname
+from .exceptions import OidcError
 from .logging import logger, logger_outdated
 from ._version import __version__
 
 # some predefined oidc-gen commands for different issuers
 oidc_gen_command_strings = {
-    "aai.egi.eu/oidc": 'oidc-gen --pub --iss https://aai.egi.eu/oidc --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" egi',
+    "aai.egi.eu/auth/realms/egi": 'oidc-gen --pub --iss https://aai.egi.eu/auth/realms/egi --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" egi',
     "wlcg.cloud.cnaf.infn.it": 'oidc-gen --pub --issuer https://wlcg.cloud.cnaf.infn.it --scope "openid profile offline_access eduperson_entitlement eduperson_scoped_affiliation wlcg.groups wlcg" wlcg',
     "login.helmholtz.de/oauth2": 'oidc-gen --pub --iss https://login.helmholtz.de/oauth2 --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" helmholtz',
     "accounts.google.com": "oidc-gen --pub --iss https://accounts.google.com/ --flow device --scope max google",
@@ -77,10 +78,10 @@ def _validate_token_length(func):
                 successful = response.json().get("successful", False)
                 use_otp = supported and successful
                 if not use_otp:
-                    raise Exception(
+                    raise OidcError(
                         f"Sorry, your token is too long ({len(at)} >= 1024) and cannot be used for SSH "
                         "authentication. Please ask your OP admin if they can release shorter tokens, "
-                        "or the service admin if they can support one-time passwords."
+                        "or the motley-cue service admin if they can support one-time passwords."
                     )
                 else:
                     logger.debug(
@@ -101,21 +102,21 @@ def _validate_token_length(func):
     return wrapper
 
 
-def _get_access_token(oa_account=None, iss=None, mc_endpoint=None, verify=True):
-    """If oidc-agent account is set, get token issuer (and at) from oidc-agent.
-    Otherwise, use the given iss.
+def _get_access_token(
+    token=None, oa_account=None, iss=None, mc_endpoint=None, verify=True
+):
+    """Get token with required scopes and audience. Throw an exception if not possible.
 
-    Get any additional info from the OP (if mc_endpoint is set), s.a. the
-    required scopes and audience.
-
-    Use the issuer url, scopes and audience to get an access token from
-    the oidc-agent.
+    Use the first available source to get an access token:
+    * token if set
+    * oidc-agent account if set
+    * oidc-agent issuer if set
 
     Return a tuple of (access_token, str_get_at), where str_get_at is the string
     representation of the command used to get the access token.
     """
 
-    def _get_scope_and_aud(iss=None, mc_endpoint=None, verify=True):
+    def _get_required_scope_and_aud_from_mc(iss=None, mc_endpoint=None, verify=True):
         """Get scope and audience from motley_cue if mc_endpoint is set."""
         scope = None
         aud = None
@@ -127,18 +128,70 @@ def _get_access_token(oa_account=None, iss=None, mc_endpoint=None, verify=True):
                 scope = " ".join(scope)
         return scope, aud
 
-    if oa_account is not None:
+    ret_token = None
+    ret_str_get_at = None
+    scope = None
+    audience = None
+
+    if token is not None:
+        # get iss from token
+        info_in_token = get_access_token_info(token)
+        if info_in_token:
+            iss = info_in_token.body.get("iss", None)
+            if iss:
+                scope, audience = _get_required_scope_and_aud_from_mc(
+                    iss=iss, mc_endpoint=mc_endpoint, verify=verify
+                )
+        else:
+            logger.warning(
+                "Could not get issuer from provided token, it might not be a JWT. Won't be able to validate scope and audience."
+            )
+        ret_token = token
+        ret_str_get_at = _str_init_token(token=token)
+    elif oa_account is not None:
         _, iss, _ = agent.get_token_response(oa_account, application_hint="mccli")
-        scope, audience = _get_scope_and_aud(iss=iss, mc_endpoint=mc_endpoint)
-        return agent.get_access_token(
+        scope, audience = _get_required_scope_and_aud_from_mc(
+            iss=iss, mc_endpoint=mc_endpoint, verify=verify
+        )
+        logger.info(
+            f"Requesting token from oidc-agent for account {oa_account} with scope {scope} and audience {audience}."
+        )
+        ret_token = agent.get_access_token(
             oa_account, scope=scope, audience=audience, application_hint="mccli"
-        ), _str_init_token(oa_account=oa_account, scope=scope, audience=audience)
-    if iss is not None:
-        scope, audience = _get_scope_and_aud(iss=iss, mc_endpoint=mc_endpoint)
-        return agent.get_access_token_by_issuer_url(
+        )
+        ret_str_get_at = _str_init_token(
+            oa_account=oa_account, scope=scope, audience=audience
+        )
+    elif iss is not None:
+        scope, audience = _get_required_scope_and_aud_from_mc(
+            iss=iss, mc_endpoint=mc_endpoint, verify=verify
+        )
+        logger.info(
+            f"Requesting token from oidc-agent for issuer {iss} with scope {scope} and audience {audience}."
+        )
+        ret_token = agent.get_access_token_by_issuer_url(
             iss, scope=scope, audience=audience, application_hint="mccli"
-        ), _str_init_token(iss=iss, scope=scope, audience=audience)
-    return None, None
+        )
+        ret_str_get_at = _str_init_token(iss=iss, scope=scope, audience=audience)
+
+    # validate that required scope and audience are present in token
+    if ret_token and (scope or audience):
+        info_in_ret_token = get_access_token_info(ret_token)
+        if info_in_ret_token:
+            if scope:
+                token_scopes = info_in_ret_token.body.get("scope", "")
+                if not set(token_scopes.split(" ")).issuperset(set(scope.split(" "))):
+                    raise OidcError(
+                        f"Token with scopes '{token_scopes}' does not contain all scopes required by motley-cue service: '{scope}'."
+                    )
+            if audience:
+                token_audience = info_in_ret_token.body.get("aud", None)
+                if token_audience != audience:
+                    raise OidcError(
+                        f"Token audience {token_audience} does not match audience required by motley-cue service: {audience}."
+                    )
+
+    return ret_token, ret_str_get_at
 
 
 @_validate_token_length
@@ -156,6 +209,7 @@ def init_token(
     return token and string representation of command to retrieve token
     """
     expired = False
+    error_msg = "No Access Token found. Try 'mccli --help' for help on specifying the Access Token source."
     if token is not None:
         # check if token is expired
         try:
@@ -171,13 +225,13 @@ def init_token(
                 "Could not get expiration date from provided token, it might not be a JWT. Using it anyway..."
             )
             logger.debug(f"Access Token: {token}")
-            return token, _str_init_token(token=token)
+            return _get_access_token(token=token, mc_endpoint=mc_endpoint)
         elif timeleft > 0:
             logger.info(
                 f"Token valid for {timeleft} more seconds, using provided token."
             )
             logger.debug(f"Access Token: {token}")
-            return token, _str_init_token(token=token)
+            return _get_access_token(token=token, mc_endpoint=mc_endpoint)
         else:
             expired = True
             logger.warning(
@@ -198,6 +252,7 @@ def init_token(
             logger.warning(
                 f"Are you sure this account is configured? Create it with:\n    oidc-gen {oa_account}"
             )
+            error_msg = str(e)
     else:
         logger.info("No oidc-agent account provided.")
     if iss is not None:
@@ -217,6 +272,7 @@ def init_token(
             logger.warning(
                 f"Are you sure the issuer URL is correct or that you have an account configured with oidc-agent for this issuer? Create it with:\n    {oidc_gen_command(iss)}"
             )
+            error_msg = str(e)
     else:
         logger.info("No issuer URL provided.")
     if mc_endpoint is not None:
@@ -237,20 +293,19 @@ def init_token(
                 logger.warning(
                     f"If you don't have an oidc-agent account configured for this issuer, create it with:\n    {oidc_gen_command(iss)}"
                 )
+                error_msg = str(e)
         elif len(supported_ops) > 1:
             logger.warning(
                 "Multiple issuers supported on service, I don't know which one to use:"
             )
             logger.warning("[" + "\n    ".join([""] + supported_ops) + "\n]")
     if expired:
-        msg = (
+        error_msg = (
             "The provided Access Token is expired. Have you considered using 'oidc-agent' to always have valid tokens?\n"
             + "    https://github.com/indigo-dc/oidc-agent\n"
             + "Try 'mccli --help' for help on specifying the Access Token source."
         )
-    else:
-        msg = "No Access Token found. Try 'mccli --help' for help on specifying the Access Token source."
-    raise Exception(msg)
+    raise OidcError(error_msg)
 
 
 def _str_init_token(token=None, oa_account=None, iss=None, scope=None, audience=None):
