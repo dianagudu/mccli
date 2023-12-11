@@ -17,7 +17,7 @@ FC = t.TypeVar("FC", t.Callable[..., t.Any], click.Command)
 
 class CustomUsageCommand(click.Command):
     @property
-    def usage_text(self):
+    def usage_text(self) -> str:
         return ""
 
     def format_usage(self, ctx, formatter):
