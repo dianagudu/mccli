@@ -1,26 +1,22 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>SSH/SCP-specific options &#8212; mccli</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <link rel="shortcut icon" href="../_static/mccli.ico"/>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=623475cf" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=09a796e2" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=8fd29722" />
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=7af948fa"></script>
+    <link rel="icon" href="../_static/mccli.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Retrieve information about user and server" href="usage_info.html" />
@@ -120,22 +116,22 @@
           <div class="body" role="main">
             
   <section id="ssh-scp-specific-options">
-<span id="ssh-options"></span><h1>SSH/SCP-specific options<a class="headerlink" href="#ssh-scp-specific-options" title="Permalink to this heading">¶</a></h1>
+<span id="ssh-options"></span><h1>SSH/SCP-specific options<a class="headerlink" href="#ssh-scp-specific-options" title="Link to this heading">¶</a></h1>
 <p>Since <code class="docutils literal notranslate"><span class="pre">mccli</span></code> is a wrapper around the SSH/SCP clients, all SSH/SCP-specific options are supported. The options are passed through to the SSH/SCP command unmodified.</p>
 <p>This is enabled by the <a class="reference external" href="https://pexpect.readthedocs.io/">pexpect</a> library (via <a class="reference external" href="https://pexpect.readthedocs.io/en/stable/api/pexpect.html#spawn-class">pexpect.spawn</a>).</p>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
 <p>For example, you can pass a non-standart port to connect to the remote host or increase output verbosity like so:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli ssh -vv -p <span class="m">1022</span> <span class="nv">$SSH_SERVER</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli<span class="w"> </span>ssh<span class="w"> </span>-vv<span class="w"> </span>-p<span class="w"> </span><span class="m">1022</span><span class="w"> </span><span class="nv">$SSH_SERVER</span>
 </pre></div>
 </div>
 <p>It is also possible to execute a command on the remote host instead of an interactive login shell, by specifying a command after the ssh host, as usual:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli ssh <span class="nv">$SSH_SERVER</span> ls -a
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli<span class="w"> </span>ssh<span class="w"> </span><span class="nv">$SSH_SERVER</span><span class="w"> </span>ls<span class="w"> </span>-a
 </pre></div>
 </div>
 <p>Passing options to the <code class="docutils literal notranslate"><span class="pre">scp</span></code> command works in a similar way.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli ssh &lt;SSH options go here&gt; <span class="nv">$SSH_SERVER</span> &lt;<span class="nb">command</span> on remote host&gt;
-mccli scp &lt;SCP options go here&gt; <span class="nv">$SCP_SOURCE</span> ... <span class="nv">$SCP_TARGET</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli<span class="w"> </span>ssh<span class="w"> </span>&lt;SSH<span class="w"> </span>options<span class="w"> </span>go<span class="w"> </span>here&gt;<span class="w"> </span><span class="nv">$SSH_SERVER</span><span class="w"> </span>&lt;<span class="nb">command</span><span class="w"> </span>on<span class="w"> </span>remote<span class="w"> </span>host&gt;
+mccli<span class="w"> </span>scp<span class="w"> </span>&lt;SCP<span class="w"> </span>options<span class="w"> </span>go<span class="w"> </span>here&gt;<span class="w"> </span><span class="nv">$SCP_SOURCE</span><span class="w"> </span>...<span class="w"> </span><span class="nv">$SCP_TARGET</span>
 </pre></div>
 </div>
 </section>

@@ -1,26 +1,22 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Retrieve information about user and server &#8212; mccli</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <link rel="shortcut icon" href="../_static/mccli.ico"/>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=623475cf" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=09a796e2" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=8fd29722" />
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=7af948fa"></script>
+    <link rel="icon" href="../_static/mccli.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Additional configurations" href="misc.html" />
@@ -121,7 +117,7 @@
           <div class="body" role="main">
             
   <section id="retrieve-information-about-user-and-server">
-<span id="usage-info"></span><h1>Retrieve information about user and server<a class="headerlink" href="#retrieve-information-about-user-and-server" title="Permalink to this heading">¶</a></h1>
+<span id="usage-info"></span><h1>Retrieve information about user and server<a class="headerlink" href="#retrieve-information-about-user-and-server" title="Link to this heading">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">mccli</span> <span class="pre">info</span></code> command helps you retrieve various information that you might find useful:</p>
 <ul class="simple">
 <li><p>about your federated identity</p></li>
@@ -129,9 +125,9 @@
 <li><p>about your local account on an OIDC-enabled SSH server</p></li>
 </ul>
 <section id="oidc-user-information">
-<h2>OIDC user information<a class="headerlink" href="#oidc-user-information" title="Permalink to this heading">¶</a></h2>
+<h2>OIDC user information<a class="headerlink" href="#oidc-user-information" title="Link to this heading">¶</a></h2>
 <p>You can find out more information about your OIDC identity by passing the corresponding OIDC Access Token (or oidc-agent account) to mccli:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli info --oidc egi
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli<span class="w"> </span>info<span class="w"> </span>--oidc<span class="w"> </span>egi
 </pre></div>
 </div>
 <p>This command prints the information in the token, as well as information retrieved from the userinfo endpoint of the token issuer, such as:</p>
@@ -146,13 +142,13 @@
 <p>Powered by the <a class="reference external" href="https://github.com/indigo-dc/flaat">flaat-userinfo</a> tool.</p>
 </section>
 <section id="server-information">
-<h2>Server information<a class="headerlink" href="#server-information" title="Permalink to this heading">¶</a></h2>
+<h2>Server information<a class="headerlink" href="#server-information" title="Link to this heading">¶</a></h2>
 <p>Before trying to connect to an OIDC-enabled SSH server, you can check which OIDC providers (OPs) are supported, as well as other login information, with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli info <span class="nv">$SSH_SERVER</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli<span class="w"> </span>info<span class="w"> </span><span class="nv">$SSH_SERVER</span>
 </pre></div>
 </div>
 <p>Even if your OP is supported, it is possible that you are not authorised to use login (you might not be in the authorised groups). To find out more, try:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli info --oidc egi <span class="nv">$SSH_SERVER</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mccli<span class="w"> </span>info<span class="w"> </span>--oidc<span class="w"> </span>egi<span class="w"> </span><span class="nv">$SSH_SERVER</span>
 </pre></div>
 </div>
 <p>If the OP is supported on the server, this command will show the authorisation information for this OP, as well as the status of your local account on the server (whether it is deployed or not, what is your local username, etc.).</p>

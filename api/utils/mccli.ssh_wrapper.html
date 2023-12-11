@@ -1,26 +1,22 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>mccli.ssh_wrapper &#8212; mccli</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <link rel="shortcut icon" href="../../_static/mccli.ico"/>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=623475cf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=09a796e2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=8fd29722" />
+    <script src="../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=7af948fa"></script>
+    <link rel="icon" href="../../_static/mccli.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="mccli.click_utils" href="mccli.click_utils.html" />
@@ -122,10 +118,10 @@
           <div class="body" role="main">
             
   <section id="mccli-ssh-wrapper">
-<span id="id1"></span><h1>mccli.ssh_wrapper<a class="headerlink" href="#mccli-ssh-wrapper" title="Permalink to this heading">¶</a></h1>
-<span class="target" id="module-mccli.ssh_wrapper"></span><dl class="py function">
+<span id="id1"></span><h1>mccli.ssh_wrapper<a class="headerlink" href="#mccli-ssh-wrapper" title="Link to this heading">¶</a></h1>
+<dl class="py function" id="module-mccli.ssh_wrapper">
 <dt class="sig sig-object py" id="mccli.ssh_wrapper.ssh_wrap">
-<span class="sig-name descname"><span class="pre">ssh_wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_get_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_remote_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.ssh_wrap" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ssh_wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_get_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_remote_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.ssh_wrap" title="Link to this definition">¶</a></dt>
 <dd><p>Runs the ssh command given by list of ssh_args, using given username
 and given token as password.</p>
 <p>When dry_run is true, it only prints the sshpass command; when the string
@@ -138,7 +134,7 @@ ssh sessions, when the user does not have a shell on the remote host.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mccli.ssh_wrapper.scp_wrap">
-<span class="sig-name descname"><span class="pre">scp_wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_get_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_prompts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.scp_wrap" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">scp_wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_get_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_prompts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.scp_wrap" title="Link to this definition">¶</a></dt>
 <dd><p>Runs the scp command given by list of scp_args.</p>
 <p>If <cite>username</cite> and <cite>tokens</cite> are both None, we are in the NO_MOTLEY_CUE case
 and the process is simply started as it is; the user will interact with the process
@@ -158,7 +154,7 @@ of the actual token(s).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mccli.ssh_wrapper.get_hostname">
-<span class="sig-name descname"><span class="pre">get_hostname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.get_hostname" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_hostname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ssh_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.ssh_wrapper.get_hostname" title="Link to this definition">¶</a></dt>
 <dd><p>Try to get the ssh host from <cite>ssh_args</cite>
 by executing the ssh command with <cite>-G</cite> option
 and parsing the output for the actual HOSTNAME.</p>

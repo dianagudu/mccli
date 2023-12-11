@@ -1,26 +1,22 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>mccli.scp_utils &#8212; mccli</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <link rel="shortcut icon" href="../../_static/mccli.ico"/>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=623475cf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=09a796e2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=8fd29722" />
+    <script src="../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=7af948fa"></script>
+    <link rel="icon" href="../../_static/mccli.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="prev" title="mccli.init_utils" href="mccli.init_utils.html" />
@@ -120,63 +116,63 @@
           <div class="body" role="main">
             
   <section id="mccli-scp-utils">
-<span id="id1"></span><h1>mccli.scp_utils<a class="headerlink" href="#mccli-scp-utils" title="Permalink to this heading">¶</a></h1>
-<span class="target" id="module-mccli.scp_utils"></span><dl class="py class">
+<span id="id1"></span><h1>mccli.scp_utils<a class="headerlink" href="#mccli-scp-utils" title="Link to this heading">¶</a></h1>
+<dl class="py class" id="module-mccli.scp_utils">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ScpOperand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpOperand" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ScpOperand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpOperand" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand.remote">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.remote" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.remote" title="Link to this definition">¶</a></dt>
 <dd><p>whether it is a remote path</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand.uri">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uri</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.uri" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uri</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.uri" title="Link to this definition">¶</a></dt>
 <dd><p>whether the path is specified in URI form cf. RFCRFC3986</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand.user">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.user" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.user" title="Link to this definition">¶</a></dt>
 <dd><p>remote user, if specified, or None if it is a local path</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand.host">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">host</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.host" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">host</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.host" title="Link to this definition">¶</a></dt>
 <dd><p>remote hostname or None if it is a local path</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand.path">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.path" title="Link to this definition">¶</a></dt>
 <dd><p>path, local or on remote host</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand.port">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.port" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.port" title="Link to this definition">¶</a></dt>
 <dd><p>port for SSH service</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand.original_str">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">original_str</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.original_str" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">original_str</span></span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.original_str" title="Link to this definition">¶</a></dt>
 <dd><p>original string that was parsed into this class</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpOperand.unsplit">
-<span class="sig-name descname"><span class="pre">unsplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.unsplit" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">unsplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpOperand.unsplit" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpUseCase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ScpUseCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpUseCase" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ScpUseCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpUseCase" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Possible cases when running scp:</p>
 <ul class="simple">
@@ -207,75 +203,75 @@
 </ul>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpUseCase.NO_MOTLEY_CUE">
-<span class="sig-name descname"><span class="pre">NO_MOTLEY_CUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(1,)</span></em><a class="headerlink" href="#mccli.scp_utils.ScpUseCase.NO_MOTLEY_CUE" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">NO_MOTLEY_CUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(1,)</span></em><a class="headerlink" href="#mccli.scp_utils.ScpUseCase.NO_MOTLEY_CUE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpUseCase.SINGLE_REMOTE">
-<span class="sig-name descname"><span class="pre">SINGLE_REMOTE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,)</span></em><a class="headerlink" href="#mccli.scp_utils.ScpUseCase.SINGLE_REMOTE" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">SINGLE_REMOTE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,)</span></em><a class="headerlink" href="#mccli.scp_utils.ScpUseCase.SINGLE_REMOTE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpUseCase.MULTIPLE_REMOTES">
-<span class="sig-name descname"><span class="pre">MULTIPLE_REMOTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#mccli.scp_utils.ScpUseCase.MULTIPLE_REMOTES" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">MULTIPLE_REMOTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#mccli.scp_utils.ScpUseCase.MULTIPLE_REMOTES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ScpCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpCommand" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ScpCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpCommand" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.use_case">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_case</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.use_case" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_case</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.use_case" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.opts">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">opts</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.opts" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">opts</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.opts" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.sources">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sources</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.sources" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sources</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.sources" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.target">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.target" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.target" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.mc_host">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mc_host</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.mc_host" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mc_host</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.mc_host" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.num_prompts">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_prompts</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.num_prompts" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_prompts</span></span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.num_prompts" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.no_mc">
-<span class="sig-name descname"><span class="pre">no_mc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.no_mc" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">no_mc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.no_mc" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.single_mc">
-<span class="sig-name descname"><span class="pre">single_mc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.single_mc" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">single_mc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.single_mc" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mccli.scp_utils.ScpCommand.multiple_mc">
-<span class="sig-name descname"><span class="pre">multiple_mc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.multiple_mc" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">multiple_mc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.ScpCommand.multiple_mc" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mccli.scp_utils.parse_scp_args">
-<span class="sig-name descname"><span class="pre">parse_scp_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.parse_scp_args" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">parse_scp_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mccli.scp_utils.parse_scp_args" title="Link to this definition">¶</a></dt>
 <dd><p>Extract source and target from the arguments
 of an scp command, represented as a list, and return
 an ScpCommand.</p>
