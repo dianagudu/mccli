@@ -226,7 +226,7 @@ def __non_interactive_ssh(command, token):
 
     for line in child.readlines():
         logger.debug(f"Received line from child: {line}")
-        sys.stdout.write(line.decode("utf-8"))
+        sys.stdout.write(line)
     child.close()
 
 
