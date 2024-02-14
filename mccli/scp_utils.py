@@ -262,13 +262,17 @@ def __valid_path(value):
         return ScpOperand(
             remote=True,
             uri=True,
-            user=parse.unquote(parsed_uri.userinfo)
-            if parsed_uri.userinfo and parsed_uri.userinfo != ""
-            else None,
+            user=(
+                parse.unquote(parsed_uri.userinfo)
+                if parsed_uri.userinfo and parsed_uri.userinfo != ""
+                else None
+            ),
             host=parse.unquote(parsed_uri.host),
-            path=parse.unquote(parsed_uri.path)
-            if parsed_uri.path and parsed_uri.path != ""
-            else None,
+            path=(
+                parse.unquote(parsed_uri.path)
+                if parsed_uri.path and parsed_uri.path != ""
+                else None
+            ),
             port=parsed_uri.port,
             original_str=value,
         )

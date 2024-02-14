@@ -10,7 +10,6 @@ from functools import partial
 from click import echo
 from random import randint
 import regex
-from requests import options
 
 from .logging import logger
 from . import exceptions
@@ -211,7 +210,7 @@ def __non_interactive_ssh(command, token):
     """Runs the ssh command in non-interactive mode,
     sending the token as a password when prompted.
     """
-    child = pexpect.spawn(command)
+    child = pexpect.spawn(command, encoding="utf-8")
     child.expect(PASSWORD_REGEX)
     logger.debug("Got token prompt. Sending token as password")
     child.sendline(token)
@@ -237,7 +236,7 @@ def __process_wrap(command, passwords=None):
     behalf of the user, in the given order.
     """
     try:
-        child_process = pexpect.spawn(command)
+        child_process = pexpect.spawn(command, encoding="utf-8")
     except pexpect.ExceptionPexpect as e:
         raise exceptions.FatalMccliException(e)
     try:
