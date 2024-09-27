@@ -54,7 +54,7 @@ def ssh_wrap(
     ssh_command_str = f"ssh -l {username} {ssh_command_str}"
     if dry_run:
         __dry_run(ssh_command_str, tokens=token, str_get_tokens=str_get_token)
-    elif sys.__stdin__.isatty():
+    elif sys.__stdin__ and sys.__stdin__.isatty():
         logger.debug("is a tty")
         __process_wrap(ssh_command_str, passwords=[token])
     else:
@@ -103,7 +103,7 @@ def scp_wrap(
     else:
         raise Exception("Unsupported use case")
 
-    if sys.__stdin__.isatty():
+    if sys.__stdin__ and sys.__stdin__.isatty():
         scp_args = ["-o", "StrictHostKeyChecking=no"] + scp_args
 
     scp_command_str = f"scp {' '.join(scp_args)}"
@@ -135,7 +135,8 @@ def get_hostname(ssh_args):
 
     try:
         logger.debug(f"Running this command to get ssh configuration: {command}")
-        output = pexpect.run(command).decode("utf-8")
+        (output, _) = pexpect.run(command)
+        output = output.decode("utf-8")
         pattern_match = SSH_HOSTNAME_PATTERN.search(output)
         if not pattern_match:
             logger.error(f"Could not find hostname from ssh command {command}")
