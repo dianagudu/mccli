@@ -225,13 +225,17 @@ def init_token(
                 "Could not get expiration date from provided token, it might not be a JWT. Using it anyway..."
             )
             logger.debug(f"Access Token: {token}")
-            return _get_access_token(token=token, mc_endpoint=mc_endpoint)
+            return _get_access_token(
+                token=token, mc_endpoint=mc_endpoint, verify=verify
+            )
         elif timeleft > 0:
             logger.info(
                 f"Token valid for {timeleft} more seconds, using provided token."
             )
             logger.debug(f"Access Token: {token}")
-            return _get_access_token(token=token, mc_endpoint=mc_endpoint)
+            return _get_access_token(
+                token=token, mc_endpoint=mc_endpoint, verify=verify
+            )
         else:
             expired = True
             logger.warning(
@@ -243,7 +247,9 @@ def init_token(
     if oa_account is not None:
         try:
             logger.info(f"Using oidc-agent account: {oa_account}")
-            return _get_access_token(oa_account=oa_account, mc_endpoint=mc_endpoint)
+            return _get_access_token(
+                oa_account=oa_account, mc_endpoint=mc_endpoint, verify=verify
+            )
         except Exception as e:
             logger.debug(f"Failed to get token from oidc-agent account: {e}")
             logger.warning(
