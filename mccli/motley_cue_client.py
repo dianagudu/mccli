@@ -249,11 +249,6 @@ def is_valid_mc_url(mc_endpoint, verify=True):
     """
     try:
         logger.info(f"Looking for motley_cue service at '{mc_endpoint}'...")
-        parse_result = urlparse(mc_endpoint)
-        fqdn_host = socket.getfqdn(parse_result.host)
-        if fqdn_host and fqdn_host != parse_result.host:
-            mc_endpoint = parse_result.copy_with(host=fqdn_host).unsplit()
-            logger.info(f"Using FQDN for host: {mc_endpoint}")
 
         # a timeout is necessary here e.g. when the firewall drops packages
         resp = requests.get(mc_endpoint, verify=verify, timeout=TIMEOUT)
