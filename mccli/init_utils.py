@@ -363,8 +363,12 @@ def init_endpoint(ssh_args, verify=True):
     by executing the ssh command with invalid `-b` option
     and parsing the output for the actual HOSTNAME.
 
-    Then try to use default value for motley_cue endpoint: https://HOSTNAME
-    If this is not reachable, issue warning and try: http://HOSTNAME:8080
+    Then try to use default value for motley_cue endpoint: https://HOSTNAME/motley_cue
+    If this is not reachable, issue warning and try:
+    http://HOSTNAME:8080/motley_cue
+
+    For backward compatibility these checks are also made without the /motley_cue pathk.
+
     If also not reachable, exit and ask user to specify it using --mc-endpoint
     """
     logger.info("Trying to get ssh hostname from arguments.")
@@ -374,24 +378,25 @@ def init_endpoint(ssh_args, verify=True):
         raise Exception(msg)
     logger.info(f"Got host '{ssh_host}', looking for motley_cue service on host.")
 
-    # try https
-    endpoint = f"https://{ssh_host}"
-    valid_endpoint = is_valid_mc_url(endpoint, verify)
-    if valid_endpoint:
-        return valid_endpoint
+    for mc_path in ["/motley_cue", ""]:
+        # try https
+        endpoint = f"https://{ssh_host}{mc_path}"
+        valid_endpoint = is_valid_mc_url(endpoint, verify)
+        if valid_endpoint:
+            return valid_endpoint
 
-    # try https on 8443
-    endpoint = f"https://{ssh_host}:8443"
-    valid_endpoint = is_valid_mc_url(endpoint, verify)
-    if valid_endpoint:
-        return valid_endpoint
+        # try https on 8443
+        endpoint = f"https://{ssh_host}:8443{mc_path}"
+        valid_endpoint = is_valid_mc_url(endpoint, verify)
+        if valid_endpoint:
+            return valid_endpoint
 
-    # try http on 8080 but issue warning
-    endpoint = f"http://{ssh_host}:8080"
-    valid_endpoint = is_valid_mc_url(endpoint)
-    if valid_endpoint:
-        logger.warning(f"using unencrypted motley_cue endpoint: {endpoint}")
-        return valid_endpoint
+        # try http on 8080 but issue warning
+        endpoint = f"http://{ssh_host}:8080{mc_path}"
+        valid_endpoint = is_valid_mc_url(endpoint)
+        if valid_endpoint:
+            logger.warning(f"using unencrypted motley_cue endpoint: {endpoint}")
+            return valid_endpoint
 
     # raise error and ask user to specify endpoint
     msg = (
