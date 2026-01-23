@@ -14,7 +14,6 @@ import regex
 from .logging import logger
 from . import exceptions
 
-
 PASSWORD_REGEX = r"(?:[^\n]*)(?:Access Token:)$"
 SSH_HOSTNAME_PATTERN = re.compile(
     r"^hostname\s+(?P<hostname>\S+)\s+$", flags=re.MULTILINE
@@ -135,7 +134,7 @@ def get_hostname(ssh_args):
 
     try:
         logger.debug(f"Running this command to get ssh configuration: {command}")
-        (output, _) = pexpect.run(command, withexitstatus=True)
+        output, _ = pexpect.run(command, withexitstatus=True)
         output = output.decode("utf-8")
         pattern_match = SSH_HOSTNAME_PATTERN.search(output)
         if not pattern_match:

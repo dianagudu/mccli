@@ -1,7 +1,6 @@
 import logging
 import click_logging
 
-
 logger = logging.getLogger(__name__)
 logger_outdated = logging.getLogger(f"outdated.{__name__}")
 echo_kwargs = {

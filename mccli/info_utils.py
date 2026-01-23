@@ -4,7 +4,6 @@ import json
 
 from .motley_cue_client import get_info, get_authorisation_info, get_local_status
 
-
 flaat = BaseFlaat()
 
 flaat.set_verbosity(0)
