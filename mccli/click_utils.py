@@ -11,7 +11,6 @@ from .logging import logger, logger_outdated
 from .init_utils import warn_if_outdated
 from . import __version__ as mccli_version, __name__ as mccli_name
 
-
 FC = t.TypeVar("FC", t.Callable[..., t.Any], click.Command)
 
 
