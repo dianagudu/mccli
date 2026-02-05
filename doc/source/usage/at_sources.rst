@@ -7,11 +7,11 @@ You'll need an OIDC Access Token to authenticate to the SSH server.
 
 You might want to check out the `oidc-agent <https://github.com/indigo-dc/oidc-agent>`_ for that. It is a daemon that can provide valid access tokens from any number of configured OIDC Providers (OPs).
 
-Once you get the ``oidc-agent`` running, configure an account for your preferred OP. For example, you can generate an account configuration for the `EGI AAI <https://aai.egi.eu/oidc>`_  named ``egi`` as follows: 
+Once you get the ``oidc-agent`` running, configure an account for your preferred OP. For example, you can generate an account configuration for the `EGI AAI <https://aai.egi.eu/auth/realms/egi>`_  named ``egi`` as follows: 
 
 .. code-block:: bash
 
-  oidc-gen --pub --iss https://aai.egi.eu/oidc --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" egi
+  oidc-gen --pub --iss https://aai.egi.eu/auth/realms/egi --scope "openid profile email offline_access eduperson_entitlement eduperson_scoped_affiliation eduperson_unique_id" egi
 
 To use your EGI identity for SSH login, you can set the oidc-agent account in an environment variable:
 
